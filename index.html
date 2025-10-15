@@ -285,7 +285,7 @@
                     <div class="flex items-center gap-4 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             <label for="width-input" class="font-medium">본문 가로 (px):</label>
-                            <input id="width-input" type="number" min="320" max="1200" value="800" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
+                            <input id="width-input" type="number" min="320" max="1200" value="860" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="padding-input" class="font-medium">상단 여백 (px):</label>
@@ -310,7 +310,7 @@
                 <div class="canvas-content-wrapper mx-auto">
                     <div class="canvas-flex flex gap-0">
                         <!-- 본문 영역 -->
-                        <div id="canvas" class="canvas-wrapper" style="width: 800px; min-height: 500px; padding: 50px 16px 40px;">
+                        <div id="canvas" class="canvas-wrapper" style="width: 860px; min-height: 500px; padding: 50px 16px 40px;">
                             <div class="text-center text-gray-400 py-20">
                                 <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -321,7 +321,7 @@
                         </div>
                         
                         <!-- 세로 구분선 -->
-                        <div id="vertical-divider" class="flex items-center justify-center" style="width: 60px; flex-shrink: 0;">
+                        <div id="vertical-divider" class="flex items-center justify-center" style="width: 80px; flex-shrink: 0;">
                             <div style="width: 1px; background: #e5e7eb; height: 100%;"></div>
                         </div>
                         
@@ -331,7 +331,7 @@
                         </div>
                         
                         <!-- 리스트 영역 -->
-                        <div id="sidebar-canvas" class="canvas-wrapper" style="width: 340px; min-height: 800px; padding: 50px 16px 40px;">
+                        <div id="sidebar-canvas" class="canvas-wrapper" style="width: 260px; min-height: 800px; padding: 50px 16px 40px;">
                             <div class="text-center text-gray-400 py-20">
                                 <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
@@ -364,9 +364,9 @@
         <button onclick="editor.formatText('italic')" title="기울임"><em>I</em></button>
         <button onclick="editor.formatText('underline')" title="밑줄"><u>U</u></button>
         <span class="w-px bg-gray-600 mx-1"></span>
-        <button onclick="editor.applyHeading('h2', '28px')" title="메인 제목">H1</button>
-        <button onclick="editor.applyHeading('h3', '22px')" title="서브 제목">H2</button>
-        <button onclick="editor.applyHeading('h4', '18px')" title="소제목">H3</button>
+        <button onclick="editor.applyHeading('h1', '28px')" title="메인 제목">H1</button>
+        <button onclick="editor.applyHeading('h2', '22px')" title="서브 제목">H2</button>
+        <button onclick="editor.applyHeading('h3', '18px')" title="소제목">H3</button>
         <button onclick="editor.applyHeading('p', '16px')" title="본문">본문</button>
         <button onclick="editor.applyHeading('p', '14px')" title="캡션">캡션</button>
         <span class="w-px bg-gray-600 mx-1"></span>
@@ -1487,8 +1487,8 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-                        <p class="text-sm opacity-80" style="margin: 0 0 2px 0;">${block.subText || '서브 텍스트'}</p>
-                        <h3 class="text-xl font-bold" style="margin: 0;">${block.mainText || '메인 텍스트'}</h3>
+                        <p class="text-sm opacity-80" style="margin: 0 0 4px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
+                        <p class="font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</p>
                     </div>`;
                 break;
                 
@@ -1850,20 +1850,28 @@ sidebarCanvas.addEventListener('drop', (e) => {
     // HTML 내보내기
     const generateExportedHTML = () => {
         const normalizeRichText = (html) => {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            tmp.querySelectorAll('font[color]').forEach(el => {
-                const color = el.getAttribute('color');
-                const span = document.createElement('span');
-                if (color) span.style.color = color;
-                span.innerHTML = el.innerHTML;
-                el.parentNode.replaceChild(span, el);
-            });
-            tmp.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = '700'; });
-            tmp.querySelectorAll('i, em').forEach(el => { el.style.fontStyle = 'italic'; });
-            tmp.querySelectorAll('u').forEach(el => { el.style.textDecoration = 'underline'; });
-            return tmp.innerHTML;
-        };
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+
+        // ✅ 빈 텍스트 태그만 제거 (spacer의 div는 안전)
+        tmp.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span').forEach(el => {
+            if (!el.textContent.trim() && !el.querySelector('img, br')) {
+                el.remove();
+            }
+        });
+
+        tmp.querySelectorAll('font[color]').forEach(el => {
+            const color = el.getAttribute('color');
+            const span = document.createElement('span');
+            if (color) span.style.color = color;
+            span.innerHTML = el.innerHTML;
+            el.parentNode.replaceChild(span, el);
+        });
+        tmp.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = '700'; });
+        tmp.querySelectorAll('i, em').forEach(el => { el.style.fontStyle = 'italic'; });
+        tmp.querySelectorAll('u').forEach(el => { el.style.textDecoration = 'underline'; });
+        return tmp.innerHTML;
+    };
         
         const canvasWidth = widthInput.value;
         const paddingTop = paddingInput.value;
@@ -1880,7 +1888,7 @@ let html = `
     display: flex; 
     gap: 0; 
     align-items: flex-start; 
-    padding: 0 16px;
+    padding: 0; 16px;
     min-height: 100vh;
     justify-content: center;
   }
@@ -1898,9 +1906,9 @@ let html = `
   .plg-export *, .plg-export *::before, .plg-export *::after { box-sizing: border-box; }
   .plg-export a { text-decoration: none; }
   .plg-export img { max-width: 100%; height: auto; display: block; }
-  .plg-export h2 { font-size: 28px; margin: 0 0 0.4em; line-height: 1.3; font-weight: 600; }
-  .plg-export h3 { font-size: 22px; margin: 0.9em 0 0.4em; line-height: 1.35; font-weight: 600; }
-  .plg-export h4 { font-size: 18px; margin: 0.8em 0 0.4em; line-height: 1.4; font-weight: 600; }
+  .plg-export h1 { font-size: 28px; margin: 0 0 0.4em; line-height: 1.3; font-weight: 600; }
+  .plg-export h2 { font-size: 22px; margin: 0.9em 0 0.4em; line-height: 1.35; font-weight: 600; }
+  .plg-export h3 { font-size: 18px; margin: 0.8em 0 0.4em; line-height: 1.4; font-weight: 600; }
   .plg-export p { margin: 0.5em 0; line-height: 2.0; font-size: 16px; }
   .plg-export b, .plg-export strong { font-weight: 700 !important; }
   .plg-export i, .plg-export em { font-style: italic !important; }
@@ -1922,22 +1930,22 @@ let html = `
   }
   .plg-btn:hover { opacity: 0.9; }
   .plg-bnr { 
-    padding: 18px 24px;  /* ✅ 24px → 18px 24px */
+    padding: 24px 24px;
     border-radius: 12px; 
     margin: 24px 0; 
     cursor: pointer; 
   }
   .plg-bnr-sub { 
-      font-size: 0.95em; 
-      opacity: 0.8; 
-      margin: 0 0 2px 0 !important;  /* ✅ 4px → 2px, !important 추가 */
-      line-height: 1.4;  /* ✅ 줄간격 명시 */
+    font-size: 14px !important;  /* ✅ 0.95em → 14px */
+    opacity: 0.8; 
+    margin: 0 0 4px 0 !important;
+    line-height: 1.4 !important;
   }
   .plg-bnr-main { 
-      font-size: 1.15em; 
-      font-weight: 700; 
-      margin: 0 !important;  /* ✅ !important 추가 */
-      line-height: 1.3;  /* ✅ 줄간격 명시 */
+    font-size: 18px !important;  /* ✅ 1.15em → 18px */
+    font-weight: 700; 
+    margin: 0 !important;
+    line-height: 1.3 !important;
   }
   .plg-label { 
     display: inline-block; 
@@ -2027,7 +2035,7 @@ let html = `
   .plg-divider-vertical > div { width: 1px; background: #e5e7eb; height: 100%; }
   .plg-divider-horizontal { display: none; }
   .plg-sidebar { 
-    width: 250px;  
+    width: 260px;  
     padding: ${paddingTop}px 0px 40px; 
     box-sizing: border-box; 
     position: sticky; 
@@ -2063,7 +2071,7 @@ let html = `
   }
   
   @media (max-width: 1024px) {
-  .plg-wrapper { flex-direction: column; max-width: ${canvasWidth}px; padding: 0; }
+  .plg-wrapper { flex-direction: column; max-width: 100%; padding: 0; }
   .plg-divider-vertical { display: none; }
   .plg-divider-horizontal { 
     display: flex; 
@@ -2083,7 +2091,8 @@ let html = `
     padding: 0 24px 40px; 
   }
   .plg-export { 
-    max-width: 100%; 
+    max-width: 100%;
+    width: 100%;
     padding: ${paddingTop}px 24px 40px; 
   }
   .plg-image-split {
@@ -2171,10 +2180,10 @@ let html = `
                         `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
                     html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
                     break;
-                case 'banner':
+                 case 'banner':
                     const bAlign = block.textAlign || 'left';
                     const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
-                    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <h3 class="plg-bnr-main">${block.mainText}</h3>`;
+                    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-main">${block.mainText}</p>`;
                     if (block.landingUrl) {
                         html += `\n    <a href="${block.landingUrl}" target="_blank" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
                     } else {
