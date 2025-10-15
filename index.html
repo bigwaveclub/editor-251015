@@ -1648,47 +1648,139 @@
         });
     });
 
-    // 캔버스 드롭 이벤트
-    canvas.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-    });
+// 캔버스 드롭 이벤트
+canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
     
-    canvas.addEventListener('drop', (e) => {
-        e.preventDefault();
-        try {
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            if (data && (data.area === 'main' || data.area === 'both')) {
-                const newBlock = createNewBlock(data.type, 'main');
-                blocks.push(newBlock);
-                editor.saveState();
-                renderCanvas();
-            }
-        } catch (err) {
-            console.error('Drop error:', err);
+    // ✅ 드래그 오버 시 삽입 위치 표시
+    const blockContainers = canvas.querySelectorAll('.block-container');
+    blockContainers.forEach(container => {
+        const rect = container.getBoundingClientRect();
+        const isAfter = (e.clientY - rect.top) / rect.height > 0.5;
+        container.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+        if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            container.classList.add(isAfter ? 'border-b-2' : 'border-t-2', 'border-indigo-500');
         }
     });
+});
 
-    // 사이드바 드롭 이벤트
-    sidebarCanvas.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
+// ✅ 캔버스 밖으로 나가면 표시 제거
+canvas.addEventListener('dragleave', (e) => {
+    if (e.target === canvas) {
+        canvas.querySelectorAll('.block-container').forEach(el => {
+            el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+        });
+    }
+});
+
+canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    
+    // ✅ 삽입 위치 표시 제거
+    canvas.querySelectorAll('.block-container').forEach(el => {
+        el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
     });
     
-    sidebarCanvas.addEventListener('drop', (e) => {
-        e.preventDefault();
-        try {
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            if (data && (data.area === 'sidebar' || data.area === 'both')) {
-                const newBlock = createNewBlock(data.type, 'sidebar');
-                sidebarBlocks.push(newBlock);
-                editor.saveState();
-                renderSidebar();
+    try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (data && (data.area === 'main' || data.area === 'both')) {
+            const newBlock = createNewBlock(data.type, 'main');
+            
+            // ✅ 드롭 위치 계산
+            let insertIndex = blocks.length; // 기본값: 맨 끝
+            
+            const blockContainers = canvas.querySelectorAll('.block-container');
+            for (let i = 0; i < blockContainers.length; i++) {
+                const container = blockContainers[i];
+                const rect = container.getBoundingClientRect();
+                
+                if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    const isAfter = (e.clientY - rect.top) / rect.height > 0.5;
+                    insertIndex = isAfter ? i + 1 : i;
+                    break;
+                } else if (e.clientY < rect.top) {
+                    insertIndex = i;
+                    break;
+                }
             }
-        } catch (err) {
-            console.error('Drop error:', err);
+            
+            // ✅ 계산된 위치에 블록 삽입
+            blocks.splice(insertIndex, 0, newBlock);
+            editor.saveState();
+            renderCanvas();
+        }
+    } catch (err) {
+        console.error('Drop error:', err);
+    }
+});
+
+// 사이드바 드롭 이벤트
+sidebarCanvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    
+    // ✅ 드래그 오버 시 삽입 위치 표시
+    const blockContainers = sidebarCanvas.querySelectorAll('.block-container');
+    blockContainers.forEach(container => {
+        const rect = container.getBoundingClientRect();
+        const isAfter = (e.clientY - rect.top) / rect.height > 0.5;
+        container.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+        if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            container.classList.add(isAfter ? 'border-b-2' : 'border-t-2', 'border-indigo-500');
         }
     });
+});
+
+// ✅ 사이드바 밖으로 나가면 표시 제거
+sidebarCanvas.addEventListener('dragleave', (e) => {
+    if (e.target === sidebarCanvas) {
+        sidebarCanvas.querySelectorAll('.block-container').forEach(el => {
+            el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+        });
+    }
+});
+
+sidebarCanvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    
+    // ✅ 삽입 위치 표시 제거
+    sidebarCanvas.querySelectorAll('.block-container').forEach(el => {
+        el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+    });
+    
+    try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (data && (data.area === 'sidebar' || data.area === 'both')) {
+            const newBlock = createNewBlock(data.type, 'sidebar');
+            
+            // ✅ 드롭 위치 계산
+            let insertIndex = sidebarBlocks.length; // 기본값: 맨 끝
+            
+            const blockContainers = sidebarCanvas.querySelectorAll('.block-container');
+            for (let i = 0; i < blockContainers.length; i++) {
+                const container = blockContainers[i];
+                const rect = container.getBoundingClientRect();
+                
+                if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    const isAfter = (e.clientY - rect.top) / rect.height > 0.5;
+                    insertIndex = isAfter ? i + 1 : i;
+                    break;
+                } else if (e.clientY < rect.top) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+            
+            // ✅ 계산된 위치에 블록 삽입
+            sidebarBlocks.splice(insertIndex, 0, newBlock);
+            editor.saveState();
+            renderSidebar();
+        }
+    } catch (err) {
+        console.error('Drop error:', err);
+    }
+});
 
     // 새 블록 생성
     const createNewBlock = (type, area) => {
@@ -2520,4 +2612,5 @@ function toggleContent(id) {
     
     </script>
 </body>
+
 </html>
