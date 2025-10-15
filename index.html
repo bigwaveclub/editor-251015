@@ -1,0 +1,2523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PUBLOG Editor v2</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { 
+            --primary: #222450; 
+            --text-primary: #171717;
+            --text-secondary: #737373;
+            --border: #e5e5e5;
+            --bg-hover: #f5f5f5;
+        }
+        * { font-family: 'Pretendard', -apple-system, sans-serif; }
+        body { background: #fafafa; color: var(--text-primary); }
+        
+        /* 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+        
+        /* 토글 스위치 */
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d4d4d4; transition: .3s; border-radius: 24px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: var(--primary); }
+        input:checked + .toggle-slider:before { transform: translateX(20px); }
+        
+        /* 드래그 핸들 */
+        .drag-handle { opacity: 0; transition: opacity .2s; cursor: grab; }
+        .block-container:hover .drag-handle { opacity: 1; }
+        
+        /* 블록 컨테이너 */
+        .block-container { position: relative; margin-bottom: 0; padding: 0; border-radius: 6px; transition: all .2s; }
+        .block-container:hover { background: transparent; padding: 8px; }
+        .block-container:hover { background: #fafafa; }
+        .block-container.selected { outline: 2px solid var(--primary); outline-offset: 2px; background: #f5f5ff; }
+        
+        /* 프로퍼티 패널 */
+        .property-section { padding: 20px 0; }
+        
+        /* 인풋 */
+        .input-field { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; transition: border .2s; }
+        .input-field:focus { outline: none; border-color: var(--primary); }
+        
+        /* 버튼 */
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; transition: all .2s; cursor: pointer; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4f46e5; }
+        .btn-secondary { background: var(--bg-hover); color: var(--text-primary); }
+        .btn-secondary:hover { background: #e5e5e5; }
+        
+        /* 블록 아이템 */
+        .block-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; cursor: grab; transition: background .2s; margin-bottom: 4px; }
+        .block-item:hover { background: var(--bg-hover); }
+        .block-item-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .block-item-icon svg { width: 18px; height: 18px; }
+        
+        /* 탭 */
+        .tab-button { padding: 8px 16px; border: none; background: transparent; color: var(--text-secondary); font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+        .tab-button.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        /* 캔버스 영역 - 윤고딕 폰트 적용 */
+        #canvas, #sidebar-canvas { 
+            font-family: 'YoonGothicPro740', 'YoonGothicPro760', 'YoonGothicPro780', 'Montserrat', sans-serif !important;
+        }
+        
+        /* 편집 영역 텍스트 블록 */
+        .text-block, .exported-font { 
+            font-family: 'YoonGothicPro740', 'YoonGothicPro760', 'YoonGothicPro780', 'Montserrat', sans-serif !important; 
+            line-height: 1.6; 
+        }
+        
+        /* 미리보기 모드 */
+        .canvas-wrapper { background: transparent; border-radius: 0; box-shadow: none; transition: all .3s; }
+
+        /* 이미지 2분할 반응형 */
+        @media (max-width: 768px) {
+            .image-split-container {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+        }
+        
+        /* 텍스트 툴바 */
+        #text-toolbar { position: fixed; z-index: 1000; background: #262626; border-radius: 8px; padding: 4px; display: flex; gap: 2px; box-shadow: 0 4px 12px rgba(0,0,0,.15); opacity: 0; pointer-events: none; transition: opacity .2s; }
+        #text-toolbar.show { opacity: 1; pointer-events: auto; }
+        #text-toolbar button { padding: 6px 10px; background: transparent; border: none; color: white; border-radius: 4px; cursor: pointer; transition: background .2s; font-size: 14px; }
+        #text-toolbar button:hover { background: #404040; }
+        
+        /* 컬러 선택 */
+        .color-swatch { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: border .2s; }
+        .color-swatch:hover { border-color: var(--primary); }
+        
+        /* 데스크탑/모바일 뷰 전환 */
+        #canvas-wrapper.preview-mode-desktop .canvas-content-wrapper { width: fit-content; }
+        #canvas-wrapper.preview-mode-mobile .canvas-content-wrapper { width: fit-content; }
+        #canvas-wrapper.preview-mode-mobile #canvas { width: 375px !important; }
+        #canvas-wrapper.preview-mode-mobile .canvas-flex { flex-direction: column !important; }
+        #canvas-wrapper.preview-mode-mobile #vertical-divider { display: none !important; }
+        #canvas-wrapper.preview-mode-mobile #sidebar-canvas { width: 375px !important; padding-top: 0 !important; }
+        #canvas-wrapper.preview-mode-mobile .mobile-divider { display: flex !important; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+    <!-- 헤더 -->
+<header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+        <h1 class="text-lg font-bold text-gray-900">PUBLOG HTML EDITOR</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <!-- 💾 JSON 저장 버튼 -->
+        <button onclick="downloadJSON()" class="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition" title="JSON 파일로 저장">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+            </svg>
+        </button>
+        
+        <!-- 📂 JSON 불러오기 버튼 -->
+        <button onclick="uploadJSON()" class="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition" title="JSON 파일 불러오기">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+        </button>
+        
+        <!-- 🗑️ 저장 데이터 삭제 버튼 -->
+        <button onclick="clearLocalStorage()" class="p-2 text-red-600 hover:text-red-900 rounded-lg transition" title="자동 저장 데이터 삭제">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </button>
+        
+        <div class="w-px h-6 bg-gray-300"></div>
+        
+        <!-- 기존 도움말 버튼 -->
+        <button onclick="openHelpModal()" class="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition" title="도움말">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+  <!-- 메인 컨테이너 -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 왼쪽: 블록 도구 -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <!-- Undo/Redo -->
+            <div class="px-4 pt-4 pb-3 border-b border-gray-200 flex gap-2">
+                <button id="undo-btn" class="flex-1 p-2 rounded-md hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed" title="실행 취소 (Ctrl+Z)">
+                    <svg class="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                    </svg>
+                </button>
+                <button id="redo-btn" class="flex-1 p-2 rounded-md hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed" title="실행 복구 (Ctrl+Y)">
+                    <svg class="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- 블록 리스트 -->
+            <div id="block-tools" class="flex-1 overflow-y-auto p-4">
+
+                <!-- 공통 블록 -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">공통 블록</h3>
+                    <div draggable="true" data-type="text" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">텍스트</span>
+                    </div>
+                    <div draggable="true" data-type="image" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">이미지</span>
+                    </div>
+                    <div draggable="true" data-type="divider" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">구분선</span>
+                    </div>
+                    <div draggable="true" data-type="spacer" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">공백</span>
+                    </div>
+                </div>
+                
+                <!-- 본문 전용 -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">본문 전용</h3>
+                    <div draggable="true" data-type="button" data-area="main" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">버튼</span>
+                    </div>
+                <div draggable="true" data-type="toggle" data-area="main" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">토글</span>
+                    </div>                  
+                    <div draggable="true" data-type="banner" data-area="main" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">배너</span>
+                    </div>
+                    <div draggable="true" data-type="label" data-area="main" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">라벨</span>
+                    </div>
+                    <div draggable="true" data-type="callout" data-area="main" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">콜아웃</span>
+                    </div>
+                </div>
+                
+                <!-- 리스트 전용 -->
+                <div>
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">리스트 전용</h3>
+                    <div draggable="true" data-type="listitem" data-area="sidebar" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">리스트 아이템</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+ <!-- 중앙: 편집 영역 -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+            <!-- 미리보기 컨트롤 -->
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <div class="flex bg-gray-100 rounded-lg p-1">
+                        <button id="desktop-view" class="px-4 py-1.5 rounded-md bg-white text-sm font-medium shadow-sm flex items-center gap-1" onclick="switchView('desktop')">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            데스크탑
+                        </button>
+                        <button id="mobile-view" class="px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 flex items-center gap-1" onclick="switchView('mobile')">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            모바일
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <div class="flex items-center gap-2">
+                            <label for="width-input" class="font-medium">본문 가로 (px):</label>
+                            <input id="width-input" type="number" min="320" max="1200" value="700" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="padding-input" class="font-medium">상단 여백 (px):</label>
+                            <input id="padding-input" type="number" min="0" max="100" value="50" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
+                        </div>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="hide-search-results" class="w-4 h-4 rounded border-gray-300" checked />
+                            <span class="font-medium">상품 영역 숨기기</span>
+                        </label>
+                    </div>
+                </div>
+                <button onclick="copyHTML()" class="btn btn-primary text-sm flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    HTML 복사
+                </button>
+            </div>
+            
+            <!-- 캔버스 -->
+            <div id="canvas-wrapper" class="flex-1 overflow-auto p-8 preview-mode-desktop" style="background: #ffffff;">
+                <div class="canvas-content-wrapper mx-auto">
+                    <div class="canvas-flex flex gap-0">
+                        <!-- 본문 영역 -->
+                        <div id="canvas" class="canvas-wrapper" style="width: 700px; min-height: 500px; padding: 50px 16px 40px;">
+                            <div class="text-center text-gray-400 py-20">
+                                <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                                <h3 class="text-lg font-semibold mb-2" style="font-family: 'Pretendard', sans-serif;">블록을 드래그하세요</h3>
+                                <p class="text-sm" style="font-family: 'Pretendard', sans-serif;">콘텐츠 본문 영역입니다</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 세로 구분선 -->
+                        <div id="vertical-divider" class="flex items-center justify-center" style="width: 60px; flex-shrink: 0;">
+                            <div style="width: 1px; background: #e5e7eb; height: 100%;"></div>
+                        </div>
+                        
+                        <!-- 모바일용 가로 구분선 -->
+                        <div class="mobile-divider" style="display: none; width: 100%; padding: 32px 15px; align-items: center; justify-content: center;">
+                            <div style="width: 100%; height: 1px; background: #e5e7eb;"></div>
+                        </div>
+                        
+                        <!-- 리스트 영역 -->
+                        <div id="sidebar-canvas" class="canvas-wrapper" style="width: 240px; min-height: 800px; padding: 50px 16px 40px;">
+                            <div class="text-center text-gray-400 py-20">
+                                <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                                </svg>
+                                <h4 class="text-sm font-semibold mb-1" style="font-family: 'Pretendard', sans-serif;">리스트 영역</h4>
+                                <p class="text-xs" style="font-family: 'Pretendard', sans-serif;">리스트 블록을 드래그하세요</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+      <!-- 오른쪽: 속성 패널 -->
+        <aside id="properties-panel" class="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+            <div id="properties-content" class="p-6">
+                <!-- 선택된 블록이 없을 때 -->
+                <div id="no-selection" class="text-center py-20 text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                    </svg>
+                    <p class="text-sm">블록을 선택하여 편집하세요</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- 텍스트 툴바 -->
+    <div id="text-toolbar">
+        <button onclick="editor.formatText('bold')" title="볼드"><strong>B</strong></button>
+        <button onclick="editor.formatText('italic')" title="기울임"><em>I</em></button>
+        <button onclick="editor.formatText('underline')" title="밑줄"><u>U</u></button>
+        <span class="w-px bg-gray-600 mx-1"></span>
+        <button onclick="editor.applyHeading('h2', '28px')" title="메인 제목">H1</button>
+        <button onclick="editor.applyHeading('h3', '22px')" title="서브 제목">H2</button>
+        <button onclick="editor.applyHeading('h4', '18px')" title="소제목">H3</button>
+        <button onclick="editor.applyHeading('p', '16px')" title="본문">본문</button>
+        <button onclick="editor.applyHeading('p', '14px')" title="캡션">캡션</button>
+        <span class="w-px bg-gray-600 mx-1"></span>
+        <button onclick="editor.formatText('justifyLeft')" title="왼쪽 정렬">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zM2 10a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zM2 15a1 1 0 011-1h10a1 1 0 110 2H3a1 1 0 01-1-1z"/></svg>
+        </button>
+        <button onclick="editor.formatText('justifyCenter')" title="가운데 정렬">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 10a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 15a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
+        </button>
+        <button onclick="editor.formatText('justifyRight')" title="오른쪽 정렬">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 5a1 1 0 011-1h14a1 1 0 110 2H5a1 1 0 01-1-1zM4 10a1 1 0 011-1h14a1 1 0 110 2H5a1 1 0 01-1-1zM4 15a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
+        </button>
+        <span class="w-px bg-gray-600 mx-1"></span>
+        <button onclick="editor.showColorPicker()" title="글자 색">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- 컬러 피커 모달 -->
+    <div id="color-picker-modal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 transform transition-all opacity-0 scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">글자 색상 선택</h3>
+                <button onclick="closeColorPicker()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">색상 팔레트</label>
+                    <div class="grid grid-cols-6 gap-2">
+                        <div class="color-swatch" style="background: #000000;" onclick="selectColor('#000000')"></div>
+                        <div class="color-swatch" style="background: #ffffff; border: 1px solid #e5e5e5;" onclick="selectColor('#ffffff')"></div>
+                        <div class="color-swatch" style="background: #ef4444;" onclick="selectColor('#ef4444')"></div>
+                        <div class="color-swatch" style="background: #f97316;" onclick="selectColor('#f97316')"></div>
+                        <div class="color-swatch" style="background: #f59e0b;" onclick="selectColor('#f59e0b')"></div>
+                        <div class="color-swatch" style="background: #10b981;" onclick="selectColor('#10b981')"></div>
+                        <div class="color-swatch" style="background: #3b82f6;" onclick="selectColor('#3b82f6')"></div>
+                        <div class="color-swatch" style="background: #8b5cf6;" onclick="selectColor('#8b5cf6')"></div>
+                        <div class="color-swatch" style="background: #ec4899;" onclick="selectColor('#ec4899')"></div>
+                        <div class="color-swatch" style="background: #78716c;" onclick="selectColor('#78716c')"></div>
+                        <div class="color-swatch" style="background: #6366f1;" onclick="selectColor('#6366f1')"></div>
+                        <div class="color-swatch" style="background: #14b8a6;" onclick="selectColor('#14b8a6')"></div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">직접 입력</label>
+                    <div class="flex gap-2">
+                        <input type="color" id="color-picker-input" class="w-12 h-10 border border-gray-300 rounded-md cursor-pointer" value="#000000" oninput="document.getElementById('color-hex-input').value = this.value.toUpperCase()" />
+                        <input type="text" id="color-hex-input" class="flex-1 input-field uppercase" value="#000000" oninput="document.getElementById('color-picker-input').value = this.value" />
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button class="btn btn-secondary" onclick="closeColorPicker()">취소</button>
+                <button class="btn btn-primary" onclick="applyColor()">적용</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 도움말 모달 -->
+    <div id="help-modal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 transform transition-all opacity-0 scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">에디터 사용 방법</h2>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h3 class="font-semibold mb-2">1. 블록 추가하기</h3>
+                    <p>왼쪽에서 원하는 블록을 드래그하여 본문 또는 리스트 영역에 놓으세요.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">2. 텍스트 편집하기</h3>
+                    <p>텍스트를 선택하면 서식 툴바가 나타납니다. 볼드, 기울임, 제목 스타일 등을 적용할 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">3. 블록 수정하기</h3>
+                    <p>블록을 클릭하면 오른쪽 패널에서 세부 속성을 수정할 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">4. 블록 순서 변경</h3>
+                    <p>블록 왼쪽의 드래그 핸들을 잡고 위아래로 이동하여 순서를 바꿀 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">5. 데스크탑/모바일 미리보기</h3>
+                    <p>상단의 데스크탑/모바일 버튼을 클릭하여 화면 크기별 미리보기를 확인할 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">6. HTML 내보내기</h3>
+                    <p>완성 후 'HTML 복사' 버튼을 클릭하면 코드가 복사됩니다. 사이트에 바로 붙여넣으세요.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 토스트 -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50"></div>
+
+    <script>
+    // UUID 생성
+    const generateUUID = () => {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
+    // 전역 변수
+    let blocks = [];
+    let sidebarBlocks = [];
+    let history = [];
+    let historyIndex = -1;
+    let selectedBlock = null;
+    let currentView = 'desktop';
+    const MAX_HISTORY = 20;
+
+    // DOM 요소
+    const canvas = document.getElementById('canvas');
+    const sidebarCanvas = document.getElementById('sidebar-canvas');
+    const verticalDivider = document.getElementById('vertical-divider');
+    const propertiesPanel = document.getElementById('properties-panel');
+    const propertiesContent = document.getElementById('properties-content');
+    const textToolbar = document.getElementById('text-toolbar');
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    const widthInput = document.getElementById('width-input');
+    const paddingInput = document.getElementById('padding-input');
+
+    // 에디터 객체
+    const editor = {
+        currentSelection: null,
+        currentTextNode: null,
+        savedRange: null,
+        savedTextNode: null,
+        
+        saveState: () => {
+            history = history.slice(0, historyIndex + 1);
+            const state = JSON.stringify({ blocks, sidebarBlocks });
+            history.push(state);
+            if (history.length > MAX_HISTORY) history.shift();
+            historyIndex = history.length - 1;
+            editor.updateHistoryButtons();
+        },
+        
+        updateHistoryButtons: () => {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        },
+        
+        formatText: (command, value = null) => {
+            document.execCommand(command, false, value);
+            setTimeout(editor.positionToolbar, 50);
+            setTimeout(() => {
+                if (editor.currentTextNode) {
+                    const container = editor.currentTextNode.closest('.block-container');
+                    const blockId = container.getAttribute('data-id');
+                    const isMain = canvas.contains(container);
+                    const blockArray = isMain ? blocks : sidebarBlocks;
+                    const block = blockArray.find(b => b.id === blockId);
+                    if (block) {
+                        block.content = editor.currentTextNode.innerHTML;
+                        editor.saveState();
+                    }
+                }
+            }, 100);
+        },
+        
+        positionToolbar: () => {
+            const selection = window.getSelection();
+            editor.currentSelection = selection;
+            if (!selection.rangeCount) {
+                textToolbar.classList.remove('show');
+                editor.currentTextNode = null;
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            const containerEl = range.startContainer.nodeType === 3 ? range.startContainer.parentNode : range.startContainer;
+            const textBlockEl = containerEl.closest('.text-block');
+            if (!range.collapsed && textBlockEl) {
+                const rect = range.getBoundingClientRect();
+                const top = rect.top - textToolbar.offsetHeight - 10;
+                const left = rect.left + rect.width / 2 - textToolbar.offsetWidth / 2;
+                textToolbar.style.top = `${top}px`;
+                textToolbar.style.left = `${left}px`;
+                textToolbar.classList.add('show');
+                editor.currentTextNode = textBlockEl;
+            } else {
+                textToolbar.classList.remove('show');
+                editor.currentTextNode = null;
+            }
+        },
+        
+        applyHeading: (tag, fontSize) => {
+            if (!editor.currentSelection || editor.currentSelection.isCollapsed) return;
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const textNode = editor.currentTextNode;
+            if (!textNode) return;
+            
+            const selectedText = range.toString();
+            const wrapper = document.createElement(tag);
+            wrapper.style.fontSize = fontSize;
+            wrapper.textContent = selectedText;
+            
+            range.deleteContents();
+            range.insertNode(wrapper);
+            
+            const container = textNode.closest('.block-container');
+            const blockId = container.getAttribute('data-id');
+            const isMain = canvas.contains(container);
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                block.content = textNode.innerHTML;
+                editor.saveState();
+            }
+            
+            selection.removeAllRanges();
+            textToolbar.classList.remove('show');
+        },
+        
+        showColorPicker: () => {
+            if (!editor.currentSelection || editor.currentSelection.isCollapsed) return;
+            
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0).cloneRange();
+            const textNode = editor.currentTextNode;
+            editor.savedRange = range;
+            editor.savedTextNode = textNode;
+            
+            const modal = document.getElementById('color-picker-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('flex');
+                modal.querySelector('div').classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        }
+    };
+      // ============================================
+    // 💾 저장 기능 추가
+    // ============================================
+
+    // LocalStorage 자동 저장
+    const originalSaveState = editor.saveState;
+    editor.saveState = () => {
+        originalSaveState();
+
+        try {
+            const data = {
+                blocks,
+                sidebarBlocks,
+                settings: {
+                    width: widthInput.value,
+                    padding: paddingInput.value,
+                    hideSearchResults: document.getElementById('hide-search-results').checked
+                },
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('publog_editor_data', JSON.stringify(data));
+            console.log('✅ 자동 저장:', new Date().toLocaleTimeString());
+        } catch (err) {
+            // localStorage 사용 불가 환경 - SecurityError는 무시
+            if (err.name !== 'SecurityError') {
+                console.error('❌ 저장 실패:', err);
+            }
+        }
+    };
+
+    // LocalStorage에서 불러오기
+    function loadFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem('publog_editor_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                blocks = data.blocks || [];
+                sidebarBlocks = data.sidebarBlocks || [];
+
+                if (data.settings) {
+                    widthInput.value = data.settings.width || 700;
+                    paddingInput.value = data.settings.padding || 50;
+                    document.getElementById('hide-search-results').checked = 
+                        data.settings.hideSearchResults ?? true;
+
+                    canvas.style.width = `${widthInput.value}px`;
+                    canvas.style.paddingTop = `${paddingInput.value}px`;
+                    sidebarCanvas.style.paddingTop = `${paddingInput.value}px`;
+                }
+
+                renderCanvas();
+                renderSidebar();
+                editor.saveState();
+
+                const savedTime = new Date(data.timestamp).toLocaleString();
+                showToast(`📂 ${savedTime} 저장본 불러옴`, 'success');
+                return true;
+            }
+        } catch (err) {
+            // localStorage 사용 불가 환경 - SecurityError는 무시
+            if (err.name !== 'SecurityError') {
+                console.error('❌ 불러오기 실패:', err);
+            }
+        }
+        return false;
+    }
+
+// JSON 파일 다운로드
+    function downloadJSON() {
+        const data = {
+            version: '2.2',
+            blocks,
+            sidebarBlocks,
+            settings: {
+                width: widthInput.value,
+                padding: paddingInput.value,
+                hideSearchResults: document.getElementById('hide-search-results').checked
+            },
+            timestamp: new Date().toISOString()
+        };
+
+        const now = new Date();
+        const filename = `publog_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}.json`;
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('💾 JSON 파일 저장 완료', 'success');
+    }
+
+    // JSON 파일 업로드
+    function uploadJSON() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    
+                    if (data.version !== '2.0') {
+                        if (!confirm('다른 버전의 파일입니다. 계속할까요?')) return;
+                    }
+                    
+                    blocks = data.blocks || [];
+                    sidebarBlocks = data.sidebarBlocks || [];
+                    
+                    if (data.settings) {
+                        widthInput.value = data.settings.width || 700;
+                        paddingInput.value = data.settings.padding || 50;
+                        document.getElementById('hide-search-results').checked = 
+                            data.settings.hideSearchResults ?? true;
+                        
+                        canvas.style.width = `${widthInput.value}px`;
+                        canvas.style.paddingTop = `${paddingInput.value}px`;
+                        sidebarCanvas.style.paddingTop = `${paddingInput.value}px`;
+                    }
+                    
+                    renderCanvas();
+                    renderSidebar();
+                    editor.saveState();
+                    
+                    selectedBlock = null;
+                    updatePropertiesPanel(null);
+                    
+                    showToast('📂 JSON 파일 불러오기 완료', 'success');
+                } catch (err) {
+                    showToast('❌ 파일 오류: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
+    // LocalStorage 데이터 삭제
+    function clearLocalStorage() {
+        try {
+            if (confirm('⚠️ 자동 저장된 데이터를 삭제할까요?\n(현재 편집 중인 내용은 유지됩니다)')) {
+                localStorage.removeItem('publog_editor_data');
+                showToast('🗑️ 저장 데이터 삭제 완료', 'success');
+            }
+        } catch (err) {
+            showToast('⚠️ 자동 저장이 지원되지 않는 환경입니다', 'error');
+        }
+    }
+
+    // 5분마다 자동 백업
+    setInterval(() => {
+        try {
+            if (blocks.length > 0 || sidebarBlocks.length > 0) {
+                const data = {
+                    blocks,
+                    sidebarBlocks,
+                    settings: {
+                        width: widthInput.value,
+                        padding: paddingInput.value,
+                        hideSearchResults: document.getElementById('hide-search-results').checked
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('publog_editor_data', JSON.stringify(data));
+                console.log('🔄 자동 백업:', new Date().toLocaleTimeString());
+            }
+        } catch (err) {
+            // localStorage 사용 불가 환경 - 조용히 무시
+        }
+    }, 5 * 60 * 1000);
+      
+      // 컬러 선택
+    function selectColor(color) {
+        document.getElementById('color-picker-input').value = color;
+        document.getElementById('color-hex-input').value = color.toUpperCase();
+    }
+    
+    // 컬러 적용
+    function applyColor() {
+        const color = document.getElementById('color-hex-input').value;
+        if (editor.savedRange && editor.savedTextNode) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(editor.savedRange);
+            document.execCommand('foreColor', false, color);
+            
+            const container = editor.savedTextNode.closest('.block-container');
+            const blockId = container.getAttribute('data-id');
+            const isMain = canvas.contains(container);
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                block.content = editor.savedTextNode.innerHTML;
+                editor.saveState();
+            }
+            
+            editor.savedRange = null;
+            editor.savedTextNode = null;
+        }
+        closeColorPicker();
+    }
+    
+    // 컬러 피커 닫기
+    function closeColorPicker() {
+        const modal = document.getElementById('color-picker-modal');
+        modal.querySelector('div').classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // 뷰 전환
+    function switchView(view) {
+        currentView = view;
+        const wrapper = document.getElementById('canvas-wrapper');
+        const desktopBtn = document.getElementById('desktop-view');
+        const mobileBtn = document.getElementById('mobile-view');
+        
+        if (view === 'desktop') {
+            wrapper.classList.remove('preview-mode-mobile');
+            wrapper.classList.add('preview-mode-desktop');
+            desktopBtn.classList.add('bg-white', 'shadow-sm');
+            desktopBtn.classList.remove('text-gray-600');
+            mobileBtn.classList.remove('bg-white', 'shadow-sm');
+            mobileBtn.classList.add('text-gray-600');
+            
+            // 리스트 영역 복원
+            if (sidebarBlocks.length > 0) {
+                sidebarCanvas.style.display = 'block';
+                verticalDivider.style.display = 'flex';
+            }
+        } else {
+            wrapper.classList.remove('preview-mode-desktop');
+            wrapper.classList.add('preview-mode-mobile');
+            mobileBtn.classList.add('bg-white', 'shadow-sm');
+            mobileBtn.classList.remove('text-gray-600');
+            desktopBtn.classList.remove('bg-white', 'shadow-sm');
+            desktopBtn.classList.add('text-gray-600');
+            
+            // 모바일에서는 리스트가 아래로 이동
+            if (sidebarBlocks.length > 0) {
+                sidebarCanvas.style.display = 'block';
+            }
+        }
+    }
+
+    // 가로폭 변경
+    widthInput.onchange = (e) => {
+        let w = parseInt(e.target.value);
+        w = Math.max(320, Math.min(1200, w));
+        canvas.style.width = `${w}px`;
+        e.target.value = w;
+    };
+
+    // 상단 여백 변경
+    paddingInput.onchange = (e) => {
+        let p = parseInt(e.target.value);
+        p = Math.max(0, Math.min(100, p));
+        canvas.style.paddingTop = `${p}px`;
+        sidebarCanvas.style.paddingTop = `${p}px`;
+        e.target.value = p;
+    };
+
+    // 블록 선택
+    function selectBlock(blockId, isMain) {
+        selectedBlock = { id: blockId, isMain };
+        const blockArray = isMain ? blocks : sidebarBlocks;
+        const block = blockArray.find(b => b.id === blockId);
+        
+        // 모든 블록의 selected 클래스 제거
+        document.querySelectorAll('.block-container').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // 선택된 블록에 클래스 추가
+        const container = document.querySelector(`[data-id="${blockId}"]`);
+        if (container) container.classList.add('selected');
+        
+        // 속성 패널 업데이트
+        updatePropertiesPanel(block);
+    }
+
+    // 블록 타입 이름 가져오기
+    function getBlockTypeName(type) {
+        const names = {
+            text: '텍스트 블록',
+            image: '이미지',
+            button: '버튼',
+            banner: '배너',
+            label: '라벨',
+            callout: '콜아웃 박스',
+            toggle: '토글 블록',  // 👈 추가!
+            listitem: '리스트 아이템',
+            divider: '구분선',
+            spacer: '공백'
+        };
+        return names[type] || type;
+    }
+      // 속성 패널 업데이트
+    function updatePropertiesPanel(block) {
+        if (!block) {
+            propertiesContent.innerHTML = `
+                <div id="no-selection" class="text-center py-20 text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                    </svg>
+                    <p class="text-sm">블록을 선택하여 편집하세요</p>
+                </div>`;
+            return;
+        }
+        
+        let html = `<div class="space-y-6">`;
+        
+        // 블록 타입 헤더
+        html += `
+          <div style="padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; margin-bottom: 20px;">
+              <h3 class="text-lg font-semibold">${getBlockTypeName(block.type)}</h3>
+              <p class="text-sm text-gray-500 mt-1">ID: ${block.id.substring(0, 8)}</p>
+          </div>`;
+        
+        // 블록 타입별 속성
+        switch(block.type) {
+            case 'text':
+                html += `
+                    <div class="property-section">
+                        <p class="text-sm text-gray-600">텍스트 블록은 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
+                    </div>`;
+                break;
+            case 'toggle':
+        html += `
+            <div class="property-section">
+                <p class="text-sm text-gray-600 mb-3">토글 제목과 내용은 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${block.isOpen ? 'checked' : ''} 
+                               onchange="updateBlockProperty('${block.id}', 'isOpen', this.checked, true)" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="text-sm font-medium">기본 상태: 열림</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-2">체크하면 페이지 로드 시 토글이 펼쳐진 상태로 표시됩니다.</p>
+            </div>`;
+        break;    
+            case 'image':
+        html += `
+            <div class="property-section">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${block.isSplit ? 'checked' : ''} 
+                               onchange="toggleImageSplit('${block.id}', this.checked, ${block.area === 'main'})" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="text-sm font-medium">2분할 이미지</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-2">데스크탑: 좌우 배치, 모바일: 상하 배치</p>
+            </div>`;
+
+        if (block.isSplit) {
+            html += `
+                <div class="property-section border-t border-gray-200 pt-4">
+                    <h4 class="font-semibold mb-3 text-indigo-600">왼쪽 이미지</h4>
+                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                    <input type="url" class="input-field mb-3" value="${block.leftImage?.url || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'leftImage', 'url', this.value, ${block.area === 'main'})" />
+                    <label class="block text-sm font-medium mb-2">캡션</label>
+                    <input type="text" class="input-field mb-3" value="${block.leftImage?.caption || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'leftImage', 'caption', this.value, ${block.area === 'main'})" />
+                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                    <input type="url" class="input-field" value="${block.leftImage?.landingUrl || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                </div>
+
+                <div class="property-section border-t border-gray-200 pt-4">
+                    <h4 class="font-semibold mb-3 text-indigo-600">오른쪽 이미지</h4>
+                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                    <input type="url" class="input-field mb-3" value="${block.rightImage?.url || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'rightImage', 'url', this.value, ${block.area === 'main'})" />
+                    <label class="block text-sm font-medium mb-2">캡션</label>
+                    <input type="text" class="input-field mb-3" value="${block.rightImage?.caption || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'rightImage', 'caption', this.value, ${block.area === 'main'})" />
+                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                    <input type="url" class="input-field" value="${block.rightImage?.landingUrl || ''}" 
+                           onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                </div>`;
+        } else {
+            html += `
+                <div class="property-section">
+                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                    <input type="url" class="input-field" value="${block.url || ''}" 
+                           onchange="updateBlockProperty('${block.id}', 'url', this.value, ${block.area === 'main'})" />
+                </div>
+                <div class="property-section">
+                    <label class="block text-sm font-medium mb-2">이미지 캡션</label>
+                    <input type="text" class="input-field" value="${block.caption || ''}" 
+                           onchange="updateBlockProperty('${block.id}', 'caption', this.value, ${block.area === 'main'})" />
+                </div>
+                <div class="property-section">
+                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                    <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                           onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, ${block.area === 'main'})" />
+                </div>`;
+        }
+        break;
+
+            case 'button':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
+                        <input type="text" class="input-field" value="${block.text || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">배경 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.bgColor || '#6366f1'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.textColor || '#ffffff'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+                    </div>`;
+                break;
+                
+            case 'banner':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">메인 텍스트</label>
+                        <input type="text" class="input-field" value="${block.mainText || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">서브 텍스트</label>
+                        <input type="text" class="input-field" value="${block.subText || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
+                        <div class="flex gap-2">
+                            <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}" 
+                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'left', true)">왼쪽</button>
+                            <button class="btn flex-1 ${block.textAlign === 'center' ? 'btn-primary' : 'btn-secondary'}" 
+                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'center', true)">가운데</button>
+                            <button class="btn flex-1 ${block.textAlign === 'right' ? 'btn-primary' : 'btn-secondary'}" 
+                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'right', true)">오른쪽</button>
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">배경 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.bgColor || '#6366f1'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.textColor || '#ffffff'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+                    </div>`;
+                break;
+                
+            case 'label':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">라벨 텍스트</label>
+                        <input type="text" class="input-field" value="${block.text || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">배경 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                        </div>
+                    </div>`;
+                break;
+                
+            case 'callout':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">콜아웃 제목</label>
+                        <input type="text" class="input-field" value="${block.title || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'title', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">콜아웃 내용</label>
+                        <textarea class="input-field" rows="3" 
+                                  onchange="updateBlockProperty('${block.id}', 'content', this.value, true)">${block.content || ''}</textarea>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">배경 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                        </div>
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                        </div>
+                    </div>`;
+                break;
+                
+            case 'listitem':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">제목</label>
+                        <input type="text" class="input-field" value="${block.title || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">소제목</label>
+                        <input type="text" class="input-field" value="${block.subtitle || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, false)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="flex items-center gap-2">
+                            <label class="toggle-switch">
+                                <input type="checkbox" ${block.showBorder ? 'checked' : ''} 
+                                       onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="text-sm font-medium">외곽선 표시</span>
+                        </label>
+                    </div>`;
+                break;
+                
+            case 'spacer':
+                html += `
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">높이 (px)</label>
+                        <input type="number" class="input-field" value="${block.height || 20}" min="0" max="200"
+                               onchange="updateBlockProperty('${block.id}', 'height', parseInt(this.value), ${block.area === 'main'})" />
+                    </div>`;
+                break;
+                
+            case 'divider':
+                html += `
+                    <div class="property-section">
+                        <p class="text-sm text-gray-600">구분선은 별도 설정이 필요 없습니다.</p>
+                    </div>`;
+                break;
+        }
+        
+        // 삭제 버튼
+        html += `
+          <div style="padding-top: 20px; border-top: 1px solid #e5e5e5; margin-top: 20px;">
+              <button class="btn btn-secondary w-full text-red-600 hover:bg-red-50" 
+                        onclick="deleteSelectedBlock()">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    블록 삭제
+                </button>
+            </div>`;
+        
+        html += `</div>`;
+        propertiesContent.innerHTML = html;
+    }
+
+    // 블록 속성 업데이트
+        function updateBlockProperty(blockId, property, value, isMain) {
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                block[property] = value;
+                editor.saveState();
+                if (isMain) {
+                    renderCanvas();
+                } else {
+                    renderSidebar();
+                }
+                // 속성 패널 다시 선택
+                selectBlock(blockId, isMain);
+            }
+        }
+
+        // 이미지 속성 업데이트 (2분할용)
+        function updateImageProperty(blockId, imageSide, property, value, isMain) {
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                if (!block[imageSide]) block[imageSide] = {};
+                block[imageSide][property] = value;
+                editor.saveState();
+                if (isMain) {
+                    renderCanvas();
+                } else {
+                    renderSidebar();
+                }
+                selectBlock(blockId, isMain);
+            }
+        }
+
+        // 이미지 2분할 토글
+        function toggleImageSplit(blockId, isSplit, isMain) {
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                block.isSplit = isSplit;
+
+                // 2분할로 전환 시 기본값 설정
+                if (isSplit) {
+                    if (!block.leftImage) {
+                        block.leftImage = {
+                            url: block.url || 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
+                            caption: '',
+                            landingUrl: ''
+                        };
+                    }
+                    if (!block.rightImage) {
+                        block.rightImage = {
+                            url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
+                            caption: '',
+                            landingUrl: ''
+                        };
+                    }
+                }
+
+                editor.saveState();
+                if (isMain) {
+                    renderCanvas();
+                } else {
+                    renderSidebar();
+                }
+                selectBlock(blockId, isMain);
+            }
+        }
+
+    // 선택된 블록 삭제
+    function deleteSelectedBlock() {
+        if (!selectedBlock) return;
+        if (selectedBlock.isMain) {
+            blocks = blocks.filter(b => b.id !== selectedBlock.id);
+            renderCanvas();
+        } else {
+            sidebarBlocks = sidebarBlocks.filter(b => b.id !== selectedBlock.id);
+            renderSidebar();
+        }
+        selectedBlock = null;
+        updatePropertiesPanel(null);
+        editor.saveState();
+    }
+
+    // 블록 렌더링
+    const renderBlock = (block, container, area) => {
+        const blockEl = document.createElement('div');
+        blockEl.className = 'block-container';
+        blockEl.setAttribute('data-id', block.id);
+        blockEl.setAttribute('draggable', true);
+        
+        // 선택 이벤트
+        blockEl.addEventListener('click', (e) => {
+            if (!e.target.closest('.text-block')) {
+                selectBlock(block.id, area === 'main');
+            }
+        });
+        
+        const dragHandle = `
+            <div class="drag-handle absolute -left-8 top-2 p-1 rounded cursor-grab hover:bg-gray-200">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </div>`;
+        
+        let contentHTML = '';
+        
+        switch (block.type) {
+            case 'text':
+            blockEl.innerHTML = `
+                ${dragHandle}
+                <div contenteditable="true" class="text-block exported-font min-h-[1.5em] focus:outline-none rounded-md transition-all text-left" style="margin-bottom: 12px; padding: 0;">${block.content}</div>`;
+                blockEl.querySelector('.text-block').addEventListener('input', (e) => {
+                    block.content = e.target.innerHTML;
+                    clearTimeout(block.saveTimer);
+                    block.saveTimer = setTimeout(editor.saveState, 1000);
+                });
+                return blockEl;
+            case 'toggle':
+        blockEl.innerHTML = `
+            ${dragHandle}
+            <div class="toggle-block-wrapper" style="margin: 8px 0;">
+                <div class="toggle-header" style="padding: 6px 0; display: flex; align-items: flex-start; gap: 6px; cursor: pointer;">
+                    <svg class="toggle-icon" style="width: 14px; height: 14px; flex-shrink: 0; transition: transform 0.2s; margin-top: 5px; color: #6b7280;" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M6 4l6 4-6 4V4z"/>
+                    </svg>
+                    <div contenteditable="true" class="text-block toggle-title exported-font" style="flex: 1; min-height: 1.5em; outline: none; font-size: 14px; font-weight: 400;">${block.title}</div>
+                </div>
+                <div class="toggle-content" style="padding-left: 20px; margin-top: 2px;">
+                    <div contenteditable="true" class="text-block toggle-body exported-font" style="min-height: 1.5em; outline: none; font-size: 14px;">${block.content}</div>
+                </div>
+            </div>`;
+        
+        const titleEl = blockEl.querySelector('.toggle-title');
+        titleEl.addEventListener('input', (e) => {
+            block.title = e.target.innerHTML;
+            clearTimeout(block.saveTimer);
+            block.saveTimer = setTimeout(editor.saveState, 1000);
+        });
+        
+        const contentEl = blockEl.querySelector('.toggle-body');
+        contentEl.addEventListener('input', (e) => {
+            block.content = e.target.innerHTML;
+            clearTimeout(block.saveTimer);
+            block.saveTimer = setTimeout(editor.saveState, 1000);
+        });
+        
+        const toggleHeader = blockEl.querySelector('.toggle-header');
+        const toggleContentDiv = blockEl.querySelector('.toggle-content');
+        const toggleIcon = blockEl.querySelector('.toggle-icon');
+        
+        toggleHeader.addEventListener('click', (e) => {
+            if (e.target.closest('.toggle-title')) return;
+            
+            const isOpen = toggleContentDiv.style.display !== 'none';
+            toggleContentDiv.style.display = isOpen ? 'none' : 'block';
+            toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+            block.isOpen = !isOpen;
+        });
+        
+        if (!block.isOpen) {
+            toggleContentDiv.style.display = 'none';
+            toggleIcon.style.transform = 'rotate(0deg)';
+        } else {
+            toggleIcon.style.transform = 'rotate(90deg)';
+        }
+        
+        return blockEl;   
+            case 'image':
+            if (block.isSplit) {
+                // 2분할 이미지
+                const leftImg = block.leftImage || {};
+                const rightImg = block.rightImage || {};
+
+                const leftImgHTML = leftImg.landingUrl ? 
+                    `<a href="${leftImg.landingUrl}" target="_blank" style="display: block;">
+                        <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
+                             alt="${leftImg.caption || ''}" 
+                             style="width: 100%; border-radius: 0; box-shadow: none;"
+                             onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+                    </a>` :
+                    `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
+                         alt="${leftImg.caption || ''}" 
+                         style="width: 100%; border-radius: 0; box-shadow: none;"
+                         onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+
+                const rightImgHTML = rightImg.landingUrl ? 
+                    `<a href="${rightImg.landingUrl}" target="_blank" style="display: block;">
+                        <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
+                             alt="${rightImg.caption || ''}" 
+                             style="width: 100%; border-radius: 0; box-shadow: none;"
+                             onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+                    </a>` :
+                    `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
+                         alt="${rightImg.caption || ''}" 
+                         style="width: 100%; border-radius: 0; box-shadow: none;"
+                         onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="image-split-container" style="display: flex; gap: 16px; margin: 20px 0;">
+                        <div style="flex: 1; text-align: center;">
+                            ${leftImgHTML}
+                            ${leftImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${leftImg.caption}</p>` : ''}
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            ${rightImgHTML}
+                            ${rightImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${rightImg.caption}</p>` : ''}
+                        </div>
+                    </div>`;
+            } else {
+                // 단일 이미지
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
+                        <img src="${block.url}" alt="${block.caption || ''}" 
+                             class="w-full h-auto"
+                             style="border-radius: 0; box-shadow: none;"
+                             onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
+                        ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
+                    </div>`;
+            }
+            break;
+                
+            case 'divider':
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="w-full border-t border-gray-200 my-4"></div>`;
+                break;
+                
+            case 'spacer':
+                contentHTML = `
+                    ${dragHandle}
+                    <div style="height:${block.height || 20}px;" class="w-full bg-gray-50 rounded-md border border-dashed border-gray-200 flex items-center justify-center text-xs text-gray-400">
+                        공백: ${block.height || 20}px
+                    </div>`;
+                break;
+                
+            case 'button':
+                const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'};`;
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="text-center py-4">
+                        <span style="${btnStyle}" class="inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;">
+                            ${block.text || '버튼 텍스트'}
+                        </span>
+                    </div>`;
+                break;
+                
+            case 'banner':
+                const bannerAlign = block.textAlign || 'left';
+                const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="rounded-xl exported-font p-6 cursor-pointer hover:opacity-95 transition" style="${bannerStyle}">
+                        <p class="text-sm opacity-80 mb-1">${block.subText || '서브 텍스트'}</p>
+                        <h3 class="text-xl font-bold">${block.mainText || '메인 텍스트'}</h3>
+                    </div>`;
+                break;
+                
+            case 'label':
+                const labelStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="flex items-center gap-2" style="margin: 0 0 12px 0;">
+                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block rounded-full exported-font">
+                            ${block.text || '라벨'}
+                        </span>
+                    </div>`;
+                break;
+                
+            case 'callout':
+                const calloutStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="callout-box exported-font rounded-lg p-4 my-4" style="${calloutStyle}">
+                        <div class="font-semibold mb-2">${block.title || '콜아웃 제목'}</div>
+                        <div class="opacity-90 text-sm" style="white-space: pre-wrap;">${block.content || '콜아웃 내용입니다.'}</div>
+                    </div>`;
+                break;
+                
+            case 'listitem':
+                const borderClass = block.showBorder ? 'border border-gray-200' : '';
+                const padding = block.showBorder ? 'p-3' : 'py-3';
+                contentHTML = `
+                    ${dragHandle}
+                    <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
+                        <p class="text-sm font-semibold text-gray-900 mb-1">${block.title || '리스트 제목'}</p>
+                        <p class="text-xs text-gray-500">${block.subtitle || '리스트 소제목'}</p>
+                    </div>`;
+                break;
+        }
+        
+        blockEl.innerHTML = contentHTML;
+        return blockEl;
+    };
+
+    // 캔버스 렌더링
+    const renderCanvas = () => {
+        if (blocks.length === 0) {
+            canvas.innerHTML = `
+                <div class="text-center text-gray-400 py-20">
+                    <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold mb-2" style="font-family: 'Pretendard', sans-serif;">블록을 드래그하세요</h3>
+                    <p class="text-sm" style="font-family: 'Pretendard', sans-serif;">콘텐츠 본문 영역입니다</p>
+                </div>`;
+        } else {
+            canvas.innerHTML = '';
+            blocks.forEach(block => {
+                canvas.appendChild(renderBlock(block, canvas, 'main'));
+            });
+        }
+        addDragAndDropListeners(canvas, blocks, 'main');
+    };
+
+    // 사이드바 렌더링
+    const renderSidebar = () => {
+        if (sidebarBlocks.length === 0) {
+            if (currentView === 'desktop') {
+                sidebarCanvas.style.display = 'none';
+                verticalDivider.style.display = 'none';
+            }
+            sidebarCanvas.innerHTML = `
+                <div class="text-center text-gray-400 py-20">
+                    <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <h4 class="text-sm font-semibold mb-1" style="font-family: 'Pretendard', sans-serif;">리스트 영역</h4>
+                    <p class="text-xs" style="font-family: 'Pretendard', sans-serif;">리스트 블록을 드래그하세요</p>
+                </div>`;
+        } else {
+            sidebarCanvas.style.display = 'block';
+            if (currentView === 'desktop') {
+                verticalDivider.style.display = 'flex';
+            }
+            sidebarCanvas.innerHTML = '';
+            sidebarBlocks.forEach(block => {
+                sidebarCanvas.appendChild(renderBlock(block, sidebarCanvas, 'sidebar'));
+            });
+        }
+        addDragAndDropListeners(sidebarCanvas, sidebarBlocks, 'sidebar');
+    };
+      // 드래그 앤 드롭 리스너
+    let draggedEl = null;
+    const addDragAndDropListeners = (container, blockArray, area) => {
+        container.querySelectorAll('.block-container').forEach(el => {
+            el.addEventListener('dragstart', (e) => {
+                draggedEl = el;
+                setTimeout(() => el.style.opacity = '0.4', 0);
+            });
+            
+            el.addEventListener('dragend', () => {
+                if (draggedEl) {
+                    draggedEl.style.opacity = '1';
+                    draggedEl = null;
+                }
+                container.querySelectorAll('.block-container').forEach(x => {
+                    x.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+                });
+            });
+            
+            el.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (draggedEl && draggedEl !== el) {
+                    const rect = el.getBoundingClientRect();
+                    const after = (e.clientY - rect.top) / rect.height > 0.5;
+                    container.querySelectorAll('.block-container').forEach(x => {
+                        x.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+                    });
+                    el.classList.add(after ? 'border-b-2' : 'border-t-2', 'border-indigo-500');
+                }
+            });
+            
+            el.addEventListener('dragleave', () => {
+                el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+            });
+            
+            el.addEventListener('drop', (e) => {
+                e.preventDefault();
+                el.classList.remove('border-t-2', 'border-b-2', 'border-indigo-500');
+                if (!draggedEl) return;
+                
+                const droppedId = el.getAttribute('data-id');
+                const draggedId = draggedEl.getAttribute('data-id');
+                const di = blockArray.findIndex(b => b.id === droppedId);
+                const si = blockArray.findIndex(b => b.id === draggedId);
+                
+                if (si === -1) return;
+                
+                const movedBlock = blockArray.splice(si, 1)[0];
+                const rect = el.getBoundingClientRect();
+                const after = (e.clientY - rect.top) / rect.height > 0.5;
+                blockArray.splice(di + (after ? 1 : 0), 0, movedBlock);
+                
+                editor.saveState();
+                if (area === 'sidebar') renderSidebar();
+                else renderCanvas();
+            });
+        });
+    };
+
+    // 블록 도구 드래그
+    document.querySelectorAll('.block-item').forEach(tool => {
+        tool.addEventListener('dragstart', (e) => {
+            const type = e.target.closest('.block-item').getAttribute('data-type');
+            const area = e.target.closest('.block-item').getAttribute('data-area');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: type,
+                area: area || 'both'
+            }));
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+    });
+
+    // 캔버스 드롭 이벤트
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data && (data.area === 'main' || data.area === 'both')) {
+                const newBlock = createNewBlock(data.type, 'main');
+                blocks.push(newBlock);
+                editor.saveState();
+                renderCanvas();
+            }
+        } catch (err) {
+            console.error('Drop error:', err);
+        }
+    });
+
+    // 사이드바 드롭 이벤트
+    sidebarCanvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    
+    sidebarCanvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data && (data.area === 'sidebar' || data.area === 'both')) {
+                const newBlock = createNewBlock(data.type, 'sidebar');
+                sidebarBlocks.push(newBlock);
+                editor.saveState();
+                renderSidebar();
+            }
+        } catch (err) {
+            console.error('Drop error:', err);
+        }
+    });
+
+    // 새 블록 생성
+    const createNewBlock = (type, area) => {
+        const id = generateUUID();
+        
+        if (area === 'sidebar' && type === 'listitem') {
+            return {
+                id,
+                type,
+                area: 'sidebar',
+                title: '리스트 제목',
+                subtitle: '리스트 소제목',
+                landingUrl: '',
+                showBorder: false
+            };
+        }
+        
+        switch(type) {
+            case 'text':
+    return { id, type, area, content: '<p style="font-size: 16px;">새 텍스트를 입력하세요.</p>' };
+            case 'image':
+                return { 
+                    id, 
+                    type, 
+                    area, 
+                    isSplit: false,
+                    url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image', 
+                    caption: '', 
+                    landingUrl: '',
+                    leftImage: {
+                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
+                        caption: '',
+                        landingUrl: ''
+                    },
+                    rightImage: {
+                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
+                        caption: '',
+                        landingUrl: ''
+                    }
+                };
+            case 'toggle':
+            return { 
+                id, 
+                type, 
+                area, 
+                title: '<p style="font-size: 14px;">토글 제목을 입력하세요</p>',
+                content: '<p style="font-size: 14px;">토글 내용을 입력하세요. 클릭하면 펼쳐지고 접힙니다.</p>',
+                isOpen: false
+            };
+            case 'divider':
+                return { id, type, area };
+            case 'spacer':
+                return { id, type, area, height: 20 };
+            case 'button':
+                return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '' };
+            case 'banner':
+                return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', textAlign: 'left' };
+            case 'label':
+                return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+            case 'callout':
+                return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+            default:
+                return { id, type: 'text', area, content: '<p>알 수 없는 블록 타입</p>' };
+        }
+    };
+
+    // HTML 내보내기
+    const generateExportedHTML = () => {
+        const normalizeRichText = (html) => {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            tmp.querySelectorAll('font[color]').forEach(el => {
+                const color = el.getAttribute('color');
+                const span = document.createElement('span');
+                if (color) span.style.color = color;
+                span.innerHTML = el.innerHTML;
+                el.parentNode.replaceChild(span, el);
+            });
+            tmp.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = '700'; });
+            tmp.querySelectorAll('i, em').forEach(el => { el.style.fontStyle = 'italic'; });
+            tmp.querySelectorAll('u').forEach(el => { el.style.textDecoration = 'underline'; });
+            return tmp.innerHTML;
+        };
+        
+        const canvasWidth = widthInput.value;
+        const paddingTop = paddingInput.value;
+        const hideSearchResults = document.getElementById('hide-search-results').checked;
+        
+   const wrapperMaxWidth = sidebarBlocks.length > 0 ? '980px' : `${canvasWidth}px`;
+
+let html = `
+<!-- PUBLOG Editor Export -->
+<style>
+  .plg-wrapper { 
+    max-width: ${wrapperMaxWidth}; 
+    margin: 0 auto; 
+    display: flex; 
+    gap: 0; 
+    align-items: flex-start; 
+    padding: 0 16px;
+    min-height: 100vh;
+    justify-content: center;
+  }
+  .plg-export { 
+    font-family: 'Montserrat', 'YoonGothicPro740', 'YoonGothicPro760', 'YoonGothicPro780', sans-serif; 
+    color: #1d1d1f; 
+    line-height: 1.6; 
+    flex: ${sidebarBlocks.length > 0 ? '1' : 'none'}; 
+    max-width: ${canvasWidth}px; 
+    width: ${sidebarBlocks.length > 0 ? 'auto' : canvasWidth + 'px'};
+    padding: ${paddingTop}px 16px 40px; 
+    box-sizing: border-box; 
+    background: #fff; 
+  }
+  .plg-export *, .plg-export *::before, .plg-export *::after { box-sizing: border-box; }
+  .plg-export a { text-decoration: none; }
+  .plg-export img { max-width: 100%; height: auto; display: block; }
+  .plg-export h2 { font-size: 28px; margin: 0 0 0.4em; line-height: 1.3; font-weight: 600; }
+  .plg-export h3 { font-size: 22px; margin: 0.9em 0 0.4em; line-height: 1.35; font-weight: 600; }
+  .plg-export h4 { font-size: 18px; margin: 0.8em 0 0.4em; line-height: 1.4; font-weight: 600; }
+  .plg-export p { margin: 0.5em 0; line-height: 2.0; font-size: 16px; }
+  .plg-export b, .plg-export strong { font-weight: 700 !important; }
+  .plg-export i, .plg-export em { font-style: italic !important; }
+  .plg-export u { text-decoration: underline !important; }
+  .plg-image-split { display: flex; gap: 16px; margin: 20px 0; }
+  .plg-image-split-item { flex: 1; text-align: center; }
+  .plg-image-caption { font-size: 14px; color: #666; margin-top: 8px; }
+  .plg-btn-center { text-align: center; padding: 16px 0; }
+  .plg-btn { 
+    display: inline-block; 
+    padding: 14px 28px; 
+    border-radius: 9999px; 
+    font-weight: 700; 
+    text-align: center; 
+    width: 25%;
+    min-width: 150px; 
+    cursor: pointer; 
+    transition: opacity 0.2s; 
+  }
+  .plg-btn:hover { opacity: 0.9; }
+  .plg-bnr { 
+    padding: 24px; 
+    border-radius: 12px; 
+    margin: 16px 0; 
+    cursor: pointer; 
+  }
+  .plg-bnr-sub { font-size: 0.95em; opacity: 0.8; margin: 0 0 4px; }
+  .plg-bnr-main { font-size: 1.15em; font-weight: 700; margin: 0; }
+  .plg-label { 
+    display: inline-block; 
+    padding: 4px 12px; 
+    border-radius: 9999px; 
+    font-size: 0.875em; 
+    font-weight: 500; 
+    margin: 10px 0 0 0;
+  }
+  .plg-callout { 
+    padding: 20px; 
+    border-radius: 12px; 
+    margin: 20px 0; 
+  }
+  .plg-callout-title { font-weight: 600; margin-bottom: 4px; }
+  .plg-callout-content { 
+    opacity: 0.9; 
+    line-height: 1.5; 
+    white-space: pre-wrap;
+  } 
+  .plg-toggle {
+    margin: 8px 0;
+  }
+  .plg-toggle-header {
+    padding: 6px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    transition: opacity 0.2s;
+  }
+  .plg-toggle-header:hover {
+    opacity: 0.7;
+  }
+  .plg-toggle-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    color: #6b7280;
+  }
+  .plg-toggle-icon.open {
+    transform: rotate(90deg);
+  }
+  .plg-toggle-icon.closed {
+    transform: rotate(0deg);
+  }
+  .plg-toggle-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .plg-toggle-content {
+    padding-left: 20px;
+    margin-top: 2px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  .plg-toggle-content.closed {
+    max-height: 0;
+    margin-top: 0;
+    opacity: 0;
+  }
+  .plg-toggle-content p {
+    margin: 0;
+    line-height: 1.6;
+  }
+  .plg-toggle-content p + p {
+    margin-top: 8px;
+  }
+  .plg-divider-vertical { 
+    width: 60px; 
+    flex-shrink: 0; 
+    display: flex; 
+    justify-content: center; 
+    padding-top: ${paddingTop}px; 
+    align-self: stretch; 
+  }
+  .plg-divider-vertical > div { width: 1px; background: #e5e7eb; height: 100%; }
+  .plg-divider-horizontal { display: none; }
+  .plg-sidebar { 
+    width: 240px; 
+    padding: ${paddingTop}px 16px 40px; 
+    box-sizing: border-box; 
+    position: sticky; 
+    top: 0; 
+    align-self: flex-start; 
+    max-height: 100vh; 
+    overflow-y: auto; 
+  }
+  .plg-list-item { 
+    background: #fff; 
+    padding: 14px 12px; 
+    border-radius: 8px; 
+    margin-bottom: 8px; 
+    transition: all 0.2s; 
+    display: block; 
+    text-decoration: none; 
+  }
+  .plg-list-item.has-border { border: 1px solid #e5e7eb; }
+  .plg-list-item.no-border { padding: 13px 0; background: transparent; }
+  .plg-list-item:hover .plg-list-title { color: #6366f1; }
+  .plg-list-title { 
+    font-size: 0.875rem; 
+    font-weight: 600; 
+    color: #374151; 
+    margin-bottom: 4px; 
+    line-height: 1.3; 
+    transition: color 0.2s; 
+  }
+  .plg-list-subtitle { 
+    font-size: 0.75rem; 
+    color: #9ca3af; 
+    line-height: 1.4; 
+  }
+  
+  @media (max-width: 1024px) {
+  .plg-wrapper { flex-direction: column; max-width: ${canvasWidth}px; padding: 0; }
+  .plg-divider-vertical { display: none; }
+  .plg-divider-horizontal { 
+    display: flex; 
+    width: 100%; 
+    padding: 32px 0; 
+    align-items: center; 
+    justify-content: center; 
+  }
+  .plg-divider-horizontal > div { 
+    width: 100%; 
+    height: 1px; 
+    background: #e5e7eb; 
+  }
+  .plg-sidebar { 
+    position: static; 
+    width: 100%; 
+    padding: 0 24px 40px; 
+  }
+  .plg-export { 
+    max-width: 100%; 
+    padding: ${paddingTop}px 24px 40px; 
+  }
+  .plg-image-split {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+</style>
+<div class="plg-wrapper">
+  <section class="plg-export">`;
+        
+        blocks.forEach(block => {
+            switch(block.type) {
+                case 'text':
+                    html += `\n    <div style="margin-bottom: 12px;">${normalizeRichText(block.content)}</div>`;
+                    break;
+                case 'toggle':
+            const toggleId = `toggle-${block.id.substring(0, 8)}`;
+            const openClass = block.isOpen ? 'open' : 'closed';
+            const contentDisplay = block.isOpen ? '' : ' closed';
+            
+            html += `\n    <div class="plg-toggle">
+      <div class="plg-toggle-header" onclick="toggleContent('${toggleId}')">
+        <svg class="plg-toggle-icon ${openClass}" id="${toggleId}-icon" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M6 4l6 4-6 4V4z"/>
+        </svg>
+        <div class="plg-toggle-title">${normalizeRichText(block.title)}</div>
+      </div>
+      <div class="plg-toggle-content${contentDisplay}" id="${toggleId}-content">
+        ${normalizeRichText(block.content)}
+      </div>
+    </div>`;
+            break;
+                case 'image':
+            if (block.isSplit) {
+                // 2분할 이미지
+                const leftImg = block.leftImage || {};
+                const rightImg = block.rightImage || {};
+
+                const leftImgHTML = leftImg.landingUrl ?
+                    `<a href="${leftImg.landingUrl}" target="_blank" style="display: block;">
+                        <img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
+                    </a>` :
+                    `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
+
+                const rightImgHTML = rightImg.landingUrl ?
+                    `<a href="${rightImg.landingUrl}" target="_blank" style="display: block;">
+                        <img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
+                    </a>` :
+                    `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
+
+                html += `\n    <div class="plg-image-split">
+              <div class="plg-image-split-item">
+                ${leftImgHTML}
+                ${leftImg.caption ? `<p class="plg-image-caption">${leftImg.caption}</p>` : ''}
+              </div>
+              <div class="plg-image-split-item">
+                ${rightImgHTML}
+                ${rightImg.caption ? `<p class="plg-image-caption">${rightImg.caption}</p>` : ''}
+              </div>
+            </div>`;
+            } else {
+                // 단일 이미지
+                const imgWrapper = block.landingUrl ?
+                    `<a href="${block.landingUrl}" target="_blank" style="display: block;">
+                        <img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />
+                    </a>` :
+                    `<img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />`;
+                html += `\n    <div style="margin: 20px 0; text-align: center;">
+                    ${imgWrapper}
+                    ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
+                </div>`;
+            }
+            break;
+                case 'divider':
+                    html += `\n    <div style="border-top: 1px solid #e5e7eb; margin: 20px 0;"></div>`;
+                    break;
+                case 'spacer':
+                    html += `\n    <div style="height: ${block.height}px;"></div>`;
+                    break;
+                case 'button':
+                    const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    const btnElement = block.landingUrl ?
+                        `<a href="${block.landingUrl}" target="_blank" class="plg-btn" style="${btnStyle}">${block.text}</a>` :
+                        `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
+                    html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
+                    break;
+                case 'banner':
+                    const bAlign = block.textAlign || 'left';
+                    const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
+                    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <h3 class="plg-bnr-main">${block.mainText}</h3>`;
+                    if (block.landingUrl) {
+                        html += `\n    <a href="${block.landingUrl}" target="_blank" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
+                    } else {
+                        html += `\n    <div class="plg-bnr" style="${bStyle}">${bInner}\n    </div>`;
+                    }
+                    break;
+                case 'label':
+                    case 'label':
+                    const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text}</span></div>`;
+                    break;
+                case 'callout':
+                    const coStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    html += `\n    <div class="plg-callout" style="${coStyle}">
+      <div class="plg-callout-title">${block.title}</div>
+      <div class="plg-callout-content">${block.content}</div>
+    </div>`;
+                    break;
+            }
+        });
+        
+        html += `\n  </section>`;
+        
+        if (sidebarBlocks.length > 0) {
+            html += `\n  <div class="plg-divider plg-divider-vertical"><div></div></div>`;
+            html += `\n  <aside class="plg-sidebar">`;
+            html += `\n    <div class="plg-divider plg-divider-horizontal"><div></div></div>`;
+            
+            sidebarBlocks.forEach(block => {
+                if (block.type === 'text') {
+                    html += `\n    <div style="margin: 8px 0 16px; font-size: 0.9375rem; line-height: 1.6;">${normalizeRichText(block.content)}</div>`;
+                } else if (block.type === 'image') {
+                    if (block.isSplit) {
+                        // 2분할 이미지
+                        const leftImg = block.leftImage || {};
+                        const rightImg = block.rightImage || {};
+
+                        const leftImgHTML = leftImg.landingUrl ?
+                            `<a href="${leftImg.landingUrl}" target="_blank"><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+                            `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+
+                        const rightImgHTML = rightImg.landingUrl ?
+                            `<a href="${rightImg.landingUrl}" target="_blank"><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+                            `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+
+                        html += `\n    <div class="plg-image-split" style="margin: 12px 0;">
+                      <div class="plg-image-split-item">${leftImgHTML}${leftImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${leftImg.caption}</p>` : ''}</div>
+                      <div class="plg-image-split-item">${rightImgHTML}${rightImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${rightImg.caption}</p>` : ''}</div>
+                    </div>`;
+                    } else {
+                        // 단일 이미지
+                        const sImgWrapper = block.landingUrl ?
+                            `<a href="${block.landingUrl}" target="_blank"><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+                            `<img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+                        html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${block.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px;">${block.caption}</p>` : ''}</div>`;
+                    }
+                } else if (block.type === 'divider') {
+                    html += `\n    <div style="border-top: 1px solid #e5e7eb; margin: 12px 0;"></div>`;
+                } else if (block.type === 'spacer') {
+                    html += `\n    <div style="height: ${block.height}px;"></div>`;
+                } else if (block.type === 'listitem') {
+                    const borderClass = block.showBorder ? ' has-border' : ' no-border';
+                    if (block.landingUrl) {
+                        html += `\n    <a href="${block.landingUrl}" target="_blank" class="plg-list-item${borderClass}">
+      <div class="plg-list-title">${block.title}</div>
+      <div class="plg-list-subtitle">${block.subtitle}</div>
+    </a>`;
+                    } else {
+                        html += `\n    <div class="plg-list-item${borderClass}">
+      <div class="plg-list-title">${block.title}</div>
+      <div class="plg-list-subtitle">${block.subtitle}</div>
+    </div>`;
+                    }
+                }
+            });
+            
+            html += `\n  </aside>`;
+        }
+        
+        html += `\n</div>`;
+       
+      // 토글 기능 JavaScript
+html += `
+<script>
+function toggleContent(id) {
+  var content = document.getElementById(id + '-content');
+  var icon = document.getElementById(id + '-icon');
+  
+  if (content.classList.contains('closed')) {
+    content.classList.remove('closed');
+    icon.classList.remove('closed');
+    icon.classList.add('open');
+  } else {
+    content.classList.add('closed');
+    icon.classList.remove('open');
+    icon.classList.add('closed');
+  }
+}
+<\/script>`;
+      
+        // 상품 영역 숨기기 스크립트
+        if (hideSearchResults) {
+            html += `
+<script>
+(function() {
+  function enableSticky() {
+    var sidebar = document.querySelector('.plg-sidebar');
+    if (sidebar) {
+      var parent = sidebar.parentElement;
+      while (parent && parent !== document.body) {
+        var computed = window.getComputedStyle(parent);
+        if (computed.overflow !== 'visible' || computed.overflowY !== 'visible') {
+          parent.style.overflow = 'visible';
+          parent.style.overflowY = 'visible';
+        }
+        parent = parent.parentElement;
+      }
+    }
+  }
+
+  function hideSearchResults() {
+    var searchResult = document.getElementById('search-result');
+    if (searchResult) {
+      searchResult.style.display = 'none';
+    }
+    var searchArea = document.querySelector('.search_area');
+    if (searchArea) {
+      searchArea.style.display = 'none';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      enableSticky();
+      hideSearchResults();
+    });
+  } else {
+    enableSticky();
+    hideSearchResults();
+  }
+})();
+<\/script>`;
+        }
+        
+        html += `\n<!-- /PUBLOG Editor Export -->`;
+        return html;
+    };
+
+    // HTML 복사
+    function copyHTML() {
+        const htmlCode = generateExportedHTML();
+        const textarea = document.createElement('textarea');
+        textarea.value = htmlCode;
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            const success = document.execCommand('copy');
+            showToast(success ? 'HTML 코드가 복사되었습니다!' : '복사 실패', success ? 'success' : 'error');
+        } catch (err) {
+            showToast('복사 기능이 지원되지 않습니다.', 'error');
+        }
+        
+        document.body.removeChild(textarea);
+    }
+
+    // 토스트 알림
+    const showToast = (msg, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
+        
+        toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg mb-3 transform translate-x-full opacity-0 transition-all duration-300 flex items-center gap-2`;
+        toast.innerHTML = `
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                ${type === 'success' ? 
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' :
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'}
+            </svg>
+            <span>${msg}</span>`;
+        
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 50);
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
+    // 도움말 모달
+    function openHelpModal() {
+        const modal = document.getElementById('help-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('flex');
+            modal.querySelector('div').classList.remove('opacity-0', 'scale-95');
+        }, 10);
+    }
+
+    function closeHelpModal() {
+        const modal = document.getElementById('help-modal');
+        modal.querySelector('div').classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // Undo/Redo
+    undoBtn.onclick = () => {
+        if (historyIndex > 0) {
+            historyIndex--;
+            const state = JSON.parse(history[historyIndex]);
+            blocks = state.blocks;
+            sidebarBlocks = state.sidebarBlocks;
+            renderCanvas();
+            renderSidebar();
+            editor.updateHistoryButtons();
+            selectedBlock = null;
+            updatePropertiesPanel(null);
+        }
+    };
+    
+    redoBtn.onclick = () => {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            const state = JSON.parse(history[historyIndex]);
+            blocks = state.blocks;
+            sidebarBlocks = state.sidebarBlocks;
+            renderCanvas();
+            renderSidebar();
+            editor.updateHistoryButtons();
+            selectedBlock = null;
+            updatePropertiesPanel(null);
+        }
+    };
+
+    // 텍스트 선택 이벤트
+    document.addEventListener('selectionchange', editor.positionToolbar);
+    document.addEventListener('mouseup', editor.positionToolbar);
+    
+    // 클릭 이벤트 (텍스트 툴바 닫기)
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#text-toolbar') && !e.target.closest('.text-block')) {
+            textToolbar.classList.remove('show');
+            editor.currentTextNode = null;
+        }
+    });
+
+    // 캔버스 클릭 이벤트 - 빈 영역 클릭 시 선택 해제
+    canvas.addEventListener('click', (e) => {
+        if (e.target.closest('.block-container')) {
+            const link = e.target.closest('a');
+            if (link || e.target.tagName === 'BUTTON') {
+                e.preventDefault();
+            }
+        } else if (e.target === canvas || e.target.closest('#canvas') && !e.target.closest('.block-container')) {
+            // 빈 영역 클릭 시 선택 해제
+            document.querySelectorAll('.block-container').forEach(el => {
+                el.classList.remove('selected');
+            });
+            selectedBlock = null;
+            updatePropertiesPanel(null);
+        }
+    });
+
+    sidebarCanvas.addEventListener('click', (e) => {
+        if (e.target.closest('.block-container')) {
+            const link = e.target.closest('a');
+            if (link || e.target.tagName === 'BUTTON') {
+                e.preventDefault();
+            }
+        } else if (e.target === sidebarCanvas || e.target.closest('#sidebar-canvas') && !e.target.closest('.block-container')) {
+            // 빈 영역 클릭 시 선택 해제
+            document.querySelectorAll('.block-container').forEach(el => {
+                el.classList.remove('selected');
+            });
+            selectedBlock = null;
+            updatePropertiesPanel(null);
+        }
+    });
+
+    // 키보드 단축키
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            undoBtn.click();
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y')) {
+            e.preventDefault();
+            redoBtn.click();
+        }
+        if ((e.key === 'Delete' || e.key === 'Backspace') && selectedBlock) {
+            const activeEl = document.activeElement;
+            if (!activeEl.closest('.text-block') && !activeEl.closest('input') && !activeEl.closest('textarea')) {
+                e.preventDefault();
+                deleteSelectedBlock();
+            }
+        }
+    });
+
+    // 초기화
+    const init = () => {
+        // LocalStorage에서 불러오기 시도
+        const loaded = loadFromLocalStorage();
+        
+        // 저장된 데이터가 없으면 샘플 데이터 로드
+        if (!loaded) {
+            blocks = [
+                {
+                    id: generateUUID(),
+                    type: 'label',
+                    area: 'main',
+                    text: '라벨 내용 입력',
+                    bgColor: '#F5F5F5',
+                    textColor: '#1C1C1C'
+                },
+                {
+                    id: generateUUID(),
+                    type: 'text',
+                    area: 'main',
+                    content: '<h2 style="font-size: 28px;">메인 타이틀 영역</h2>'
+                },
+                {
+                    id: generateUUID(),
+                    type: 'text',
+                    area: 'main',
+                    content: '<p style="font-size: 16px; color: #5C5C5C;">서브 타이틀 영역</p>'
+                },
+                {
+                    id: generateUUID(),
+                    type: 'divider',
+                    area: 'main'
+                },
+                {
+                    id: generateUUID(),
+                    type: 'image',
+                    area: 'main',
+                    url: 'https://placehold.co/600x400/222450/FFFFFF?text=Placeholder+Image',
+                    caption: '',
+                    landingUrl: ''
+                },
+                {
+                    id: generateUUID(),
+                    type: 'text',
+                    area: 'main',
+                    content: '<p>왼쪽에서 블록을 드래그하여 여기에 놓으세요. 텍스트 블록을 클릭하고 드래그하여 영역을 선택하면 위에 편집 툴바가 나타납니다. 다른 블록은 클릭하여 오른쪽 패널에서 속성을 수정할 수 있습니다.</p>'
+                }
+            ];
+            
+            sidebarBlocks = [
+                {
+                    id: generateUUID(),
+                    type: 'text',
+                    area: 'sidebar',
+                    content: '<p>리스트 영역 타이틀</p>'
+                },
+                {
+                    id: generateUUID(),
+                    type: 'spacer',
+                    area: 'sidebar',
+                    height: 10
+                },
+                {
+                    id: generateUUID(),
+                    type: 'listitem',
+                    area: 'sidebar',
+                    title: '리스트 제목',
+                    subtitle: '리스트 소제목',
+                    landingUrl: '',
+                    showBorder: false
+                },
+                {
+                    id: generateUUID(),
+                    type: 'listitem',
+                    area: 'sidebar',
+                    title: '리스트 제목',
+                    subtitle: '리스트 소제목',
+                    landingUrl: '',
+                    showBorder: false
+                }
+            ];
+            
+            editor.saveState();
+            renderCanvas();
+            renderSidebar();
+        }
+        
+        editor.updateHistoryButtons();
+    };
+
+    // 페이지 로드 시 초기화
+    window.onload = init;
+    
+    // 개발자 도구용 전역 함수
+    window.editorDebug = {
+        getBlocks: () => ({ blocks, sidebarBlocks }),
+        setBlocks: (newBlocks) => {
+            blocks = newBlocks.blocks || [];
+            sidebarBlocks = newBlocks.sidebarBlocks || [];
+            renderCanvas();
+            renderSidebar();
+            editor.saveState();
+        },
+        exportJSON: () => {
+            const data = { blocks, sidebarBlocks };
+            console.log(JSON.stringify(data, null, 2));
+            return data;
+        },
+        importJSON: (jsonString) => {
+            try {
+                const data = JSON.parse(jsonString);
+                blocks = data.blocks || [];
+                sidebarBlocks = data.sidebarBlocks || [];
+                renderCanvas();
+                renderSidebar();
+                editor.saveState();
+                showToast('JSON 데이터를 불러왔습니다.', 'success');
+            } catch (err) {
+                showToast('JSON 파싱 오류: ' + err.message, 'error');
+            }
+        },
+        clearAll: () => {
+            if (confirm('모든 블록을 삭제하시겠습니까?')) {
+                blocks = [];
+                sidebarBlocks = [];
+                renderCanvas();
+                renderSidebar();
+                editor.saveState();
+                selectedBlock = null;
+                updatePropertiesPanel(null);
+            }
+        },
+        getHistory: () => ({
+            history,
+            historyIndex,
+            canUndo: historyIndex > 0,
+            canRedo: historyIndex < history.length - 1
+        })
+    };
+
+    // 콘솔에 디버그 정보 출력
+    console.log('%c PUBLOG Editor v2.0 ', 'background: #6366f1; color: white; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
+    console.log('개발자 도구 사용 가능:');
+    console.log('- editorDebug.getBlocks() : 현재 블록 데이터 조회');
+    console.log('- editorDebug.exportJSON() : JSON으로 내보내기');
+    console.log('- editorDebug.importJSON(json) : JSON에서 불러오기');
+    console.log('- editorDebug.clearAll() : 모든 블록 삭제');
+    console.log('- editorDebug.getHistory() : 히스토리 상태 조회');
+    
+    </script>
+</body>
+</html>
