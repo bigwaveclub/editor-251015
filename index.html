@@ -285,7 +285,7 @@
                     <div class="flex items-center gap-4 text-sm text-gray-600">
                         <div class="flex items-center gap-2">
                             <label for="width-input" class="font-medium">본문 가로 (px):</label>
-                            <input id="width-input" type="number" min="320" max="1200" value="860" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
+                            <input id="width-input" type="number" min="320" max="1200" value="660" class="w-20 p-1 border border-gray-300 rounded-md text-center" />
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="padding-input" class="font-medium">상단 여백 (px):</label>
@@ -331,7 +331,7 @@
                         </div>
                         
                         <!-- 리스트 영역 -->
-                        <div id="sidebar-canvas" class="canvas-wrapper" style="width: 260px; min-height: 800px; padding: 50px 16px 40px;">
+                        <div id="sidebar-canvas" class="canvas-wrapper" style="width: 200px; min-height: 800px; padding: 50px 16px 40px;">
                             <div class="text-center text-gray-400 py-20">
                                 <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
@@ -467,6 +467,31 @@
                     <h3 class="font-semibold mb-2">6. HTML 내보내기</h3>
                     <p>완성 후 'HTML 복사' 버튼을 클릭하면 코드가 복사됩니다. 사이트에 바로 붙여넣으세요.</p>
                 </div>
+                <div>
+                    <h3 class="font-semibold mb-2">7. 본문 가로/상단 여백</h3>
+                  <p>데스크탑 왼쪽 본문 가로 사이즈와 데스크탑, 모바일 공통 상단 여백을 설정할수 있습니다.</p>
+                  <p>*기본값 본문 가로 660px / 상단 여백 50px</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">8. 상품 영역 숨기기</h3>
+                    <p>어드민 > 검색 관리 > 검색어 관리 > TOP BANNER 영역에 코드를 붙여 넣을 때 활용하는 버튼입니다. 상품 영역 숨기기에 체크가 되어 있으면 상품 목록이 나오지 않아 일반 페이지처럼 활용할 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">9. 자동 저장 기능</h3>
+                    <p>블록을 추가/수정 시 자동 저장되며 수정이 없어도 5분마다 자동 저장됩니다.(새로고침 또는 브라우저 닫아도 유지됨)</p>
+                    <p>*단, 브라우저에 저장되는 방식이라 캐시가 삭제되면 데이터도 삭제됩니다.</p>
+                    <p>*자동 저장된 데이터는 우측 상단 휴지통 버튼을 누르고 새로고침하면 초기화됩니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">10. 수동 저장 및 불러오기</h3>
+                    <p>우측 상단 저장 버튼을 눌러 JSON 파일을 다운로드할 수 있습니다.</p>
+                    <p>불러올 때도 마찬가지로 JSON 파일을 업로드 버튼으로 업로드 할 수 있습니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">*문의사항</h3>
+                    <p>사용 중 불편 사항 또는 문의 사항은 기획팀 배승진 과장에게 전달해 주세요.</p>
+                </div>
+
             </div>
         </div>
     </div>
@@ -2035,7 +2060,7 @@ let html = `
   .plg-divider-vertical > div { width: 1px; background: #e5e7eb; height: 100%; }
   .plg-divider-horizontal { display: none; }
   .plg-sidebar { 
-    width: 260px;  
+    width: 200px;  
     padding: ${paddingTop}px 0px 40px; 
     box-sizing: border-box; 
     position: sticky; 
