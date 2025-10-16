@@ -1487,7 +1487,7 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-                        <p class="text-sm opacity-80" style="margin: 0 0 4px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
+                        <p class="text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
                         <p class="font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</p>
                     </div>`;
                 break;
@@ -1938,7 +1938,7 @@ let html = `
   .plg-bnr-sub { 
     font-size: 14px !important;  /* ✅ 0.95em → 14px */
     opacity: 0.8; 
-    margin: 0 0 4px 0 !important;
+    margin: 0 0 8px 0 !important;
     line-height: 1.4 !important;
   }
   .plg-bnr-main { 
@@ -2057,7 +2057,7 @@ let html = `
   .plg-list-item.no-border { padding: 13px 0; background: transparent; }
   .plg-list-item:hover .plg-list-title { color: #6366f1; }
   .plg-list-title { 
-    font-size: 0.875rem; 
+    font-size: 0.9rem; 
     font-weight: 600; 
     color: #374151; 
     margin-bottom: 4px; 
@@ -2065,7 +2065,7 @@ let html = `
     transition: color 0.2s; 
   }
   .plg-list-subtitle { 
-    font-size: 0.75rem; 
+    font-size: 0.8rem; 
     color: #9ca3af; 
     line-height: 1.4; 
   }
