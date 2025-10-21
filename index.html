@@ -996,145 +996,196 @@
             </div>`;
         break;    
             case 'image':
+    html += `
+        <div class="property-section">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${block.isSplit ? 'checked' : ''} 
+                           onchange="toggleImageSplit('${block.id}', this.checked, ${block.area === 'main'})" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="text-sm font-medium">2분할 이미지</span>
+            </label>
+            <p class="text-xs text-gray-500 mt-2">데스크탑: 좌우 배치, 모바일: 상하 배치</p>
+        </div>`;
+
+    if (block.isSplit) {
         html += `
+            <div class="property-section border-t border-gray-200 pt-4">
+                <h4 class="font-semibold mb-3 text-indigo-600">왼쪽 이미지</h4>
+                <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                <input type="url" class="input-field mb-3" value="${block.leftImage?.url || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'leftImage', 'url', this.value, ${block.area === 'main'})" />
+                <label class="block text-sm font-medium mb-2">캡션</label>
+                <input type="text" class="input-field mb-3" value="${block.leftImage?.caption || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'leftImage', 'caption', this.value, ${block.area === 'main'})" />
+                <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                <input type="url" class="input-field mb-3" value="${block.leftImage?.landingUrl || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                <!-- ✅ 추가 -->
+                <label class="flex items-center gap-2 cursor-pointer mt-2">
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${block.leftImage?.openInNewTab ? 'checked' : ''} 
+                               onchange="updateImageProperty('${block.id}', 'leftImage', 'openInNewTab', this.checked, ${block.area === 'main'})" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="text-sm font-medium">새 창으로 열기</span>
+                </label>
+            </div>
+
+            <div class="property-section border-t border-gray-200 pt-4">
+                <h4 class="font-semibold mb-3 text-indigo-600">오른쪽 이미지</h4>
+                <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                <input type="url" class="input-field mb-3" value="${block.rightImage?.url || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'rightImage', 'url', this.value, ${block.area === 'main'})" />
+                <label class="block text-sm font-medium mb-2">캡션</label>
+                <input type="text" class="input-field mb-3" value="${block.rightImage?.caption || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'rightImage', 'caption', this.value, ${block.area === 'main'})" />
+                <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                <input type="url" class="input-field" value="${block.rightImage?.landingUrl || ''}" 
+                       onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                <!-- ✅ 추가 -->
+                <label class="flex items-center gap-2 cursor-pointer mt-2">
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${block.rightImage?.openInNewTab ? 'checked' : ''} 
+                               onchange="updateImageProperty('${block.id}', 'rightImage', 'openInNewTab', this.checked, ${block.area === 'main'})" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="text-sm font-medium">새 창으로 열기</span>
+                </label>
+            </div>`;
+    } else {
+        html += `
+            <div class="property-section">
+                <label class="block text-sm font-medium mb-2">이미지 URL</label>
+                <input type="url" class="input-field" value="${block.url || ''}" 
+                       onchange="updateBlockProperty('${block.id}', 'url', this.value, ${block.area === 'main'})" />
+            </div>
+            <div class="property-section">
+                <label class="block text-sm font-medium mb-2">이미지 캡션</label>
+                <input type="text" class="input-field" value="${block.caption || ''}" 
+                       onchange="updateBlockProperty('${block.id}', 'caption', this.value, ${block.area === 'main'})" />
+            </div>
+            <div class="property-section">
+                <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+                <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                       onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, ${block.area === 'main'})" />
+            </div>
+            <!-- ✅ 추가 -->
             <div class="property-section">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <label class="toggle-switch">
-                        <input type="checkbox" ${block.isSplit ? 'checked' : ''} 
-                               onchange="toggleImageSplit('${block.id}', this.checked, ${block.area === 'main'})" />
+                        <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                               onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, ${block.area === 'main'})" />
                         <span class="toggle-slider"></span>
                     </label>
-                    <span class="text-sm font-medium">2분할 이미지</span>
+                    <span class="text-sm font-medium">새 창으로 열기</span>
                 </label>
-                <p class="text-xs text-gray-500 mt-2">데스크탑: 좌우 배치, 모바일: 상하 배치</p>
             </div>`;
-
-        if (block.isSplit) {
-            html += `
-                <div class="property-section border-t border-gray-200 pt-4">
-                    <h4 class="font-semibold mb-3 text-indigo-600">왼쪽 이미지</h4>
-                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                    <input type="url" class="input-field mb-3" value="${block.leftImage?.url || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'leftImage', 'url', this.value, ${block.area === 'main'})" />
-                    <label class="block text-sm font-medium mb-2">캡션</label>
-                    <input type="text" class="input-field mb-3" value="${block.leftImage?.caption || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'leftImage', 'caption', this.value, ${block.area === 'main'})" />
-                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                    <input type="url" class="input-field" value="${block.leftImage?.landingUrl || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrl', this.value, ${block.area === 'main'})" />
-                </div>
-
-                <div class="property-section border-t border-gray-200 pt-4">
-                    <h4 class="font-semibold mb-3 text-indigo-600">오른쪽 이미지</h4>
-                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                    <input type="url" class="input-field mb-3" value="${block.rightImage?.url || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'rightImage', 'url', this.value, ${block.area === 'main'})" />
-                    <label class="block text-sm font-medium mb-2">캡션</label>
-                    <input type="text" class="input-field mb-3" value="${block.rightImage?.caption || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'rightImage', 'caption', this.value, ${block.area === 'main'})" />
-                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                    <input type="url" class="input-field" value="${block.rightImage?.landingUrl || ''}" 
-                           onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrl', this.value, ${block.area === 'main'})" />
-                </div>`;
-        } else {
-            html += `
-                <div class="property-section">
-                    <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                    <input type="url" class="input-field" value="${block.url || ''}" 
-                           onchange="updateBlockProperty('${block.id}', 'url', this.value, ${block.area === 'main'})" />
-                </div>
-                <div class="property-section">
-                    <label class="block text-sm font-medium mb-2">이미지 캡션</label>
-                    <input type="text" class="input-field" value="${block.caption || ''}" 
-                           onchange="updateBlockProperty('${block.id}', 'caption', this.value, ${block.area === 'main'})" />
-                </div>
-                <div class="property-section">
-                    <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                    <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                           onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, ${block.area === 'main'})" />
-                </div>`;
-        }
-        break;
+    }
+    break;
 
             case 'button':
-                html += `
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
-                        <input type="text" class="input-field" value="${block.text || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">배경 색상</label>
-                        <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#6366f1'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                        </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
-                        <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#ffffff'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                        </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
-                    </div>`;
-                break;
+    html += `
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
+            <input type="text" class="input-field" value="${block.text || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">배경 색상</label>
+            <div class="flex gap-2">
+                <input type="color" value="${block.bgColor || '#6366f1'}" 
+                       onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                       onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+            </div>
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+            <div class="flex gap-2">
+                <input type="color" value="${block.textColor || '#ffffff'}" 
+                       onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                       onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+            </div>
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+        </div>
+        <!-- ✅ 추가 -->
+        <div class="property-section">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                           onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="text-sm font-medium">새 창으로 열기</span>
+            </label>
+        </div>`;
+    break;
                 
             case 'banner':
-                html += `
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">메인 텍스트</label>
-                        <input type="text" class="input-field" value="${block.mainText || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">서브 텍스트</label>
-                        <input type="text" class="input-field" value="${block.subText || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
-                        <div class="flex gap-2">
-                            <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}" 
-                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'left', true)">왼쪽</button>
-                            <button class="btn flex-1 ${block.textAlign === 'center' ? 'btn-primary' : 'btn-secondary'}" 
-                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'center', true)">가운데</button>
-                            <button class="btn flex-1 ${block.textAlign === 'right' ? 'btn-primary' : 'btn-secondary'}" 
-                                    onclick="updateBlockProperty('${block.id}', 'textAlign', 'right', true)">오른쪽</button>
-                        </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">배경 색상</label>
-                        <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#6366f1'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                        </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">텍스트 색상</label>
-                        <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#ffffff'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
-                                   onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                        </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
-                    </div>`;
-                break;
+    html += `
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">메인 텍스트</label>
+            <input type="text" class="input-field" value="${block.mainText || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">서브 텍스트</label>
+            <input type="text" class="input-field" value="${block.subText || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
+            <div class="flex gap-2">
+                <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}" 
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'left', true)">왼쪽</button>
+                <button class="btn flex-1 ${block.textAlign === 'center' ? 'btn-primary' : 'btn-secondary'}" 
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'center', true)">가운데</button>
+                <button class="btn flex-1 ${block.textAlign === 'right' ? 'btn-primary' : 'btn-secondary'}" 
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'right', true)">오른쪽</button>
+            </div>
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">배경 색상</label>
+            <div class="flex gap-2">
+                <input type="color" value="${block.bgColor || '#6366f1'}" 
+                       onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                       onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
+            </div>
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">텍스트 색상</label>
+            <div class="flex gap-2">
+                <input type="color" value="${block.textColor || '#ffffff'}" 
+                       onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                       onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
+            </div>
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+        </div>
+        <!-- ✅ 추가 -->
+        <div class="property-section">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                           onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="text-sm font-medium">새 창으로 열기</span>
+            </label>
+        </div>`;
+    break;
                 
             case 'label':
                 html += `
@@ -1196,33 +1247,43 @@
                 break;
                 
             case 'listitem':
-                html += `
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">제목</label>
-                        <input type="text" class="input-field" value="${block.title || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">소제목</label>
-                        <input type="text" class="input-field" value="${block.subtitle || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                        <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, false)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="flex items-center gap-2">
-                            <label class="toggle-switch">
-                                <input type="checkbox" ${block.showBorder ? 'checked' : ''} 
-                                       onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span class="text-sm font-medium">외곽선 표시</span>
-                        </label>
-                    </div>`;
-                break;
+    html += `
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">제목</label>
+            <input type="text" class="input-field" value="${block.title || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">소제목</label>
+            <input type="text" class="input-field" value="${block.subtitle || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">랜딩 URL</label>
+            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
+                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, false)" />
+        </div>
+        <div class="property-section">
+            <label class="flex items-center gap-2">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${block.showBorder ? 'checked' : ''} 
+                           onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="text-sm font-medium">외곽선 표시</span>
+            </label>
+        </div>
+        <div class="property-section">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                           onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, false)" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="text-sm font-medium">새 창으로 열기</span>
+            </label>
+        </div>`;
+    break;
                 
             case 'spacer':
                 html += `
@@ -1426,60 +1487,62 @@
         
         return blockEl;   
             case 'image':
-            if (block.isSplit) {
-                // 2분할 이미지
-                const leftImg = block.leftImage || {};
-                const rightImg = block.rightImage || {};
+    if (block.isSplit) {
+    const leftImg = block.leftImage || {};
+    const rightImg = block.rightImage || {};
 
-                const leftImgHTML = leftImg.landingUrl ? 
-                    `<a href="${leftImg.landingUrl}" target="_blank" style="display: block;">
-                        <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
-                             alt="${leftImg.caption || ''}" 
-                             style="width: 100%; border-radius: 0; box-shadow: none;"
-                             onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
-                    </a>` :
-                    `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
-                         alt="${leftImg.caption || ''}" 
-                         style="width: 100%; border-radius: 0; box-shadow: none;"
-                         onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+    const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
+    const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
 
-                const rightImgHTML = rightImg.landingUrl ? 
-                    `<a href="${rightImg.landingUrl}" target="_blank" style="display: block;">
-                        <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
-                             alt="${rightImg.caption || ''}" 
-                             style="width: 100%; border-radius: 0; box-shadow: none;"
-                             onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
-                    </a>` :
-                    `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
-                         alt="${rightImg.caption || ''}" 
-                         style="width: 100%; border-radius: 0; box-shadow: none;"
-                         onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+        const leftImgHTML = leftImg.landingUrl ? 
+            `<a href="${leftImg.landingUrl}"${leftTarget} style="display: block;">
+                <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
+                     alt="${leftImg.caption || ''}" 
+                     style="width: 100%; border-radius: 0; box-shadow: none;"
+                     onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+            </a>` :
+            `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
+                 alt="${leftImg.caption || ''}" 
+                 style="width: 100%; border-radius: 0; box-shadow: none;"
+                 onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
 
-                contentHTML = `
-                    ${dragHandle}
-                    <div class="image-split-container" style="display: flex; gap: 16px; margin: 20px 0;">
-                        <div style="flex: 1; text-align: center;">
-                            ${leftImgHTML}
-                            ${leftImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${leftImg.caption}</p>` : ''}
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            ${rightImgHTML}
-                            ${rightImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${rightImg.caption}</p>` : ''}
-                        </div>
-                    </div>`;
-            } else {
-                // 단일 이미지
-                contentHTML = `
-                    ${dragHandle}
-                    <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
-                        <img src="${block.url}" alt="${block.caption || ''}" 
-                             class="w-full h-auto"
-                             style="border-radius: 0; box-shadow: none;"
-                             onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
-                        ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
-                    </div>`;
-            }
-            break;
+        const rightImgHTML = rightImg.landingUrl ? 
+            `<a href="${rightImg.landingUrl}"${rightTarget} style="display: block;">
+                <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
+                     alt="${rightImg.caption || ''}" 
+                     style="width: 100%; border-radius: 0; box-shadow: none;"
+                     onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+            </a>` :
+            `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
+                 alt="${rightImg.caption || ''}" 
+                 style="width: 100%; border-radius: 0; box-shadow: none;"
+                 onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+
+        contentHTML = `
+            ${dragHandle}
+            <div class="image-split-container" style="display: flex; gap: 16px; margin: 20px 0;">
+                <div style="flex: 1; text-align: center;">
+                    ${leftImgHTML}
+                    ${leftImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${leftImg.caption}</p>` : ''}
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    ${rightImgHTML}
+                    ${rightImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${rightImg.caption}</p>` : ''}
+                </div>
+            </div>`;
+    } else {
+        // 단일 이미지
+        contentHTML = `
+            ${dragHandle}
+            <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
+                <img src="${block.url}" alt="${block.caption || ''}" 
+                     class="w-full h-auto"
+                     style="border-radius: 0; box-shadow: none;"
+                     onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
+                ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
+            </div>`;
+    }
+    break;
                 
             case 'divider':
                 contentHTML = `
@@ -1496,26 +1559,26 @@
                 break;
                 
             case 'button':
-                const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'};`;
-                contentHTML = `
-                    ${dragHandle}
-                    <div class="text-center py-4">
-                        <span style="${btnStyle}" class="inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;">
-                            ${block.text || '버튼 텍스트'}
-                        </span>
-                    </div>`;
-                break;
+    const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'};`;
+    contentHTML = `
+        ${dragHandle}
+        <div class="text-center py-4">
+            <span style="${btnStyle}" class="inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;">
+                ${block.text || '버튼 텍스트'}
+            </span>
+        </div>`;
+    break;
                 
             case 'banner':
-                const bannerAlign = block.textAlign || 'left';
-                const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
-                contentHTML = `
-                    ${dragHandle}
-                    <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-                        <p class="text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
-                        <p class="font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</p>
-                    </div>`;
-                break;
+    const bannerAlign = block.textAlign || 'left';
+    const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
+    contentHTML = `
+        ${dragHandle}
+        <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
+            <p class="text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
+            <p class="font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</p>
+        </div>`;
+    break;
                 
             case 'label':
                 const labelStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
@@ -1539,15 +1602,15 @@
                 break;
                 
             case 'listitem':
-                const borderClass = block.showBorder ? 'border border-gray-200' : '';
-                const padding = block.showBorder ? 'p-3' : 'py-3';
-                contentHTML = `
-                    ${dragHandle}
-                    <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
-                        <p class="text-sm font-semibold text-gray-900 mb-1">${block.title || '리스트 제목'}</p>
-                        <p class="text-xs text-gray-500">${block.subtitle || '리스트 소제목'}</p>
-                    </div>`;
-                break;
+    const borderClass = block.showBorder ? 'border border-gray-200' : '';
+    const padding = block.showBorder ? 'p-3' : 'py-3';
+    contentHTML = `
+        ${dragHandle}
+        <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
+            <p class="text-sm font-semibold text-gray-900 mb-1">${block.title || '리스트 제목'}</p>
+            <p class="text-xs text-gray-500">${block.subtitle || '리스트 소제목'}</p>
+        </div>`;
+    break;
         }
         
         blockEl.innerHTML = contentHTML;
@@ -1807,46 +1870,50 @@ sidebarCanvas.addEventListener('drop', (e) => {
     }
 });
 
-    // 새 블록 생성
-    const createNewBlock = (type, area) => {
-        const id = generateUUID();
-        
-        if (area === 'sidebar' && type === 'listitem') {
-            return {
-                id,
-                type,
-                area: 'sidebar',
-                title: '리스트 제목',
-                subtitle: '리스트 소제목',
+   // 새 블록 생성
+const createNewBlock = (type, area) => {
+    const id = generateUUID();
+    
+    if (area === 'sidebar' && type === 'listitem') {
+        return {
+            id,
+            type,
+            area: 'sidebar',
+            title: '리스트 제목',
+            subtitle: '리스트 소제목',
+            landingUrl: '',
+            showBorder: false,
+            openInNewTab: false  // ✅ 추가
+        };
+    }
+    
+    switch(type) {
+        case 'text':
+            return { id, type, area, content: '<p style="font-size: 16px;">새 텍스트를 입력하세요.</p>' };
+        case 'image':
+            return { 
+                id, 
+                type, 
+                area, 
+                isSplit: false,
+                url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image', 
+                caption: '', 
                 landingUrl: '',
-                showBorder: false
-            };
-        }
-        
-        switch(type) {
-            case 'text':
-    return { id, type, area, content: '<p style="font-size: 16px;">새 텍스트를 입력하세요.</p>' };
-            case 'image':
-                return { 
-                    id, 
-                    type, 
-                    area, 
-                    isSplit: false,
-                    url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image', 
-                    caption: '', 
+                openInNewTab: false,  // ✅ 추가
+                leftImage: {
+                    url: 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
+                    caption: '',
                     landingUrl: '',
-                    leftImage: {
-                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
-                        caption: '',
-                        landingUrl: ''
-                    },
-                    rightImage: {
-                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
-                        caption: '',
-                        landingUrl: ''
-                    }
-                };
-            case 'toggle':
+                    openInNewTab: false  // ✅ 추가
+                },
+                rightImage: {
+                    url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
+                    caption: '',
+                    landingUrl: '',
+                    openInNewTab: false  // ✅ 추가
+                }
+            };
+        case 'toggle':
             return { 
                 id, 
                 type, 
@@ -1855,22 +1922,22 @@ sidebarCanvas.addEventListener('drop', (e) => {
                 content: '<p style="font-size: 14px;">토글 내용을 입력하세요. 클릭하면 펼쳐지고 접힙니다.</p>',
                 isOpen: false
             };
-            case 'divider':
-                return { id, type, area };
-            case 'spacer':
-                return { id, type, area, height: 20 };
-            case 'button':
-                return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '' };
-            case 'banner':
-                return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', textAlign: 'left' };
-            case 'label':
-                return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
-            case 'callout':
-                return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
-            default:
-                return { id, type: 'text', area, content: '<p>알 수 없는 블록 타입</p>' };
-        }
-    };
+        case 'divider':
+            return { id, type, area };
+        case 'spacer':
+            return { id, type, area, height: 20 };
+        case 'button':
+            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', openInNewTab: false };  // ✅ 추가
+        case 'banner':
+            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', textAlign: 'left', openInNewTab: false };  // ✅ 추가
+        case 'label':
+            return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+        case 'callout':
+            return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+        default:
+            return { id, type: 'text', area, content: '<p>알 수 없는 블록 타입</p>' };
+    }
+};
 
     // HTML 내보내기
     const generateExportedHTML = () => {
@@ -2154,8 +2221,11 @@ let html = `
                 case 'image':
             if (block.isSplit) {
                 // 2분할 이미지
-                const leftImg = block.leftImage || {};
-                const rightImg = block.rightImage || {};
+                    const leftImg = block.leftImage || {};
+                    const rightImg = block.rightImage || {};
+
+                    const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
+                    const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
 
                 const leftImgHTML = leftImg.landingUrl ?
                     `<a href="${leftImg.landingUrl}" target="_blank" style="display: block;">
@@ -2199,22 +2269,25 @@ let html = `
                     html += `\n    <div style="height: ${block.height}px;"></div>`;
                     break;
                 case 'button':
-                    const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-                    const btnElement = block.landingUrl ?
-                        `<a href="${block.landingUrl}" target="_blank" class="plg-btn" style="${btnStyle}">${block.text}</a>` :
-                        `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
-                    html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
-                    break;
+    const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+    // ✅ target 속성 조건부 추가
+    const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+    const btnElement = block.landingUrl ?
+        `<a href="${block.landingUrl}"${btnTarget} class="plg-btn" style="${btnStyle}">${block.text}</a>` :
+        `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
+    html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
+    break;
                  case 'banner':
-                    const bAlign = block.textAlign || 'left';
-                    const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
-                    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-main">${block.mainText}</p>`;
-                    if (block.landingUrl) {
-                        html += `\n    <a href="${block.landingUrl}" target="_blank" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
-                    } else {
-                        html += `\n    <div class="plg-bnr" style="${bStyle}">${bInner}\n    </div>`;
-                    }
-                    break;
+    const bAlign = block.textAlign || 'left';
+    const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
+    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-main">${block.mainText}</p>`;
+    if (block.landingUrl) {
+        const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+        html += `\n    <a href="${block.landingUrl}"${bTarget} style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
+    } else {
+        html += `\n    <div class="plg-bnr" style="${bStyle}">${bInner}\n    </div>`;
+    }
+    break;
                 case 'label':
                     case 'label':
                     const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
@@ -2242,47 +2315,55 @@ let html = `
                     html += `\n    <div style="margin: 8px 0 16px; font-size: 0.9375rem; line-height: 1.6;">${normalizeRichText(block.content)}</div>`;
                 } else if (block.type === 'image') {
                     if (block.isSplit) {
-                        // 2분할 이미지
-                        const leftImg = block.leftImage || {};
-                        const rightImg = block.rightImage || {};
+    // 2분할 이미지
+    const leftImg = block.leftImage || {};
+    const rightImg = block.rightImage || {};
 
-                        const leftImgHTML = leftImg.landingUrl ?
-                            `<a href="${leftImg.landingUrl}" target="_blank"><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-                            `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+    // ✅ target 속성 조건부 추가
+    const leftTarget = leftImg.openInNewTab ? ' target="_blank"' : '';
+    const rightTarget = rightImg.openInNewTab ? ' target="_blank"' : '';
 
-                        const rightImgHTML = rightImg.landingUrl ?
-                            `<a href="${rightImg.landingUrl}" target="_blank"><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-                            `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+    const leftImgHTML = leftImg.landingUrl ?
+        `<a href="${leftImg.landingUrl}"${leftTarget}><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+        `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
 
-                        html += `\n    <div class="plg-image-split" style="margin: 12px 0;">
-                      <div class="plg-image-split-item">${leftImgHTML}${leftImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${leftImg.caption}</p>` : ''}</div>
-                      <div class="plg-image-split-item">${rightImgHTML}${rightImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${rightImg.caption}</p>` : ''}</div>
-                    </div>`;
-                    } else {
-                        // 단일 이미지
-                        const sImgWrapper = block.landingUrl ?
-                            `<a href="${block.landingUrl}" target="_blank"><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-                            `<img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
-                        html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${block.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px;">${block.caption}</p>` : ''}</div>`;
-                    }
+    const rightImgHTML = rightImg.landingUrl ?
+        `<a href="${rightImg.landingUrl}"${rightTarget}><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+        `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+
+    html += `\n    <div class="plg-image-split" style="margin: 12px 0;">
+          <div class="plg-image-split-item">${leftImgHTML}${leftImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${leftImg.caption}</p>` : ''}</div>
+          <div class="plg-image-split-item">${rightImgHTML}${rightImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${rightImg.caption}</p>` : ''}</div>
+        </div>`;
+} else {
+    // 단일 이미지
+    // ✅ target 속성 조건부 추가
+    const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+    const sImgWrapper = block.landingUrl ?
+        `<a href="${block.landingUrl}"${imgTarget}><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+        `<img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+    html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${block.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px;">${block.caption}</p>` : ''}</div>`;
+}
                 } else if (block.type === 'divider') {
                     html += `\n    <div style="border-top: 1px solid #e5e7eb; margin: 12px 0;"></div>`;
                 } else if (block.type === 'spacer') {
                     html += `\n    <div style="height: ${block.height}px;"></div>`;
                 } else if (block.type === 'listitem') {
-                    const borderClass = block.showBorder ? ' has-border' : ' no-border';
-                    if (block.landingUrl) {
-                        html += `\n    <a href="${block.landingUrl}" target="_blank" class="plg-list-item${borderClass}">
-      <div class="plg-list-title">${block.title}</div>
-      <div class="plg-list-subtitle">${block.subtitle}</div>
-    </a>`;
-                    } else {
-                        html += `\n    <div class="plg-list-item${borderClass}">
-      <div class="plg-list-title">${block.title}</div>
-      <div class="plg-list-subtitle">${block.subtitle}</div>
-    </div>`;
-                    }
-                }
+    const borderClass = block.showBorder ? ' has-border' : ' no-border';
+    if (block.landingUrl) {
+        // ✅ target 속성 조건부 추가
+        const listTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+        html += `\n    <a href="${block.landingUrl}"${listTarget} class="plg-list-item${borderClass}">
+  <div class="plg-list-title">${block.title}</div>
+  <div class="plg-list-subtitle">${block.subtitle}</div>
+</a>`;
+    } else {
+        html += `\n    <div class="plg-list-item${borderClass}">
+  <div class="plg-list-title">${block.title}</div>
+  <div class="plg-list-subtitle">${block.subtitle}</div>
+</div>`;
+    }
+}
             });
             
             html += `\n  </aside>`;
@@ -2530,7 +2611,7 @@ function toggleContent(id) {
                     id: generateUUID(),
                     type: 'text',
                     area: 'main',
-                    content: '<h1 style="font-size: 28px;">메인 타이틀 영역</h1>'
+                    content: '<h2 style="font-size: 28px;">메인 타이틀 영역</h2>'
                 },
                 {
                     id: generateUUID(),
@@ -2549,7 +2630,8 @@ function toggleContent(id) {
                     area: 'main',
                     url: 'https://placehold.co/600x400/222450/FFFFFF?text=Placeholder+Image',
                     caption: '',
-                    landingUrl: ''
+                    landingUrl: '',
+                    openInNewTab: false  // ✅ 추가
                 },
                 {
                     id: generateUUID(),
@@ -2579,7 +2661,8 @@ function toggleContent(id) {
                     title: '리스트 제목',
                     subtitle: '리스트 소제목',
                     landingUrl: '',
-                    showBorder: false
+                    showBorder: false,
+                    openInNewTab: false  // ✅ 추가
                 },
                 {
                     id: generateUUID(),
@@ -2663,4 +2746,3 @@ function toggleContent(id) {
 </body>
 
 </html>
-
