@@ -509,6 +509,33 @@
         });
     };
 
+    // 디바이스 감지 함수
+    const detectDevice = () => {
+        const hostname = window.location.hostname;
+        if (hostname.includes('app100.publog.co.kr')) return 'aos';
+        if (hostname.includes('app200.publog.co.kr')) return 'ios';
+        if (hostname.includes('m.publog.co.kr')) return 'mo';
+        if (hostname.includes('www.publog.co.kr')) return 'web';
+        return 'web'; // 기본값
+    };
+
+    // 디바이스별 랜딩 URL 가져오기
+    const getLandingUrl = (block, imageKey = null) => {
+        const device = detectDevice();
+        const target = imageKey ? block[imageKey] : block;
+
+        // 디바이스별 URL 확인
+        const urlMap = {
+            aos: target?.landingUrlAos || '',
+            ios: target?.landingUrlIos || '',
+            web: target?.landingUrlWeb || '',
+            mo: target?.landingUrlMo || ''
+        };
+
+        // 현재 디바이스의 URL이 있으면 반환, 없으면 기존 landingUrl 사용 (하위 호환)
+        return urlMap[device] || target?.landingUrl || '';
+    };
+
     // 전역 변수
     let blocks = [];
     let sidebarBlocks = [];
@@ -1020,8 +1047,28 @@
                 <input type="text" class="input-field mb-3" value="${block.leftImage?.caption || ''}" 
                        onchange="updateImageProperty('${block.id}', 'leftImage', 'caption', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                <input type="url" class="input-field mb-3" value="${block.leftImage?.landingUrl || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.leftImage?.landingUrlAos || ''}"
+                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlAos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.leftImage?.landingUrlIos || ''}"
+                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlIos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.leftImage?.landingUrlWeb || ''}"
+                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">MO</label>
+                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.leftImage?.landingUrlMo || ''}"
+                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlMo', this.value, ${block.area === 'main'})" />
+                    </div>
+                </div>
                 <!-- ✅ 추가 -->
                 <label class="flex items-center gap-2 cursor-pointer mt-2">
                     <label class="toggle-switch">
@@ -1042,8 +1089,28 @@
                 <input type="text" class="input-field mb-3" value="${block.rightImage?.caption || ''}" 
                        onchange="updateImageProperty('${block.id}', 'rightImage', 'caption', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                <input type="url" class="input-field" value="${block.rightImage?.landingUrl || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrl', this.value, ${block.area === 'main'})" />
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.rightImage?.landingUrlAos || ''}"
+                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlAos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.rightImage?.landingUrlIos || ''}"
+                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlIos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.rightImage?.landingUrlWeb || ''}"
+                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">MO</label>
+                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.rightImage?.landingUrlMo || ''}"
+                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlMo', this.value, ${block.area === 'main'})" />
+                    </div>
+                </div>
                 <!-- ✅ 추가 -->
                 <label class="flex items-center gap-2 cursor-pointer mt-2">
                     <label class="toggle-switch">
@@ -1068,8 +1135,28 @@
             </div>
             <div class="property-section">
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                       onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, ${block.area === 'main'})" />
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
+                               onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
+                               onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
+                               onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">MO</label>
+                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
+                               onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, ${block.area === 'main'})" />
+                    </div>
+                </div>
             </div>
             <!-- ✅ 추가 -->
             <div class="property-section">
@@ -1089,31 +1176,51 @@
     html += `
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
-            <input type="text" class="input-field" value="${block.text || ''}" 
+            <input type="text" class="input-field" value="${block.text || ''}"
                    onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">배경 색상</label>
             <div class="flex gap-2">
-                <input type="color" value="${block.bgColor || '#6366f1'}" 
+                <input type="color" value="${block.bgColor || '#6366f1'}"
                        onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}"
                        onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
             </div>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 색상</label>
             <div class="flex gap-2">
-                <input type="color" value="${block.textColor || '#ffffff'}" 
+                <input type="color" value="${block.textColor || '#ffffff'}"
                        onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}"
                        onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
             </div>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                    <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                    <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                    <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">MO</label>
+                    <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, true)" />
+                </div>
+            </div>
         </div>
         <!-- ✅ 추가 -->
         <div class="property-section">
@@ -1132,47 +1239,67 @@
     html += `
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">메인 텍스트</label>
-            <input type="text" class="input-field" value="${block.mainText || ''}" 
+            <input type="text" class="input-field" value="${block.mainText || ''}"
                    onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">서브 텍스트</label>
-            <input type="text" class="input-field" value="${block.subText || ''}" 
+            <input type="text" class="input-field" value="${block.subText || ''}"
                    onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
             <div class="flex gap-2">
-                <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}" 
+                <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}"
                         onclick="updateBlockProperty('${block.id}', 'textAlign', 'left', true)">왼쪽</button>
-                <button class="btn flex-1 ${block.textAlign === 'center' ? 'btn-primary' : 'btn-secondary'}" 
+                <button class="btn flex-1 ${block.textAlign === 'center' ? 'btn-primary' : 'btn-secondary'}"
                         onclick="updateBlockProperty('${block.id}', 'textAlign', 'center', true)">가운데</button>
-                <button class="btn flex-1 ${block.textAlign === 'right' ? 'btn-primary' : 'btn-secondary'}" 
+                <button class="btn flex-1 ${block.textAlign === 'right' ? 'btn-primary' : 'btn-secondary'}"
                         onclick="updateBlockProperty('${block.id}', 'textAlign', 'right', true)">오른쪽</button>
             </div>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">배경 색상</label>
             <div class="flex gap-2">
-                <input type="color" value="${block.bgColor || '#6366f1'}" 
+                <input type="color" value="${block.bgColor || '#6366f1'}"
                        onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}" 
+                <input type="text" class="input-field uppercase" value="${block.bgColor || '#6366f1'}"
                        onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
             </div>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 색상</label>
             <div class="flex gap-2">
-                <input type="color" value="${block.textColor || '#ffffff'}" 
+                <input type="color" value="${block.textColor || '#ffffff'}"
                        onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}" 
+                <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}"
                        onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
             </div>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, true)" />
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                    <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                    <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                    <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, true)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">MO</label>
+                    <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, true)" />
+                </div>
+            </div>
         </div>
         <!-- ✅ 추가 -->
         <div class="property-section">
@@ -1250,18 +1377,38 @@
     html += `
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">제목</label>
-            <input type="text" class="input-field" value="${block.title || ''}" 
+            <input type="text" class="input-field" value="${block.title || ''}"
                    onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">소제목</label>
-            <input type="text" class="input-field" value="${block.subtitle || ''}" 
+            <input type="text" class="input-field" value="${block.subtitle || ''}"
                    onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-            <input type="url" class="input-field" value="${block.landingUrl || ''}" 
-                   onchange="updateBlockProperty('${block.id}', 'landingUrl', this.value, false)" />
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                    <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, false)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                    <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, false)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                    <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, false)" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">MO</label>
+                    <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, false)" />
+                </div>
+            </div>
         </div>
         <div class="property-section">
             <label class="flex items-center gap-2">
@@ -1494,27 +1641,30 @@
     const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
     const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
 
-        const leftImgHTML = leftImg.landingUrl ? 
-            `<a href="${leftImg.landingUrl}"${leftTarget} style="display: block;">
-                <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
-                     alt="${leftImg.caption || ''}" 
+    const leftLandingUrl = getLandingUrl(block, 'leftImage');
+    const rightLandingUrl = getLandingUrl(block, 'rightImage');
+
+        const leftImgHTML = leftLandingUrl ?
+            `<a href="${leftLandingUrl}"${leftTarget} style="display: block;">
+                <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}"
+                     alt="${leftImg.caption || ''}"
                      style="width: 100%; border-radius: 0; box-shadow: none;"
                      onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
             </a>` :
-            `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}" 
-                 alt="${leftImg.caption || ''}" 
+            `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}"
+                 alt="${leftImg.caption || ''}"
                  style="width: 100%; border-radius: 0; box-shadow: none;"
                  onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
 
-        const rightImgHTML = rightImg.landingUrl ? 
-            `<a href="${rightImg.landingUrl}"${rightTarget} style="display: block;">
-                <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
-                     alt="${rightImg.caption || ''}" 
+        const rightImgHTML = rightLandingUrl ?
+            `<a href="${rightLandingUrl}"${rightTarget} style="display: block;">
+                <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}"
+                     alt="${rightImg.caption || ''}"
                      style="width: 100%; border-radius: 0; box-shadow: none;"
                      onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
             </a>` :
-            `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}" 
-                 alt="${rightImg.caption || ''}" 
+            `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}"
+                 alt="${rightImg.caption || ''}"
                  style="width: 100%; border-radius: 0; box-shadow: none;"
                  onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
 
@@ -1882,8 +2032,12 @@ const createNewBlock = (type, area) => {
             title: '리스트 제목',
             subtitle: '리스트 소제목',
             landingUrl: '',
+            landingUrlAos: '',
+            landingUrlIos: '',
+            landingUrlWeb: '',
+            landingUrlMo: '',
             showBorder: false,
-            openInNewTab: false  // ✅ 추가
+            openInNewTab: false
         };
     }
     
@@ -1891,26 +2045,38 @@ const createNewBlock = (type, area) => {
         case 'text':
             return { id, type, area, content: '<p style="font-size: 16px;">새 텍스트를 입력하세요.</p>' };
         case 'image':
-            return { 
-                id, 
-                type, 
-                area, 
+            return {
+                id,
+                type,
+                area,
                 isSplit: false,
-                url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image', 
-                caption: '', 
+                url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image',
+                caption: '',
                 landingUrl: '',
-                openInNewTab: false,  // ✅ 추가
+                landingUrlAos: '',
+                landingUrlIos: '',
+                landingUrlWeb: '',
+                landingUrlMo: '',
+                openInNewTab: false,
                 leftImage: {
                     url: 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
                     caption: '',
                     landingUrl: '',
-                    openInNewTab: false  // ✅ 추가
+                    landingUrlAos: '',
+                    landingUrlIos: '',
+                    landingUrlWeb: '',
+                    landingUrlMo: '',
+                    openInNewTab: false
                 },
                 rightImage: {
                     url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
                     caption: '',
                     landingUrl: '',
-                    openInNewTab: false  // ✅ 추가
+                    landingUrlAos: '',
+                    landingUrlIos: '',
+                    landingUrlWeb: '',
+                    landingUrlMo: '',
+                    openInNewTab: false
                 }
             };
         case 'toggle':
@@ -1927,9 +2093,9 @@ const createNewBlock = (type, area) => {
         case 'spacer':
             return { id, type, area, height: 20 };
         case 'button':
-            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', openInNewTab: false };  // ✅ 추가
+            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         case 'banner':
-            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', textAlign: 'left', openInNewTab: false };  // ✅ 추가
+            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
         case 'label':
             return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
         case 'callout':
@@ -2227,14 +2393,17 @@ let html = `
                     const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
                     const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
 
-                const leftImgHTML = leftImg.landingUrl ?
-                    `<a href="${leftImg.landingUrl}"${leftTarget} style="display: block;">
+                const hasLeftUrl = leftImg.landingUrlAos || leftImg.landingUrlIos || leftImg.landingUrlWeb || leftImg.landingUrlMo || leftImg.landingUrl;
+                const hasRightUrl = rightImg.landingUrlAos || rightImg.landingUrlIos || rightImg.landingUrlWeb || rightImg.landingUrlMo || rightImg.landingUrl;
+
+                const leftImgHTML = hasLeftUrl ?
+                    `<a href="#" class="plg-device-link"${leftTarget} data-url-aos="${leftImg.landingUrlAos || ''}" data-url-ios="${leftImg.landingUrlIos || ''}" data-url-web="${leftImg.landingUrlWeb || ''}" data-url-mo="${leftImg.landingUrlMo || ''}" data-url-default="${leftImg.landingUrl || ''}" style="display: block;">
                         <img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
 
-                const rightImgHTML = rightImg.landingUrl ?
-                    `<a href="${rightImg.landingUrl}"${rightTarget} style="display: block;">
+                const rightImgHTML = hasRightUrl ?
+                    `<a href="#" class="plg-device-link"${rightTarget} data-url-aos="${rightImg.landingUrlAos || ''}" data-url-ios="${rightImg.landingUrlIos || ''}" data-url-web="${rightImg.landingUrlWeb || ''}" data-url-mo="${rightImg.landingUrlMo || ''}" data-url-default="${rightImg.landingUrl || ''}" style="display: block;">
                         <img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
@@ -2252,8 +2421,9 @@ let html = `
             } else {
                 // 단일 이미지
                 const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-                const imgWrapper = block.landingUrl ?
-                    `<a href="${block.landingUrl}"${imgTarget} style="display: block;">
+                const hasImgUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+                const imgWrapper = hasImgUrl ?
+                    `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block;">
                         <img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />`;
@@ -2271,10 +2441,10 @@ let html = `
                     break;
                 case 'button':
     const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-    // ✅ target 속성 조건부 추가
     const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-    const btnElement = block.landingUrl ?
-        `<a href="${block.landingUrl}"${btnTarget} class="plg-btn" style="${btnStyle}">${block.text}</a>` :
+    const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+    const btnElement = hasBtnUrl ?
+        `<a href="#" class="plg-btn plg-device-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text}</a>` :
         `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
     html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
     break;
@@ -2282,9 +2452,10 @@ let html = `
     const bAlign = block.textAlign || 'left';
     const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
     const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-main">${block.mainText}</p>`;
-    if (block.landingUrl) {
+    const hasBnrUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+    if (hasBnrUrl) {
         const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-        html += `\n    <a href="${block.landingUrl}"${bTarget} style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
+        html += `\n    <a href="#" class="plg-device-link"${bTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
     } else {
         html += `\n    <div class="plg-bnr" style="${bStyle}">${bInner}\n    </div>`;
     }
@@ -2320,16 +2491,18 @@ let html = `
     const leftImg = block.leftImage || {};
     const rightImg = block.rightImage || {};
 
-    // ✅ target 속성 조건부 추가
     const leftTarget = leftImg.openInNewTab ? ' target="_blank"' : '';
     const rightTarget = rightImg.openInNewTab ? ' target="_blank"' : '';
 
-    const leftImgHTML = leftImg.landingUrl ?
-        `<a href="${leftImg.landingUrl}"${leftTarget}><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+    const hasSbLeftUrl = leftImg.landingUrlAos || leftImg.landingUrlIos || leftImg.landingUrlWeb || leftImg.landingUrlMo || leftImg.landingUrl;
+    const hasSbRightUrl = rightImg.landingUrlAos || rightImg.landingUrlIos || rightImg.landingUrlWeb || rightImg.landingUrlMo || rightImg.landingUrl;
+
+    const leftImgHTML = hasSbLeftUrl ?
+        `<a href="#" class="plg-device-link"${leftTarget} data-url-aos="${leftImg.landingUrlAos || ''}" data-url-ios="${leftImg.landingUrlIos || ''}" data-url-web="${leftImg.landingUrlWeb || ''}" data-url-mo="${leftImg.landingUrlMo || ''}" data-url-default="${leftImg.landingUrl || ''}"><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
         `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
 
-    const rightImgHTML = rightImg.landingUrl ?
-        `<a href="${rightImg.landingUrl}"${rightTarget}><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+    const rightImgHTML = hasSbRightUrl ?
+        `<a href="#" class="plg-device-link"${rightTarget} data-url-aos="${rightImg.landingUrlAos || ''}" data-url-ios="${rightImg.landingUrlIos || ''}" data-url-web="${rightImg.landingUrlWeb || ''}" data-url-mo="${rightImg.landingUrlMo || ''}" data-url-default="${rightImg.landingUrl || ''}"><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
         `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
 
     html += `\n    <div class="plg-image-split" style="margin: 12px 0;">
@@ -2338,10 +2511,10 @@ let html = `
         </div>`;
 } else {
     // 단일 이미지
-    // ✅ target 속성 조건부 추가
     const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-    const sImgWrapper = block.landingUrl ?
-        `<a href="${block.landingUrl}"${imgTarget}><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
+    const hasSbImgUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+    const sImgWrapper = hasSbImgUrl ?
+        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}"><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
         `<img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
     html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${block.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px;">${block.caption}</p>` : ''}</div>`;
 }
@@ -2351,10 +2524,10 @@ let html = `
                     html += `\n    <div style="height: ${block.height}px;"></div>`;
                 } else if (block.type === 'listitem') {
     const borderClass = block.showBorder ? ' has-border' : ' no-border';
-    if (block.landingUrl) {
-        // ✅ target 속성 조건부 추가
+    const hasListUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+    if (hasListUrl) {
         const listTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-        html += `\n    <a href="${block.landingUrl}"${listTarget} class="plg-list-item${borderClass}">
+        html += `\n    <a href="#" class="plg-list-item plg-device-link${borderClass}"${listTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">
   <div class="plg-list-title">${block.title}</div>
   <div class="plg-list-subtitle">${block.subtitle}</div>
 </a>`;
@@ -2372,13 +2545,13 @@ let html = `
         
         html += `\n</div>`;
        
-      // 토글 기능 JavaScript
+      // 토글 기능 JavaScript + 디바이스별 URL 설정
 html += `
 <script>
 function toggleContent(id) {
   var content = document.getElementById(id + '-content');
   var icon = document.getElementById(id + '-icon');
-  
+
   if (content.classList.contains('closed')) {
     content.classList.remove('closed');
     icon.classList.remove('closed');
@@ -2389,6 +2562,37 @@ function toggleContent(id) {
     icon.classList.add('closed');
   }
 }
+
+// 디바이스 감지 및 URL 설정
+(function() {
+  var hostname = window.location.hostname;
+  var device = 'web'; // 기본값
+
+  if (hostname.indexOf('app100.publog.co.kr') !== -1) {
+    device = 'aos';
+  } else if (hostname.indexOf('app200.publog.co.kr') !== -1) {
+    device = 'ios';
+  } else if (hostname.indexOf('m.publog.co.kr') !== -1) {
+    device = 'mo';
+  } else if (hostname.indexOf('www.publog.co.kr') !== -1) {
+    device = 'web';
+  }
+
+  // 모든 디바이스 링크에 적절한 URL 설정
+  var links = document.querySelectorAll('.plg-device-link');
+  for (var i = 0; i < links.length; i++) {
+    var link = links[i];
+    var url = link.getAttribute('data-url-' + device) || link.getAttribute('data-url-default') || '';
+
+    if (url) {
+      link.href = url;
+    } else {
+      // URL이 없으면 클릭 방지
+      link.href = 'javascript:void(0)';
+      link.style.cursor = 'default';
+    }
+  }
+})();
 <\/script>`;
       
         // 상품 영역 숨기기 스크립트
