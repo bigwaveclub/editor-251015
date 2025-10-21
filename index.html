@@ -2228,13 +2228,13 @@ let html = `
                     const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
 
                 const leftImgHTML = leftImg.landingUrl ?
-                    `<a href="${leftImg.landingUrl}" target="_blank" style="display: block;">
+                    `<a href="${leftImg.landingUrl}"${leftTarget} style="display: block;">
                         <img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
 
                 const rightImgHTML = rightImg.landingUrl ?
-                    `<a href="${rightImg.landingUrl}" target="_blank" style="display: block;">
+                    `<a href="${rightImg.landingUrl}"${rightTarget} style="display: block;">
                         <img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
@@ -2251,8 +2251,9 @@ let html = `
             </div>`;
             } else {
                 // 단일 이미지
+                const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
                 const imgWrapper = block.landingUrl ?
-                    `<a href="${block.landingUrl}" target="_blank" style="display: block;">
+                    `<a href="${block.landingUrl}"${imgTarget} style="display: block;">
                         <img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />`;
