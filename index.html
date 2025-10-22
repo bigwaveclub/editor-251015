@@ -80,9 +80,9 @@
         /* 미리보기 모드 */
         .canvas-wrapper { background: transparent; border-radius: 0; box-shadow: none; transition: all .3s; }
 
-        /* 이미지 2분할 반응형 */
+        /* 이미지 분할 및 열 분할 반응형 */
         @media (max-width: 768px) {
-            .image-split-container {
+            .image-split-container, .columns-container {
                 flex-direction: column !important;
                 gap: 12px !important;
             }
@@ -185,6 +185,14 @@
                             </svg>
                         </div>
                         <span class="text-sm font-medium">이미지</span>
+                    </div>
+                    <div draggable="true" data-type="columns" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4m11-9v5m0 0l-3-3m3 3l3-3M9 4v16m0-16l3 3m-3-3L6 7"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">열 분할</span>
                     </div>
                     <div draggable="true" data-type="divider" class="block-item">
                         <div class="block-item-icon">
@@ -966,11 +974,12 @@
         const names = {
             text: '텍스트 블록',
             image: '이미지',
+            columns: '열 분할',
             button: '버튼',
             banner: '배너',
             label: '라벨',
             callout: '콜아웃 박스',
-            toggle: '토글 블록',  // 👈 추가!
+            toggle: '토글 블록',
             listitem: '리스트 아이템',
             divider: '구분선',
             spacer: '공백'
@@ -1021,149 +1030,97 @@
                 </label>
                 <p class="text-xs text-gray-500 mt-2">체크하면 페이지 로드 시 토글이 펼쳐진 상태로 표시됩니다.</p>
             </div>`;
-        break;    
+        break;
+            case 'columns':
+        const colCount = block.columnCount || 2;
+        html += `
+            <div class="property-section">
+                <label class="block text-sm font-medium mb-2">열 개수</label>
+                <select class="input-field" onchange="changeColumnCount('${block.id}', parseInt(this.value), ${block.area === 'main'})">
+                    <option value="1" ${colCount === 1 ? 'selected' : ''}>1열</option>
+                    <option value="2" ${colCount === 2 ? 'selected' : ''}>2열</option>
+                    <option value="3" ${colCount === 3 ? 'selected' : ''}>3열</option>
+                    <option value="4" ${colCount === 4 ? 'selected' : ''}>4열</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-2">각 열은 캔버스에서 직접 편집할 수 있습니다. 데스크탑: 좌우 배치, 모바일: 상하 배치</p>
+            </div>`;
+        break;
             case 'image':
+    // 하위 호환성 처리
+    if (block.isSplit && !block.imageCount) block.imageCount = 2;
+    if (block.url && !block.images) {
+        block.images = [{
+            url: block.url,
+            caption: block.caption || '',
+            landingUrl: block.landingUrl || '',
+            landingUrlAos: block.landingUrlAos || '',
+            landingUrlIos: block.landingUrlIos || '',
+            landingUrlWeb: block.landingUrlWeb || '',
+            landingUrlMo: block.landingUrlMo || '',
+            openInNewTab: block.openInNewTab || false
+        }];
+        block.imageCount = 1;
+    }
+    if (block.leftImage && !block.images) {
+        block.images = [block.leftImage, block.rightImage || {}];
+        block.imageCount = 2;
+    }
+
+    const count = block.imageCount || 1;
+    const images = block.images || [];
+
     html += `
         <div class="property-section">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <label class="toggle-switch">
-                    <input type="checkbox" ${block.isSplit ? 'checked' : ''} 
-                           onchange="toggleImageSplit('${block.id}', this.checked, ${block.area === 'main'})" />
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="text-sm font-medium">2분할 이미지</span>
-            </label>
+            <label class="block text-sm font-medium mb-2">이미지 분할</label>
+            <select class="input-field" onchange="changeImageCount('${block.id}', parseInt(this.value), ${block.area === 'main'})">
+                <option value="1" ${count === 1 ? 'selected' : ''}>1개 (단일)</option>
+                <option value="2" ${count === 2 ? 'selected' : ''}>2분할</option>
+                <option value="3" ${count === 3 ? 'selected' : ''}>3분할</option>
+                <option value="4" ${count === 4 ? 'selected' : ''}>4분할</option>
+            </select>
             <p class="text-xs text-gray-500 mt-2">데스크탑: 좌우 배치, 모바일: 상하 배치</p>
         </div>`;
 
-    if (block.isSplit) {
-        html += `
-            <div class="property-section border-t border-gray-200 pt-4">
-                <h4 class="font-semibold mb-3 text-indigo-600">왼쪽 이미지</h4>
-                <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                <input type="url" class="input-field mb-3" value="${block.leftImage?.url || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'leftImage', 'url', this.value, ${block.area === 'main'})" />
-                <label class="block text-sm font-medium mb-2">캡션</label>
-                <input type="text" class="input-field mb-3" value="${block.leftImage?.caption || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'leftImage', 'caption', this.value, ${block.area === 'main'})" />
-                <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                <div class="grid grid-cols-2 gap-2 mb-3">
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">AOS</label>
-                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.leftImage?.landingUrlAos || ''}"
-                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlAos', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">iOS</label>
-                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.leftImage?.landingUrlIos || ''}"
-                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlIos', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">WEB</label>
-                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.leftImage?.landingUrlWeb || ''}"
-                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">MO</label>
-                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.leftImage?.landingUrlMo || ''}"
-                               onchange="updateImageProperty('${block.id}', 'leftImage', 'landingUrlMo', this.value, ${block.area === 'main'})" />
-                    </div>
-                </div>
-                <!-- ✅ 추가 -->
-                <label class="flex items-center gap-2 cursor-pointer mt-2">
-                    <label class="toggle-switch">
-                        <input type="checkbox" ${block.leftImage?.openInNewTab ? 'checked' : ''} 
-                               onchange="updateImageProperty('${block.id}', 'leftImage', 'openInNewTab', this.checked, ${block.area === 'main'})" />
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="text-sm font-medium">새 창으로 열기</span>
-                </label>
-            </div>
+    for (let i = 0; i < count; i++) {
+        const img = images[i] || {};
+        const label = count === 1 ? '이미지' : `이미지 ${i + 1}`;
 
+        html += `
             <div class="property-section border-t border-gray-200 pt-4">
-                <h4 class="font-semibold mb-3 text-indigo-600">오른쪽 이미지</h4>
+                <h4 class="font-semibold mb-3 text-indigo-600">${label}</h4>
                 <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                <input type="url" class="input-field mb-3" value="${block.rightImage?.url || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'rightImage', 'url', this.value, ${block.area === 'main'})" />
+                <input type="url" class="input-field mb-3" value="${img.url || ''}"
+                       onchange="updateImageAtIndex('${block.id}', ${i}, 'url', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">캡션</label>
-                <input type="text" class="input-field mb-3" value="${block.rightImage?.caption || ''}" 
-                       onchange="updateImageProperty('${block.id}', 'rightImage', 'caption', this.value, ${block.area === 'main'})" />
+                <input type="text" class="input-field mb-3" value="${img.caption || ''}"
+                       onchange="updateImageAtIndex('${block.id}', ${i}, 'caption', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
                 <div class="grid grid-cols-2 gap-2 mb-3">
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">AOS</label>
-                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.rightImage?.landingUrlAos || ''}"
-                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlAos', this.value, ${block.area === 'main'})" />
+                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${img.landingUrlAos || ''}"
+                               onchange="updateImageAtIndex('${block.id}', ${i}, 'landingUrlAos', this.value, ${block.area === 'main'})" />
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">iOS</label>
-                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.rightImage?.landingUrlIos || ''}"
-                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlIos', this.value, ${block.area === 'main'})" />
+                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${img.landingUrlIos || ''}"
+                               onchange="updateImageAtIndex('${block.id}', ${i}, 'landingUrlIos', this.value, ${block.area === 'main'})" />
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">WEB</label>
-                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.rightImage?.landingUrlWeb || ''}"
-                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
+                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${img.landingUrlWeb || ''}"
+                               onchange="updateImageAtIndex('${block.id}', ${i}, 'landingUrlWeb', this.value, ${block.area === 'main'})" />
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">MO</label>
-                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.rightImage?.landingUrlMo || ''}"
-                               onchange="updateImageProperty('${block.id}', 'rightImage', 'landingUrlMo', this.value, ${block.area === 'main'})" />
+                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${img.landingUrlMo || ''}"
+                               onchange="updateImageAtIndex('${block.id}', ${i}, 'landingUrlMo', this.value, ${block.area === 'main'})" />
                     </div>
                 </div>
-                <!-- ✅ 추가 -->
                 <label class="flex items-center gap-2 cursor-pointer mt-2">
                     <label class="toggle-switch">
-                        <input type="checkbox" ${block.rightImage?.openInNewTab ? 'checked' : ''} 
-                               onchange="updateImageProperty('${block.id}', 'rightImage', 'openInNewTab', this.checked, ${block.area === 'main'})" />
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="text-sm font-medium">새 창으로 열기</span>
-                </label>
-            </div>`;
-    } else {
-        html += `
-            <div class="property-section">
-                <label class="block text-sm font-medium mb-2">이미지 URL</label>
-                <input type="url" class="input-field" value="${block.url || ''}" 
-                       onchange="updateBlockProperty('${block.id}', 'url', this.value, ${block.area === 'main'})" />
-            </div>
-            <div class="property-section">
-                <label class="block text-sm font-medium mb-2">이미지 캡션</label>
-                <input type="text" class="input-field" value="${block.caption || ''}" 
-                       onchange="updateBlockProperty('${block.id}', 'caption', this.value, ${block.area === 'main'})" />
-            </div>
-            <div class="property-section">
-                <label class="block text-sm font-medium mb-2">랜딩 URL</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">AOS</label>
-                        <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
-                               onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">iOS</label>
-                        <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
-                               onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">WEB</label>
-                        <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
-                               onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">MO</label>
-                        <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
-                               onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, ${block.area === 'main'})" />
-                    </div>
-                </div>
-            </div>
-            <!-- ✅ 추가 -->
-            <div class="property-section">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <label class="toggle-switch">
-                        <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
-                               onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, ${block.area === 'main'})" />
+                        <input type="checkbox" ${img.openInNewTab ? 'checked' : ''}
+                               onchange="updateImageAtIndex('${block.id}', ${i}, 'openInNewTab', this.checked, ${block.area === 'main'})" />
                         <span class="toggle-slider"></span>
                     </label>
                     <span class="text-sm font-medium">새 창으로 열기</span>
@@ -1499,29 +1456,70 @@
             }
         }
 
-        // 이미지 2분할 토글
-        function toggleImageSplit(blockId, isSplit, isMain) {
+        // 이미지 분할 개수 변경
+        function changeImageCount(blockId, count, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
             const block = blockArray.find(b => b.id === blockId);
             if (block) {
-                block.isSplit = isSplit;
+                block.imageCount = count;
 
-                // 2분할로 전환 시 기본값 설정
-                if (isSplit) {
-                    if (!block.leftImage) {
-                        block.leftImage = {
-                            url: block.url || 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
-                            caption: '',
-                            landingUrl: ''
-                        };
-                    }
-                    if (!block.rightImage) {
-                        block.rightImage = {
-                            url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
-                            caption: '',
-                            landingUrl: ''
-                        };
-                    }
+                // images 배열 초기화 및 크기 조정
+                if (!block.images) block.images = [];
+                while (block.images.length < count) {
+                    block.images.push({
+                        url: `https://placehold.co/300x400/6366f1/ffffff?text=Image+${block.images.length + 1}`,
+                        caption: '',
+                        landingUrl: '',
+                        landingUrlAos: '',
+                        landingUrlIos: '',
+                        landingUrlWeb: '',
+                        landingUrlMo: '',
+                        openInNewTab: false
+                    });
+                }
+
+                editor.saveState();
+                if (isMain) {
+                    renderCanvas();
+                } else {
+                    renderSidebar();
+                }
+                selectBlock(blockId, isMain);
+            }
+        }
+
+        // 특정 인덱스의 이미지 속성 업데이트
+        function updateImageAtIndex(blockId, index, property, value, isMain) {
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block && block.images && block.images[index]) {
+                block.images[index][property] = value;
+                editor.saveState();
+                if (isMain) {
+                    renderCanvas();
+                } else {
+                    renderSidebar();
+                }
+                selectBlock(blockId, isMain);
+            }
+        }
+
+        // 이미지 2분할 토글 (하위 호환성용 - 더 이상 사용 안함)
+        function toggleImageSplit(blockId, isSplit, isMain) {
+            changeImageCount(blockId, isSplit ? 2 : 1, isMain);
+        }
+
+        // 열 개수 변경
+        function changeColumnCount(blockId, count, isMain) {
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                block.columnCount = count;
+
+                // columns 배열 초기화 및 크기 조정
+                if (!block.columns) block.columns = [];
+                while (block.columns.length < count) {
+                    block.columns.push(`<p style="font-size: 16px;">열 ${block.columns.length + 1}</p>`);
                 }
 
                 editor.saveState();
@@ -1583,6 +1581,39 @@
                     block.saveTimer = setTimeout(editor.saveState, 1000);
                 });
                 return blockEl;
+            case 'columns':
+            const columnCount = block.columnCount || 2;
+            const columns = block.columns || [];
+
+            let columnsHTML = '';
+            for (let i = 0; i < columnCount; i++) {
+                columnsHTML += `
+                    <div class="column-item" style="flex: 1; min-height: 80px;">
+                        <div contenteditable="true" class="text-block exported-font column-content" data-column-index="${i}"
+                             style="min-height: 60px; padding: 12px; border: 1px dashed #d4d4d4; border-radius: 4px; outline: none;">${columns[i] || '<p style="font-size: 16px;">열 ' + (i + 1) + '</p>'}</div>
+                    </div>`;
+            }
+
+            contentHTML = `
+                ${dragHandle}
+                <div class="columns-container" style="display: flex; gap: 16px; margin: 12px 0;">
+                    ${columnsHTML}
+                </div>`;
+
+            blockEl.innerHTML = contentHTML;
+            blockEl.querySelectorAll('.column-content').forEach(colEl => {
+                const colIndex = parseInt(colEl.getAttribute('data-column-index'));
+                colEl.addEventListener('input', (e) => {
+                    if (!block.columns) block.columns = [];
+                    block.columns[colIndex] = e.target.innerHTML;
+                    clearTimeout(block.saveTimer);
+                    block.saveTimer = setTimeout(editor.saveState, 1000);
+                });
+                colEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            });
+            return blockEl;
             case 'toggle':
         blockEl.innerHTML = `
             ${dragHandle}
@@ -1634,63 +1665,124 @@
         
         return blockEl;   
             case 'image':
-    if (block.isSplit) {
-    const leftImg = block.leftImage || {};
-    const rightImg = block.rightImage || {};
+    // 하위 호환성: isSplit이 있으면 imageCount로 변환
+    if (block.isSplit && !block.imageCount) {
+        block.imageCount = 2;
+    }
+    if (block.leftImage && block.rightImage && !block.images) {
+        block.images = [block.leftImage, block.rightImage];
+        block.imageCount = 2;
+    }
+    // 하위 호환성: url이 있고 images가 없으면 변환
+    if (block.url && !block.images) {
+        block.images = [{
+            url: block.url,
+            caption: block.caption || '',
+            landingUrl: block.landingUrl || '',
+            landingUrlAos: block.landingUrlAos || '',
+            landingUrlIos: block.landingUrlIos || '',
+            landingUrlWeb: block.landingUrlWeb || '',
+            landingUrlMo: block.landingUrlMo || '',
+            openInNewTab: block.openInNewTab || false
+        }];
+        block.imageCount = 1;
+    }
 
-    const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
-    const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
+    const count = block.imageCount || 1;
+    const images = block.images || [];
 
-    const leftLandingUrl = getLandingUrl(block, 'leftImage');
-    const rightLandingUrl = getLandingUrl(block, 'rightImage');
+    if (count === 1) {
+        // 단일 이미지
+        const img = images[0] || {};
+        const landingUrl = getLandingUrl({landingUrlAos: img.landingUrlAos, landingUrlIos: img.landingUrlIos, landingUrlWeb: img.landingUrlWeb, landingUrlMo: img.landingUrlMo, landingUrl: img.landingUrl});
+        const target = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
 
-        const leftImgHTML = leftLandingUrl ?
-            `<a href="${leftLandingUrl}"${leftTarget} style="display: block;">
-                <img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}"
-                     alt="${leftImg.caption || ''}"
+        const imgHTML = landingUrl ?
+            `<a href="${landingUrl}"${target} style="display: block;">
+                <img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
+                     alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
                      style="width: 100%; border-radius: 0; box-shadow: none;"
-                     onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+                     onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
             </a>` :
-            `<img src="${leftImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Left+Image'}"
-                 alt="${leftImg.caption || ''}"
+            `<img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
+                 alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
                  style="width: 100%; border-radius: 0; box-shadow: none;"
-                 onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+                 onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />`;
 
-        const rightImgHTML = rightLandingUrl ?
-            `<a href="${rightLandingUrl}"${rightTarget} style="display: block;">
-                <img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}"
-                     alt="${rightImg.caption || ''}"
+        contentHTML = `
+            ${dragHandle}
+            <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
+                ${imgHTML}
+                <div contenteditable="true" class="text-block image-caption-editor exported-font"
+                     data-block-id="${block.id}" data-image-index="0"
+                     style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text;">${img.caption || '<p style="font-size: 14px; color: #666;">캡션을 입력하세요</p>'}</div>
+            </div>`;
+
+        // 캡션 이벤트 리스너는 나중에 추가
+        blockEl.innerHTML = contentHTML;
+        const captionEl = blockEl.querySelector('.image-caption-editor');
+        if (captionEl) {
+            captionEl.addEventListener('input', (e) => {
+                if (!block.images[0]) block.images[0] = {};
+                block.images[0].caption = e.target.innerHTML;
+                clearTimeout(block.saveTimer);
+                block.saveTimer = setTimeout(editor.saveState, 1000);
+            });
+            captionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        return blockEl;
+    } else {
+        // 2~4분할 이미지
+        let imagesHTML = '';
+        for (let i = 0; i < count; i++) {
+            const img = images[i] || {};
+            const landingUrl = getLandingUrl({landingUrlAos: img.landingUrlAos, landingUrlIos: img.landingUrlIos, landingUrlWeb: img.landingUrlWeb, landingUrlMo: img.landingUrlMo, landingUrl: img.landingUrl});
+            const target = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+
+            const imgHTML = landingUrl ?
+                `<a href="${landingUrl}"${target} style="display: block;">
+                    <img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
+                         alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
+                         style="width: 100%; border-radius: 0; box-shadow: none;"
+                         onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
+                </a>` :
+                `<img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
+                     alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
                      style="width: 100%; border-radius: 0; box-shadow: none;"
-                     onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
-            </a>` :
-            `<img src="${rightImg.url || 'https://placehold.co/300x400/e5e5e5/999999?text=Right+Image'}"
-                 alt="${rightImg.caption || ''}"
-                 style="width: 100%; border-radius: 0; box-shadow: none;"
-                 onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+                     onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
+
+            imagesHTML += `
+                <div style="flex: 1; text-align: center;">
+                    ${imgHTML}
+                    <div contenteditable="true" class="text-block image-caption-editor exported-font"
+                         data-block-id="${block.id}" data-image-index="${i}"
+                         style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text;">${img.caption || '<p style="font-size: 14px; color: #666;">캡션 ' + (i + 1) + '</p>'}</div>
+                </div>`;
+        }
 
         contentHTML = `
             ${dragHandle}
             <div class="image-split-container" style="display: flex; gap: 16px; margin: 20px 0;">
-                <div style="flex: 1; text-align: center;">
-                    ${leftImgHTML}
-                    ${leftImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${leftImg.caption}</p>` : ''}
-                </div>
-                <div style="flex: 1; text-align: center;">
-                    ${rightImgHTML}
-                    ${rightImg.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${rightImg.caption}</p>` : ''}
-                </div>
+                ${imagesHTML}
             </div>`;
-    } else {
-        // 단일 이미지
-        contentHTML = `
-            ${dragHandle}
-            <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
-                <img src="${block.url}" alt="${block.caption || ''}" 
-                     class="w-full h-auto"
-                     style="border-radius: 0; box-shadow: none;"
-                     onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
-                ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
-            </div>`;
+
+        // 캡션 이벤트 리스너 추가
+        blockEl.innerHTML = contentHTML;
+        blockEl.querySelectorAll('.image-caption-editor').forEach(captionEl => {
+            const imageIndex = parseInt(captionEl.getAttribute('data-image-index'));
+            captionEl.addEventListener('input', (e) => {
+                if (!block.images[imageIndex]) block.images[imageIndex] = {};
+                block.images[imageIndex].caption = e.target.innerHTML;
+                clearTimeout(block.saveTimer);
+                block.saveTimer = setTimeout(editor.saveState, 1000);
+            });
+            captionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+        return blockEl;
     }
     break;
                 
@@ -2044,40 +2136,67 @@ const createNewBlock = (type, area) => {
     switch(type) {
         case 'text':
             return { id, type, area, content: '<p style="font-size: 16px;">새 텍스트를 입력하세요.</p>' };
+        case 'columns':
+            return {
+                id,
+                type,
+                area,
+                columnCount: 2, // 1, 2, 3, 4 중 선택
+                columns: [
+                    '<p style="font-size: 16px;">첫 번째 열</p>',
+                    '<p style="font-size: 16px;">두 번째 열</p>',
+                    '<p style="font-size: 16px;">세 번째 열</p>',
+                    '<p style="font-size: 16px;">네 번째 열</p>'
+                ]
+            };
         case 'image':
             return {
                 id,
                 type,
                 area,
-                isSplit: false,
-                url: 'https://placehold.co/600x400/6366f1/ffffff?text=New+Image',
-                caption: '',
-                landingUrl: '',
-                landingUrlAos: '',
-                landingUrlIos: '',
-                landingUrlWeb: '',
-                landingUrlMo: '',
-                openInNewTab: false,
-                leftImage: {
-                    url: 'https://placehold.co/300x400/6366f1/ffffff?text=Left+Image',
-                    caption: '',
-                    landingUrl: '',
-                    landingUrlAos: '',
-                    landingUrlIos: '',
-                    landingUrlWeb: '',
-                    landingUrlMo: '',
-                    openInNewTab: false
-                },
-                rightImage: {
-                    url: 'https://placehold.co/300x400/6366f1/ffffff?text=Right+Image',
-                    caption: '',
-                    landingUrl: '',
-                    landingUrlAos: '',
-                    landingUrlIos: '',
-                    landingUrlWeb: '',
-                    landingUrlMo: '',
-                    openInNewTab: false
-                }
+                imageCount: 1, // 1, 2, 3, 4 중 선택
+                images: [
+                    {
+                        url: 'https://placehold.co/600x400/6366f1/ffffff?text=Image+1',
+                        caption: '',
+                        landingUrl: '',
+                        landingUrlAos: '',
+                        landingUrlIos: '',
+                        landingUrlWeb: '',
+                        landingUrlMo: '',
+                        openInNewTab: false
+                    },
+                    {
+                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+2',
+                        caption: '',
+                        landingUrl: '',
+                        landingUrlAos: '',
+                        landingUrlIos: '',
+                        landingUrlWeb: '',
+                        landingUrlMo: '',
+                        openInNewTab: false
+                    },
+                    {
+                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+3',
+                        caption: '',
+                        landingUrl: '',
+                        landingUrlAos: '',
+                        landingUrlIos: '',
+                        landingUrlWeb: '',
+                        landingUrlMo: '',
+                        openInNewTab: false
+                    },
+                    {
+                        url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+4',
+                        caption: '',
+                        landingUrl: '',
+                        landingUrlAos: '',
+                        landingUrlIos: '',
+                        landingUrlWeb: '',
+                        landingUrlMo: '',
+                        openInNewTab: false
+                    }
+                ]
             };
         case 'toggle':
             return { 
@@ -2174,6 +2293,8 @@ let html = `
   .plg-image-split { display: flex; gap: 16px; margin: 20px 0; }
   .plg-image-split-item { flex: 1; text-align: center; }
   .plg-image-caption { font-size: 14px; color: #666; margin-top: 8px; }
+  .plg-columns { display: flex; gap: 16px; margin: 12px 0; }
+  .plg-column { flex: 1; }
   .plg-btn-center { text-align: center; padding: 16px 0; }
   .plg-btn { 
     display: inline-block; 
@@ -2348,12 +2469,12 @@ let html = `
     width: 100%; 
     padding: 0 24px 40px; 
   }
-  .plg-export { 
+  .plg-export {
     max-width: 100%;
     width: 100%;
-    padding: ${paddingTop}px 24px 40px; 
+    padding: ${paddingTop}px 24px 40px;
   }
-  .plg-image-split {
+  .plg-image-split, .plg-columns {
     flex-direction: column;
     gap: 12px;
   }
@@ -2366,6 +2487,18 @@ let html = `
             switch(block.type) {
                 case 'text':
                     html += `\n    <div style="margin-bottom: 12px;">${normalizeRichText(block.content)}</div>`;
+                    break;
+                case 'columns':
+                    const columnCount = block.columnCount || 2;
+                    const columns = block.columns || [];
+
+                    let columnsHTML = '';
+                    for (let i = 0; i < columnCount; i++) {
+                        columnsHTML += `\n      <div class="plg-column" style="flex: 1;">${normalizeRichText(columns[i] || '')}</div>`;
+                    }
+
+                    html += `\n    <div class="plg-columns">${columnsHTML}
+    </div>`;
                     break;
                 case 'toggle':
             const toggleId = `toggle-${block.id.substring(0, 8)}`;
@@ -2385,52 +2518,68 @@ let html = `
     </div>`;
             break;
                 case 'image':
-            if (block.isSplit) {
-                // 2분할 이미지
-                    const leftImg = block.leftImage || {};
-                    const rightImg = block.rightImage || {};
+            // 하위 호환성 처리
+            if (block.isSplit && !block.imageCount) block.imageCount = 2;
+            if (block.leftImage && !block.images) {
+                block.images = [block.leftImage, block.rightImage || {}];
+                block.imageCount = 2;
+            }
+            if (block.url && !block.images) {
+                block.images = [{
+                    url: block.url,
+                    caption: block.caption || '',
+                    landingUrl: block.landingUrl || '',
+                    landingUrlAos: block.landingUrlAos || '',
+                    landingUrlIos: block.landingUrlIos || '',
+                    landingUrlWeb: block.landingUrlWeb || '',
+                    landingUrlMo: block.landingUrlMo || '',
+                    openInNewTab: block.openInNewTab || false
+                }];
+                block.imageCount = 1;
+            }
 
-                    const leftTarget = (leftImg.openInNewTab ?? false) ? ' target="_blank"' : '';
-                    const rightTarget = (rightImg.openInNewTab ?? false) ? ' target="_blank"' : '';
+            const count = block.imageCount || 1;
+            const images = block.images || [];
 
-                const hasLeftUrl = leftImg.landingUrlAos || leftImg.landingUrlIos || leftImg.landingUrlWeb || leftImg.landingUrlMo || leftImg.landingUrl;
-                const hasRightUrl = rightImg.landingUrlAos || rightImg.landingUrlIos || rightImg.landingUrlWeb || rightImg.landingUrlMo || rightImg.landingUrl;
-
-                const leftImgHTML = hasLeftUrl ?
-                    `<a href="#" class="plg-device-link"${leftTarget} data-url-aos="${leftImg.landingUrlAos || ''}" data-url-ios="${leftImg.landingUrlIos || ''}" data-url-web="${leftImg.landingUrlWeb || ''}" data-url-mo="${leftImg.landingUrlMo || ''}" data-url-default="${leftImg.landingUrl || ''}" style="display: block;">
-                        <img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
-                    </a>` :
-                    `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
-
-                const rightImgHTML = hasRightUrl ?
-                    `<a href="#" class="plg-device-link"${rightTarget} data-url-aos="${rightImg.landingUrlAos || ''}" data-url-ios="${rightImg.landingUrlIos || ''}" data-url-web="${rightImg.landingUrlWeb || ''}" data-url-mo="${rightImg.landingUrlMo || ''}" data-url-default="${rightImg.landingUrl || ''}" style="display: block;">
-                        <img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />
-                    </a>` :
-                    `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
-
-                html += `\n    <div class="plg-image-split">
-              <div class="plg-image-split-item">
-                ${leftImgHTML}
-                ${leftImg.caption ? `<p class="plg-image-caption">${leftImg.caption}</p>` : ''}
-              </div>
-              <div class="plg-image-split-item">
-                ${rightImgHTML}
-                ${rightImg.caption ? `<p class="plg-image-caption">${rightImg.caption}</p>` : ''}
-              </div>
-            </div>`;
-            } else {
+            if (count === 1) {
                 // 단일 이미지
-                const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-                const hasImgUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+                const img = images[0] || {};
+                const imgTarget = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+                const hasImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
+                const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                 const imgWrapper = hasImgUrl ?
-                    `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block;">
-                        <img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />
+                    `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                        <img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />
                     </a>` :
-                    `<img src="${block.url}" alt="${block.caption || ''}" style="border-radius: 0; box-shadow: none;" />`;
+                    `<img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />`;
                 html += `\n    <div style="margin: 20px 0; text-align: center;">
                     ${imgWrapper}
-                    ${block.caption ? `<p style="font-size: 14px; color: #666; margin-top: 8px;">${block.caption}</p>` : ''}
+                    ${img.caption ? `<div class="plg-image-caption">${normalizeRichText(img.caption)}</div>` : ''}
                 </div>`;
+            } else {
+                // 2~4분할 이미지
+                let imagesHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const img = images[i] || {};
+                    const imgTarget = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+                    const hasImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
+                    const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
+
+                    const imgHTML = hasImgUrl ?
+                        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                            <img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />
+                        </a>` :
+                        `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
+
+                    imagesHTML += `
+              <div class="plg-image-split-item">
+                ${imgHTML}
+                ${img.caption ? `<div class="plg-image-caption">${normalizeRichText(img.caption)}</div>` : ''}
+              </div>`;
+                }
+
+                html += `\n    <div class="plg-image-split">${imagesHTML}
+            </div>`;
             }
             break;
                 case 'divider':
@@ -2486,38 +2635,58 @@ let html = `
                 if (block.type === 'text') {
                     html += `\n    <div style="margin: 8px 0 16px; font-size: 0.9375rem; line-height: 1.6;">${normalizeRichText(block.content)}</div>`;
                 } else if (block.type === 'image') {
-                    if (block.isSplit) {
-    // 2분할 이미지
-    const leftImg = block.leftImage || {};
-    const rightImg = block.rightImage || {};
+                    // 하위 호환성 처리
+                    if (block.isSplit && !block.imageCount) block.imageCount = 2;
+                    if (block.leftImage && !block.images) {
+                        block.images = [block.leftImage, block.rightImage || {}];
+                        block.imageCount = 2;
+                    }
+                    if (block.url && !block.images) {
+                        block.images = [{
+                            url: block.url,
+                            caption: block.caption || '',
+                            landingUrl: block.landingUrl || '',
+                            landingUrlAos: block.landingUrlAos || '',
+                            landingUrlIos: block.landingUrlIos || '',
+                            landingUrlWeb: block.landingUrlWeb || '',
+                            landingUrlMo: block.landingUrlMo || '',
+                            openInNewTab: block.openInNewTab || false
+                        }];
+                        block.imageCount = 1;
+                    }
 
-    const leftTarget = leftImg.openInNewTab ? ' target="_blank"' : '';
-    const rightTarget = rightImg.openInNewTab ? ' target="_blank"' : '';
+                    const count = block.imageCount || 1;
+                    const images = block.images || [];
 
-    const hasSbLeftUrl = leftImg.landingUrlAos || leftImg.landingUrlIos || leftImg.landingUrlWeb || leftImg.landingUrlMo || leftImg.landingUrl;
-    const hasSbRightUrl = rightImg.landingUrlAos || rightImg.landingUrlIos || rightImg.landingUrlWeb || rightImg.landingUrlMo || rightImg.landingUrl;
+                    if (count === 1) {
+                        // 단일 이미지
+                        const img = images[0] || {};
+                        const imgTarget = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+                        const hasSbImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
+                        const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
+                        const sImgWrapper = hasSbImgUrl ?
+                            `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
+                            `<img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
+                        html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
+                    } else {
+                        // 2~4분할 이미지
+                        let imagesHTML = '';
+                        for (let i = 0; i < count; i++) {
+                            const img = images[i] || {};
+                            const imgTarget = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+                            const hasSbImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
+                            const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
 
-    const leftImgHTML = hasSbLeftUrl ?
-        `<a href="#" class="plg-device-link"${leftTarget} data-url-aos="${leftImg.landingUrlAos || ''}" data-url-ios="${leftImg.landingUrlIos || ''}" data-url-web="${leftImg.landingUrlWeb || ''}" data-url-mo="${leftImg.landingUrlMo || ''}" data-url-default="${leftImg.landingUrl || ''}"><img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-        `<img src="${leftImg.url || ''}" alt="${leftImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+                            const imgHTML = hasSbImgUrl ?
+                                `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
+                                `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
 
-    const rightImgHTML = hasSbRightUrl ?
-        `<a href="#" class="plg-device-link"${rightTarget} data-url-aos="${rightImg.landingUrlAos || ''}" data-url-ios="${rightImg.landingUrlIos || ''}" data-url-web="${rightImg.landingUrlWeb || ''}" data-url-mo="${rightImg.landingUrlMo || ''}" data-url-default="${rightImg.landingUrl || ''}"><img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-        `<img src="${rightImg.url || ''}" alt="${rightImg.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
+                            imagesHTML += `\n          <div class="plg-image-split-item">${imgHTML}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
+                        }
 
-    html += `\n    <div class="plg-image-split" style="margin: 12px 0;">
-          <div class="plg-image-split-item">${leftImgHTML}${leftImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${leftImg.caption}</p>` : ''}</div>
-          <div class="plg-image-split-item">${rightImgHTML}${rightImg.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${rightImg.caption}</p>` : ''}</div>
+                        html += `\n    <div class="plg-image-split" style="margin: 12px 0;">${imagesHTML}
         </div>`;
-} else {
-    // 단일 이미지
-    const imgTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-    const hasSbImgUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
-    const sImgWrapper = hasSbImgUrl ?
-        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}"><img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" /></a>` :
-        `<img src="${block.url}" alt="${block.caption || ''}" style="width: 100%; border-radius: 8px;" />`;
-    html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${block.caption ? `<p style="font-size: 0.75rem; color: #666; margin-top: 4px;">${block.caption}</p>` : ''}</div>`;
-}
+                    }
                 } else if (block.type === 'divider') {
                     html += `\n    <div style="border-top: 1px solid #e5e7eb; margin: 12px 0;"></div>`;
                 } else if (block.type === 'spacer') {
