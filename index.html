@@ -1626,9 +1626,13 @@
         blockEl.className = 'block-container';
         blockEl.setAttribute('data-id', block.id);
         blockEl.setAttribute('draggable', true);
-        
+
         // 선택 이벤트
         blockEl.addEventListener('click', (e) => {
+            // 열 블록이 확정된 경우 내부 블록만 선택 가능
+            if (block.type === 'columns' && block.isLocked) {
+                return; // 열 블록 자체는 선택하지 않음
+            }
             if (!e.target.closest('.text-block')) {
                 selectBlock(block.id, area === 'main');
             }
