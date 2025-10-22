@@ -1148,23 +1148,8 @@
                 <input type="url" class="input-field mb-3" value="${img.url || ''}"
                        onchange="updateImageAtIndex('${block.id}', ${i}, 'url', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">캡션</label>
-                <input type="text" class="input-field mb-2" value="${img.caption || ''}"
+                <input type="text" class="input-field mb-3" value="${img.caption || ''}"
                        onchange="updateImageAtIndex('${block.id}', ${i}, 'caption', this.value, ${block.area === 'main'})" />
-                <label class="block text-sm font-medium mb-2">캡션 정렬</label>
-                <div class="flex gap-1 mb-3">
-                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
-                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'left', ${block.area === 'main'})">
-                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M3 8h8M3 12h14M3 16h8"/></svg>
-                    </button>
-                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
-                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'center', ${block.area === 'main'})">
-                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M6 8h8M3 12h14M6 16h8"/></svg>
-                    </button>
-                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
-                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'right', ${block.area === 'main'})">
-                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M8 8h8M3 12h14M8 16h8"/></svg>
-                    </button>
-                </div>
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
                 <div class="grid grid-cols-2 gap-2 mb-3">
                     <div>
@@ -1646,14 +1631,18 @@
         blockEl.addEventListener('click', (e) => {
             // 열 블록이 확정된 경우
             if (block.type === 'columns' && block.isLocked) {
-                // 드래그 핸들이나 빈 공간(column-drop-zone의 placeholder)을 클릭하면 열 블록 선택
-                if (e.target.closest('.drag-handle') ||
-                    e.target.classList.contains('column-drop-zone') ||
-                    e.target.closest('.columns-container') === e.currentTarget.querySelector('.columns-container')) {
+                // 드래그 핸들 클릭 시 열 블록 선택
+                if (e.target.closest('.drag-handle')) {
                     selectBlock(block.id, area === 'main');
                     return;
                 }
-                // 내부 블록을 클릭하면 아무것도 하지 않음 (내부 블록의 이벤트 처리)
+                // 내부 블록을 클릭한 경우 (현재 blockEl이 아닌 다른 block-container)
+                const clickedBlock = e.target.closest('.block-container');
+                if (clickedBlock && clickedBlock !== blockEl) {
+                    return; // 내부 블록의 클릭 이벤트가 처리되도록 함
+                }
+                // 빈 공간(column-drop-zone 등)을 클릭한 경우 열 블록 선택
+                selectBlock(block.id, area === 'main');
                 return;
             }
             if (!e.target.closest('.text-block')) {
