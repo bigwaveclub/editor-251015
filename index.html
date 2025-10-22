@@ -1033,6 +1033,10 @@
         break;
             case 'columns':
         const colCount = block.columnCount || 2;
+        const columns = block.columns || [];
+        let totalBlocks = 0;
+        columns.forEach(col => { if (col) totalBlocks += col.length; });
+
         html += `
             <div class="property-section">
                 <label class="block text-sm font-medium mb-2">열 개수</label>
@@ -1042,7 +1046,11 @@
                     <option value="3" ${colCount === 3 ? 'selected' : ''}>3열</option>
                     <option value="4" ${colCount === 4 ? 'selected' : ''}>4열</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-2">각 열은 캔버스에서 직접 편집할 수 있습니다. 데스크탑: 좌우 배치, 모바일: 상하 배치</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    왼쪽 블록 도구에서 각 열로 블록을 드래그하세요.<br>
+                    데스크탑: 좌우 배치, 모바일: 상하 배치<br>
+                    현재 ${totalBlocks}개의 블록이 포함되어 있습니다.
+                </p>
             </div>`;
         break;
             case 'image':
@@ -1516,10 +1524,10 @@
             if (block) {
                 block.columnCount = count;
 
-                // columns 배열 초기화 및 크기 조정
+                // columns 배열 초기화 및 크기 조정 (각 열은 블록 배열)
                 if (!block.columns) block.columns = [];
                 while (block.columns.length < count) {
-                    block.columns.push(`<p style="font-size: 16px;">열 ${block.columns.length + 1}</p>`);
+                    block.columns.push([]); // 빈 블록 배열
                 }
 
                 editor.saveState();
@@ -1583,36 +1591,47 @@
                 return blockEl;
             case 'columns':
             const columnCount = block.columnCount || 2;
-            const columns = block.columns || [];
+            const columns = block.columns || [[], [], [], []];
 
-            let columnsHTML = '';
-            for (let i = 0; i < columnCount; i++) {
-                columnsHTML += `
-                    <div class="column-item" style="flex: 1; min-height: 80px;">
-                        <div contenteditable="true" class="text-block exported-font column-content" data-column-index="${i}"
-                             style="min-height: 60px; padding: 12px; border: 1px dashed #d4d4d4; border-radius: 4px; outline: none;">${columns[i] || '<p style="font-size: 16px;">열 ' + (i + 1) + '</p>'}</div>
-                    </div>`;
-            }
-
+            // 각 열을 렌더링
             contentHTML = `
                 ${dragHandle}
-                <div class="columns-container" style="display: flex; gap: 16px; margin: 12px 0;">
-                    ${columnsHTML}
-                </div>`;
+                <div class="columns-container" style="display: flex; gap: 16px; margin: 12px 0; align-items: flex-start;"></div>`;
 
             blockEl.innerHTML = contentHTML;
-            blockEl.querySelectorAll('.column-content').forEach(colEl => {
-                const colIndex = parseInt(colEl.getAttribute('data-column-index'));
-                colEl.addEventListener('input', (e) => {
-                    if (!block.columns) block.columns = [];
-                    block.columns[colIndex] = e.target.innerHTML;
-                    clearTimeout(block.saveTimer);
-                    block.saveTimer = setTimeout(editor.saveState, 1000);
-                });
-                colEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-            });
+            const columnsContainer = blockEl.querySelector('.columns-container');
+
+            for (let i = 0; i < columnCount; i++) {
+                const columnEl = document.createElement('div');
+                columnEl.className = 'column-drop-zone';
+                columnEl.setAttribute('data-column-index', i);
+                columnEl.setAttribute('data-parent-block-id', block.id);
+                columnEl.style.cssText = 'flex: 1; min-height: 120px; padding: 12px; border: 2px dashed #d4d4d4; border-radius: 6px; background: #fafafa;';
+
+                const columnBlocks = columns[i] || [];
+
+                if (columnBlocks.length === 0) {
+                    // 빈 열에는 placeholder
+                    columnEl.innerHTML = `
+                        <div style="text-align: center; color: #999; padding: 20px; font-size: 13px;">
+                            <svg style="width: 32px; height: 32px; margin: 0 auto 8px; opacity: 0.3;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <div>블록을 드래그하세요</div>
+                        </div>`;
+                } else {
+                    // 열 내부 블록들 렌더링
+                    columnBlocks.forEach(colBlock => {
+                        columnEl.appendChild(renderBlock(colBlock, columnEl, area));
+                    });
+                }
+
+                columnsContainer.appendChild(columnEl);
+
+                // 드래그 앤 드롭 이벤트 추가
+                addColumnDropListeners(columnEl, block, i, area === 'main');
+            }
+
             return blockEl;
             case 'toggle':
         blockEl.innerHTML = `
@@ -1965,6 +1984,72 @@
         });
     };
 
+    // 열 내부 드래그 앤 드롭 리스너
+    const addColumnDropListeners = (columnEl, parentBlock, columnIndex, isMain) => {
+        // 열 내부 블록들에 드래그 리스너 추가
+        columnEl.querySelectorAll('.block-container').forEach(el => {
+            el.addEventListener('dragstart', (e) => {
+                draggedEl = el;
+                e.dataTransfer.effectAllowed = 'move';
+                setTimeout(() => el.style.opacity = '0.4', 0);
+            });
+
+            el.addEventListener('dragend', () => {
+                if (draggedEl) {
+                    draggedEl.style.opacity = '1';
+                    draggedEl = null;
+                }
+            });
+        });
+
+        // 열에 드래그 오버
+        columnEl.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            columnEl.style.borderColor = '#6366f1';
+            columnEl.style.background = '#f5f5ff';
+        });
+
+        // 열에서 드래그 나감
+        columnEl.addEventListener('dragleave', (e) => {
+            if (e.target === columnEl) {
+                columnEl.style.borderColor = '#d4d4d4';
+                columnEl.style.background = '#fafafa';
+            }
+        });
+
+        // 열에 드롭
+        columnEl.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            columnEl.style.borderColor = '#d4d4d4';
+            columnEl.style.background = '#fafafa';
+
+            try {
+                // 블록 도구에서 드래그한 경우
+                const data = e.dataTransfer.getData('text/plain');
+                if (data) {
+                    const parsedData = JSON.parse(data);
+                    if (parsedData.type) {
+                        const newBlock = createNewBlock(parsedData.type, isMain ? 'main' : 'sidebar');
+
+                        if (!parentBlock.columns[columnIndex]) {
+                            parentBlock.columns[columnIndex] = [];
+                        }
+
+                        parentBlock.columns[columnIndex].push(newBlock);
+                        editor.saveState();
+
+                        if (isMain) renderCanvas();
+                        else renderSidebar();
+                    }
+                }
+            } catch (err) {
+                console.log('Column drop error:', err);
+            }
+        });
+    };
+
     // 블록 도구 드래그
     document.querySelectorAll('.block-item').forEach(tool => {
         tool.addEventListener('dragstart', (e) => {
@@ -2143,10 +2228,10 @@ const createNewBlock = (type, area) => {
                 area,
                 columnCount: 2, // 1, 2, 3, 4 중 선택
                 columns: [
-                    '<p style="font-size: 16px;">첫 번째 열</p>',
-                    '<p style="font-size: 16px;">두 번째 열</p>',
-                    '<p style="font-size: 16px;">세 번째 열</p>',
-                    '<p style="font-size: 16px;">네 번째 열</p>'
+                    [], // 각 열은 블록 배열
+                    [],
+                    [],
+                    []
                 ]
             };
         case 'image':
@@ -2494,7 +2579,41 @@ let html = `
 
                     let columnsHTML = '';
                     for (let i = 0; i < columnCount; i++) {
-                        columnsHTML += `\n      <div class="plg-column" style="flex: 1;">${normalizeRichText(columns[i] || '')}</div>`;
+                        const columnBlocks = columns[i] || [];
+                        let columnBlocksHTML = '';
+
+                        // 각 열의 블록들을 렌더링
+                        columnBlocks.forEach(colBlock => {
+                            switch(colBlock.type) {
+                                case 'text':
+                                    columnBlocksHTML += `\n        <div style="margin-bottom: 12px;">${normalizeRichText(colBlock.content)}</div>`;
+                                    break;
+                                case 'image':
+                                    // 이미지 블록 렌더링 (단순화 버전 - 단일 이미지만)
+                                    const img = colBlock.images?.[0] || {};
+                                    const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
+                                    columnBlocksHTML += `\n        <div style="margin: 12px 0; text-align: center;">
+            <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />
+            ${img.caption || colBlock.caption ? `<div style="font-size: 14px; color: #666; margin-top: 8px;">${normalizeRichText(img.caption || colBlock.caption || '')}</div>` : ''}
+        </div>`;
+                                    break;
+                                case 'divider':
+                                    columnBlocksHTML += `\n        <div style="border-top: 1px solid #e5e7eb; margin: 12px 0;"></div>`;
+                                    break;
+                                case 'spacer':
+                                    columnBlocksHTML += `\n        <div style="height: ${colBlock.height || 20}px;"></div>`;
+                                    break;
+                                case 'button':
+                                    const btnStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor};`;
+                                    columnBlocksHTML += `\n        <div style="text-align: center; padding: 12px 0;"><span class="plg-btn" style="${btnStyle}; display: inline-block; padding: 12px 24px; border-radius: 9999px; font-weight: 700;">${colBlock.text}</span></div>`;
+                                    break;
+                                default:
+                                    // 기타 블록 타입
+                                    break;
+                            }
+                        });
+
+                        columnsHTML += `\n      <div class="plg-column" style="flex: 1;">${columnBlocksHTML || '<div style="min-height: 20px;"></div>'}</div>`;
                     }
 
                     html += `\n    <div class="plg-columns">${columnsHTML}
