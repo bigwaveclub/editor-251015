@@ -951,22 +951,51 @@
     };
 
     // 블록 선택
+    // 블록을 재귀적으로 찾는 헬퍼 함수
+    function findBlockRecursively(blockId, blockArray) {
+        for (let block of blockArray) {
+            if (block.id === blockId) {
+                return { block, parent: null, columnIndex: null };
+            }
+            // columns 블록 내부 검색
+            if (block.type === 'columns' && block.columns) {
+                for (let i = 0; i < block.columns.length; i++) {
+                    const columnBlocks = block.columns[i] || [];
+                    for (let colBlock of columnBlocks) {
+                        if (colBlock.id === blockId) {
+                            return { block: colBlock, parent: block, columnIndex: i };
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     function selectBlock(blockId, isMain) {
-        selectedBlock = { id: blockId, isMain };
         const blockArray = isMain ? blocks : sidebarBlocks;
-        const block = blockArray.find(b => b.id === blockId);
-        
+        const result = findBlockRecursively(blockId, blockArray);
+
+        if (!result) return;
+
+        selectedBlock = {
+            id: blockId,
+            isMain,
+            parent: result.parent,
+            columnIndex: result.columnIndex
+        };
+
         // 모든 블록의 selected 클래스 제거
         document.querySelectorAll('.block-container').forEach(el => {
             el.classList.remove('selected');
         });
-        
+
         // 선택된 블록에 클래스 추가
         const container = document.querySelector(`[data-id="${blockId}"]`);
         if (container) container.classList.add('selected');
-        
+
         // 속성 패널 업데이트
-        updatePropertiesPanel(block);
+        updatePropertiesPanel(result.block);
     }
 
     // 블록 타입 이름 가져오기
@@ -1433,9 +1462,9 @@
     // 블록 속성 업데이트
         function updateBlockProperty(blockId, property, value, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
-            const block = blockArray.find(b => b.id === blockId);
-            if (block) {
-                block[property] = value;
+            const result = findBlockRecursively(blockId, blockArray);
+            if (result && result.block) {
+                result.block[property] = value;
                 editor.saveState();
                 if (isMain) {
                     renderCanvas();
@@ -1450,10 +1479,10 @@
         // 이미지 속성 업데이트 (2분할용)
         function updateImageProperty(blockId, imageSide, property, value, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
-            const block = blockArray.find(b => b.id === blockId);
-            if (block) {
-                if (!block[imageSide]) block[imageSide] = {};
-                block[imageSide][property] = value;
+            const result = findBlockRecursively(blockId, blockArray);
+            if (result && result.block) {
+                if (!result.block[imageSide]) result.block[imageSide] = {};
+                result.block[imageSide][property] = value;
                 editor.saveState();
                 if (isMain) {
                     renderCanvas();
@@ -1467,15 +1496,15 @@
         // 이미지 분할 개수 변경
         function changeImageCount(blockId, count, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
-            const block = blockArray.find(b => b.id === blockId);
-            if (block) {
-                block.imageCount = count;
+            const result = findBlockRecursively(blockId, blockArray);
+            if (result && result.block) {
+                result.block.imageCount = count;
 
                 // images 배열 초기화 및 크기 조정
-                if (!block.images) block.images = [];
-                while (block.images.length < count) {
-                    block.images.push({
-                        url: `https://placehold.co/300x400/6366f1/ffffff?text=Image+${block.images.length + 1}`,
+                if (!result.block.images) result.block.images = [];
+                while (result.block.images.length < count) {
+                    result.block.images.push({
+                        url: `https://placehold.co/300x400/6366f1/ffffff?text=Image+${result.block.images.length + 1}`,
                         caption: '',
                         landingUrl: '',
                         landingUrlAos: '',
@@ -1499,9 +1528,9 @@
         // 특정 인덱스의 이미지 속성 업데이트
         function updateImageAtIndex(blockId, index, property, value, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
-            const block = blockArray.find(b => b.id === blockId);
-            if (block && block.images && block.images[index]) {
-                block.images[index][property] = value;
+            const result = findBlockRecursively(blockId, blockArray);
+            if (result && result.block && result.block.images && result.block.images[index]) {
+                result.block.images[index][property] = value;
                 editor.saveState();
                 if (isMain) {
                     renderCanvas();
@@ -1520,14 +1549,14 @@
         // 열 개수 변경
         function changeColumnCount(blockId, count, isMain) {
             const blockArray = isMain ? blocks : sidebarBlocks;
-            const block = blockArray.find(b => b.id === blockId);
-            if (block) {
-                block.columnCount = count;
+            const result = findBlockRecursively(blockId, blockArray);
+            if (result && result.block) {
+                result.block.columnCount = count;
 
                 // columns 배열 초기화 및 크기 조정 (각 열은 블록 배열)
-                if (!block.columns) block.columns = [];
-                while (block.columns.length < count) {
-                    block.columns.push([]); // 빈 블록 배열
+                if (!result.block.columns) result.block.columns = [];
+                while (result.block.columns.length < count) {
+                    result.block.columns.push([]); // 빈 블록 배열
                 }
 
                 editor.saveState();
@@ -1543,13 +1572,30 @@
     // 선택된 블록 삭제
     function deleteSelectedBlock() {
         if (!selectedBlock) return;
+
+        // 열 내부 블록인 경우
+        if (selectedBlock.parent && selectedBlock.columnIndex !== null) {
+            const parent = selectedBlock.parent;
+            if (parent.columns && parent.columns[selectedBlock.columnIndex]) {
+                parent.columns[selectedBlock.columnIndex] = parent.columns[selectedBlock.columnIndex].filter(
+                    b => b.id !== selectedBlock.id
+                );
+            }
+        } else {
+            // 일반 블록인 경우
+            if (selectedBlock.isMain) {
+                blocks = blocks.filter(b => b.id !== selectedBlock.id);
+            } else {
+                sidebarBlocks = sidebarBlocks.filter(b => b.id !== selectedBlock.id);
+            }
+        }
+
         if (selectedBlock.isMain) {
-            blocks = blocks.filter(b => b.id !== selectedBlock.id);
             renderCanvas();
         } else {
-            sidebarBlocks = sidebarBlocks.filter(b => b.id !== selectedBlock.id);
             renderSidebar();
         }
+
         selectedBlock = null;
         updatePropertiesPanel(null);
         editor.saveState();
