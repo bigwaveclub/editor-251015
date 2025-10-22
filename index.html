@@ -1063,22 +1063,41 @@
             case 'columns':
         const colCount = block.columnCount || 2;
         const columns = block.columns || [];
+        const isLocked = block.isLocked || false;
         let totalBlocks = 0;
         columns.forEach(col => { if (col) totalBlocks += col.length; });
 
         html += `
             <div class="property-section">
+                <label class="flex items-center gap-2 cursor-pointer mb-4 p-3 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${isLocked ? 'checked' : ''}
+                               onchange="updateBlockProperty('${block.id}', 'isLocked', this.checked, ${block.area === 'main'})" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div>
+                        <span class="text-sm font-semibold text-indigo-700">열 레이아웃 확정</span>
+                        <p class="text-xs text-indigo-600 mt-1">
+                            ${isLocked ? '✓ 확정됨 - 내부 블록 편집 가능' : '미확정 - 열 개수만 변경 가능'}
+                        </p>
+                    </div>
+                </label>
+            </div>
+            <div class="property-section">
                 <label class="block text-sm font-medium mb-2">열 개수</label>
-                <select class="input-field" onchange="changeColumnCount('${block.id}', parseInt(this.value), ${block.area === 'main'})">
+                <select class="input-field ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${isLocked ? 'disabled' : ''}
+                        onchange="changeColumnCount('${block.id}', parseInt(this.value), ${block.area === 'main'})">
                     <option value="1" ${colCount === 1 ? 'selected' : ''}>1열</option>
                     <option value="2" ${colCount === 2 ? 'selected' : ''}>2열</option>
                     <option value="3" ${colCount === 3 ? 'selected' : ''}>3열</option>
                     <option value="4" ${colCount === 4 ? 'selected' : ''}>4열</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-2">
-                    왼쪽 블록 도구에서 각 열로 블록을 드래그하세요.<br>
-                    데스크탑: 좌우 배치, 모바일: 상하 배치<br>
-                    현재 ${totalBlocks}개의 블록이 포함되어 있습니다.
+                    ${isLocked
+                        ? '열이 확정되었습니다. 내부 블록을 클릭하여 편집하세요.'
+                        : '왼쪽 블록 도구에서 각 열로 블록을 드래그하세요.<br>데스크탑: 좌우 배치, 모바일: 상하 배치'}
+                    <br>현재 ${totalBlocks}개의 블록이 포함되어 있습니다.
                 </p>
             </div>`;
         break;
@@ -1638,6 +1657,7 @@
             case 'columns':
             const columnCount = block.columnCount || 2;
             const columns = block.columns || [[], [], [], []];
+            const isLocked = block.isLocked || false;
 
             // 각 열을 렌더링
             contentHTML = `
@@ -1659,23 +1679,31 @@
                 if (columnBlocks.length === 0) {
                     // 빈 열에는 placeholder
                     columnEl.innerHTML = `
-                        <div style="text-align: center; color: #999; padding: 20px; font-size: 13px;">
+                        <div style="text-align: center; color: #999; padding: 20px; font-size: 13px; pointer-events: none;">
                             <svg style="width: 32px; height: 32px; margin: 0 auto 8px; opacity: 0.3;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                             </svg>
-                            <div>블록을 드래그하세요</div>
+                            <div>${isLocked ? '내부 블록을 드래그하세요' : '열을 확정한 후 블록을 드래그하세요'}</div>
                         </div>`;
                 } else {
                     // 열 내부 블록들 렌더링
                     columnBlocks.forEach(colBlock => {
-                        columnEl.appendChild(renderBlock(colBlock, columnEl, area));
+                        const innerBlockEl = renderBlock(colBlock, columnEl, area);
+                        // isLocked에 따라 내부 블록 선택 가능 여부 제어
+                        if (!isLocked) {
+                            innerBlockEl.style.pointerEvents = 'none';
+                            innerBlockEl.style.opacity = '0.6';
+                        }
+                        columnEl.appendChild(innerBlockEl);
                     });
                 }
 
                 columnsContainer.appendChild(columnEl);
 
-                // 드래그 앤 드롭 이벤트 추가
-                addColumnDropListeners(columnEl, block, i, area === 'main');
+                // 드래그 앤 드롭 이벤트 추가 (확정된 경우에만)
+                if (isLocked) {
+                    addColumnDropListeners(columnEl, block, i, area === 'main');
+                }
             }
 
             return blockEl;
@@ -2273,6 +2301,7 @@ const createNewBlock = (type, area) => {
                 type,
                 area,
                 columnCount: 2, // 1, 2, 3, 4 중 선택
+                isLocked: false, // false: 열 개수 편집, true: 내부 블록 편집
                 columns: [
                     [], // 각 열은 블록 배열
                     [],
