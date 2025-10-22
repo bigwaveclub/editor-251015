@@ -1148,8 +1148,23 @@
                 <input type="url" class="input-field mb-3" value="${img.url || ''}"
                        onchange="updateImageAtIndex('${block.id}', ${i}, 'url', this.value, ${block.area === 'main'})" />
                 <label class="block text-sm font-medium mb-2">캡션</label>
-                <input type="text" class="input-field mb-3" value="${img.caption || ''}"
+                <input type="text" class="input-field mb-2" value="${img.caption || ''}"
                        onchange="updateImageAtIndex('${block.id}', ${i}, 'caption', this.value, ${block.area === 'main'})" />
+                <label class="block text-sm font-medium mb-2">캡션 정렬</label>
+                <div class="flex gap-1 mb-3">
+                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'left', ${block.area === 'main'})">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M3 8h8M3 12h14M3 16h8"/></svg>
+                    </button>
+                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'center', ${block.area === 'main'})">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M6 8h8M3 12h14M6 16h8"/></svg>
+                    </button>
+                    <button class="flex-1 px-3 py-2 text-sm border rounded ${(img.textAlign || 'left') === 'right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                            onclick="updateImageAtIndex('${block.id}', ${i}, 'textAlign', 'right', ${block.area === 'main'})">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4h14M8 8h8M3 12h14M8 16h8"/></svg>
+                    </button>
+                </div>
                 <label class="block text-sm font-medium mb-2">랜딩 URL</label>
                 <div class="grid grid-cols-2 gap-2 mb-3">
                     <div>
@@ -1629,9 +1644,17 @@
 
         // 선택 이벤트
         blockEl.addEventListener('click', (e) => {
-            // 열 블록이 확정된 경우 내부 블록만 선택 가능
+            // 열 블록이 확정된 경우
             if (block.type === 'columns' && block.isLocked) {
-                return; // 열 블록 자체는 선택하지 않음
+                // 드래그 핸들이나 빈 공간(column-drop-zone의 placeholder)을 클릭하면 열 블록 선택
+                if (e.target.closest('.drag-handle') ||
+                    e.target.classList.contains('column-drop-zone') ||
+                    e.target.closest('.columns-container') === e.currentTarget.querySelector('.columns-container')) {
+                    selectBlock(block.id, area === 'main');
+                    return;
+                }
+                // 내부 블록을 클릭하면 아무것도 하지 않음 (내부 블록의 이벤트 처리)
+                return;
             }
             if (!e.target.closest('.text-block')) {
                 selectBlock(block.id, area === 'main');
@@ -1806,24 +1829,46 @@
                  style="width: 100%; border-radius: 0; box-shadow: none;"
                  onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />`;
 
+        // 캡션이 비어있는지 체크 (텍스트 내용 추출)
+        const captionText = (img.caption || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+        const hasCaption = captionText && captionText !== '캡션을 입력하세요';
+        const textAlign = img.textAlign || 'left';
+
         contentHTML = `
             ${dragHandle}
             <div class="flex flex-col items-center" style="margin: 20px 0; text-align: center;">
                 ${imgHTML}
                 <div contenteditable="true" class="text-block image-caption-editor exported-font"
                      data-block-id="${block.id}" data-image-index="0"
-                     style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text;">${img.caption || '<p style="font-size: 14px; color: #666;">캡션을 입력하세요</p>'}</div>
+                     style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text; text-align: ${textAlign}; width: 100%; ${!hasCaption ? 'display: none;' : ''}">${img.caption || '<p style="font-size: 14px; color: #666;">캡션을 입력하세요</p>'}</div>
             </div>`;
 
         // 캡션 이벤트 리스너는 나중에 추가
         blockEl.innerHTML = contentHTML;
         const captionEl = blockEl.querySelector('.image-caption-editor');
         if (captionEl) {
+            // 캡션 클릭 시 표시
+            captionEl.addEventListener('focus', (e) => {
+                e.target.style.display = 'block';
+            });
             captionEl.addEventListener('input', (e) => {
                 if (!block.images[0]) block.images[0] = {};
                 block.images[0].caption = e.target.innerHTML;
+                // 캡션 내용 체크
+                const text = e.target.innerText.replace(/\s+/g, '').trim();
+                if (!text || text === '캡션을 입력하세요') {
+                    e.target.style.display = 'none';
+                } else {
+                    e.target.style.display = 'block';
+                }
                 clearTimeout(block.saveTimer);
                 block.saveTimer = setTimeout(editor.saveState, 1000);
+            });
+            captionEl.addEventListener('blur', (e) => {
+                const text = e.target.innerText.replace(/\s+/g, '').trim();
+                if (!text || text === '캡션을 입력하세요') {
+                    e.target.style.display = 'none';
+                }
             });
             captionEl.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1837,6 +1882,11 @@
             const img = images[i] || {};
             const landingUrl = getLandingUrl({landingUrlAos: img.landingUrlAos, landingUrlIos: img.landingUrlIos, landingUrlWeb: img.landingUrlWeb, landingUrlMo: img.landingUrlMo, landingUrl: img.landingUrl});
             const target = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+
+            // 캡션이 비어있는지 체크
+            const captionText = (img.caption || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+            const hasCaption = captionText && !captionText.startsWith('캡션');
+            const textAlign = img.textAlign || 'left';
 
             const imgHTML = landingUrl ?
                 `<a href="${landingUrl}"${target} style="display: block;">
@@ -1855,7 +1905,7 @@
                     ${imgHTML}
                     <div contenteditable="true" class="text-block image-caption-editor exported-font"
                          data-block-id="${block.id}" data-image-index="${i}"
-                         style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text;">${img.caption || '<p style="font-size: 14px; color: #666;">캡션 ' + (i + 1) + '</p>'}</div>
+                         style="font-size: 14px; color: #666; margin-top: 8px; min-height: 1em; outline: none; cursor: text; text-align: ${textAlign}; width: 100%; ${!hasCaption ? 'display: none;' : ''}">${img.caption || '<p style="font-size: 14px; color: #666;">캡션 ' + (i + 1) + '</p>'}</div>
                 </div>`;
         }
 
@@ -1869,11 +1919,28 @@
         blockEl.innerHTML = contentHTML;
         blockEl.querySelectorAll('.image-caption-editor').forEach(captionEl => {
             const imageIndex = parseInt(captionEl.getAttribute('data-image-index'));
+            // 캡션 포커스 시 표시
+            captionEl.addEventListener('focus', (e) => {
+                e.target.style.display = 'block';
+            });
             captionEl.addEventListener('input', (e) => {
                 if (!block.images[imageIndex]) block.images[imageIndex] = {};
                 block.images[imageIndex].caption = e.target.innerHTML;
+                // 캡션 내용 체크
+                const text = e.target.innerText.replace(/\s+/g, '').trim();
+                if (!text || text.startsWith('캡션')) {
+                    e.target.style.display = 'none';
+                } else {
+                    e.target.style.display = 'block';
+                }
                 clearTimeout(block.saveTimer);
                 block.saveTimer = setTimeout(editor.saveState, 1000);
+            });
+            captionEl.addEventListener('blur', (e) => {
+                const text = e.target.innerText.replace(/\s+/g, '').trim();
+                if (!text || text.startsWith('캡션')) {
+                    e.target.style.display = 'none';
+                }
             });
             captionEl.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -2323,6 +2390,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/600x400/6366f1/ffffff?text=Image+1',
                         caption: '',
+                        textAlign: 'left',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2333,6 +2401,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+2',
                         caption: '',
+                        textAlign: 'left',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2343,6 +2412,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+3',
                         caption: '',
+                        textAlign: 'left',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2353,6 +2423,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+4',
                         caption: '',
+                        textAlign: 'left',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
