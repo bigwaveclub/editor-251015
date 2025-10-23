@@ -1,2 +1,2 @@
 # editor-251015
-publog html editor
+html editor
