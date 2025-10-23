@@ -1175,6 +1175,11 @@
             case 'button':
     html += `
         <div class="property-section">
+            <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
+            <input type="text" class="input-field" value="${block.text || '클릭하기'}"
+                   onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+        </div>
+        <div class="property-section">
             <label class="block text-sm font-medium mb-2">배경 색상</label>
             <div class="flex gap-2">
                 <input type="color" value="${block.bgColor || '#6366f1'}"
@@ -1250,6 +1255,16 @@
             case 'banner':
     html += `
         <div class="property-section">
+            <label class="block text-sm font-medium mb-2">서브 텍스트</label>
+            <input type="text" class="input-field" value="${block.subText || '서브 텍스트'}"
+                   onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">메인 텍스트</label>
+            <input type="text" class="input-field" value="${block.mainText || '메인 텍스트'}"
+                   onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
+        </div>
+        <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
             <div class="flex gap-2">
                 <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}"
@@ -1319,6 +1334,11 @@
             case 'label':
                 html += `
                     <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">라벨 텍스트</label>
+                        <input type="text" class="input-field" value="${block.text || '라벨'}"
+                               onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+                    </div>
+                    <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
                             <input type="color" value="${block.bgColor || '#F5F5F5'}"
@@ -1341,6 +1361,16 @@
             case 'callout':
                 html += `
                     <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">제목</label>
+                        <input type="text" class="input-field" value="${block.title || '콜아웃 제목'}"
+                               onchange="updateBlockProperty('${block.id}', 'title', this.value, true)" />
+                    </div>
+                    <div class="property-section">
+                        <label class="block text-sm font-medium mb-2">내용</label>
+                        <textarea class="input-field" rows="3"
+                                  onchange="updateBlockProperty('${block.id}', 'content', this.value, true)">${block.content || '콜아웃 내용'}</textarea>
+                    </div>
+                    <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
                             <input type="color" value="${block.bgColor || '#F5F5F5'}"
@@ -1362,6 +1392,16 @@
                 
             case 'listitem':
     html += `
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">제목</label>
+            <input type="text" class="input-field" value="${block.title || '카드 제목'}"
+                   onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">소제목</label>
+            <input type="text" class="input-field" value="${block.subtitle || '카드 소제목'}"
+                   onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
+        </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
             <div class="grid grid-cols-2 gap-2">
@@ -1958,7 +1998,7 @@
     contentHTML = `
         ${dragHandle}
         <div style="text-align: ${btnAlign}; padding: 16px 0;">
-            <span contenteditable="true" style="${btnStyle}; outline: none;" class="text-block button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" data-block-id="${block.id}" data-field="text">
+            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
                 ${block.text || '버튼 텍스트'}
             </span>
         </div>`;
@@ -1970,8 +2010,8 @@
     contentHTML = `
         ${dragHandle}
         <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-            <div contenteditable="true" class="text-block banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px; outline: none;" data-block-id="${block.id}" data-field="subText">${block.subText || '서브 텍스트'}</div>
-            <div contenteditable="true" class="text-block banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700; outline: none;" data-block-id="${block.id}" data-field="mainText">${block.mainText || '메인 텍스트'}</div>
+            <div class="banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</div>
+            <div class="banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</div>
         </div>`;
     break;
                 
@@ -1980,7 +2020,7 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="flex items-center gap-2" style="margin: 0 0 12px 0;">
-                        <span contenteditable="true" style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500; outline: none;" class="text-block inline-block rounded-full exported-font label-text" data-block-id="${block.id}" data-field="text">
+                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block rounded-full exported-font label-text">
                             ${block.text || '라벨'}
                         </span>
                     </div>`;
@@ -1991,8 +2031,8 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="callout-box exported-font rounded-lg" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
-                        <div contenteditable="true" class="text-block callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px; outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '콜아웃 제목'}</div>
-                        <div contenteditable="true" class="text-block callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; outline: none;" data-block-id="${block.id}" data-field="content">${block.content || '콜아웃 내용입니다.'}</div>
+                        <div class="callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px;">${block.title || '콜아웃 제목'}</div>
+                        <div class="callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">${block.content || '콜아웃 내용입니다.'}</div>
                     </div>`;
                 break;
                 
@@ -2002,8 +2042,8 @@
     contentHTML = `
         ${dragHandle}
         <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
-            <div contenteditable="true" class="text-block listitem-title text-sm font-semibold text-gray-900 mb-1" style="outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '리스트 제목'}</div>
-            <div contenteditable="true" class="text-block listitem-subtitle text-xs text-gray-500" style="outline: none;" data-block-id="${block.id}" data-field="subtitle">${block.subtitle || '리스트 소제목'}</div>
+            <div class="listitem-title text-sm font-semibold text-gray-900 mb-1">${block.title || '카드 제목'}</div>
+            <div class="listitem-subtitle text-xs text-gray-500">${block.subtitle || '카드 소제목'}</div>
         </div>`;
     break;
         }
@@ -2474,6 +2514,8 @@ const createNewBlock = (type, area) => {
             return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
         case 'callout':
             return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+        case 'listitem':
+            return { id, type, area, title: '카드 제목', subtitle: '카드 소제목', showBorder: true, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         default:
             return { id, type: 'text', area, content: '<p>알 수 없는 블록 타입</p>' };
     }
@@ -2894,14 +2936,14 @@ let html = `
     const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
     const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     const btnElement = hasBtnUrl ?
-        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${normalizeRichText(block.text || '클릭하기')}</a>` :
-        `<span class="plg-btn" style="${btnStyle}">${normalizeRichText(block.text || '클릭하기')}</span>`;
+        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text || '클릭하기'}</a>` :
+        `<span class="plg-btn" style="${btnStyle}">${block.text || '클릭하기'}</span>`;
     html += `\n    <div class="plg-btn-wrap" style="text-align: ${btnAlign};">${btnElement}</div>`;
     break;
                  case 'banner':
     const bAlign = block.textAlign || 'left';
     const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
-    const bInner = `\n      <p class="plg-bnr-sub">${normalizeRichText(block.subText || '서브 텍스트')}</p>\n      <p class="plg-bnr-txt">${normalizeRichText(block.mainText || '메인 텍스트')}</p>`;
+    const bInner = `\n      <p class="plg-bnr-sub">${block.subText || '서브 텍스트'}</p>\n      <p class="plg-bnr-txt">${block.mainText || '메인 텍스트'}</p>`;
     const hasBnrUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     if (hasBnrUrl) {
         const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
@@ -2912,20 +2954,20 @@ let html = `
     break;
                 case 'label':
                     const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${normalizeRichText(block.text || '라벨')}</span></div>`;
+                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text || '라벨'}</span></div>`;
                     break;
                 case 'callout':
             const coStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
             html += `\n    <div class="plg-box" style="${coStyle}">
-              <div class="plg-box-head">${normalizeRichText(block.title || '콜아웃 제목')}</div>
-              <div class="plg-box-body">${normalizeRichText(block.content || '콜아웃 내용')}</div>
+              <div class="plg-box-head">${block.title || '콜아웃 제목'}</div>
+              <div class="plg-box-body">${block.content || '콜아웃 내용'}</div>
             </div>`;
             break;
                 case 'listitem':
             const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
             const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
             const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
-            const itemContent = `\n      <div class="plg-item-title">${normalizeRichText(block.title || '리스트 제목')}</div>\n      <div class="plg-item-sub">${normalizeRichText(block.subtitle || '리스트 소제목')}</div>`;
+            const itemContent = `\n      <div class="plg-item-title">${block.title || '카드 제목'}</div>\n      <div class="plg-item-sub">${block.subtitle || '카드 소제목'}</div>`;
             if (hasItemUrl) {
                 html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
             } else {
