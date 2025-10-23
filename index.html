@@ -2784,7 +2784,7 @@ let html = `
                                     const img = colBlock.images?.[0] || {};
                                     const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                                     const captionAlign = img.textAlign || 'center';
-                                    columnBlocksHTML += `\n        <div style="margin: 12px 0; text-align: center;">
+                                    columnBlocksHTML += `\n        <div style="margin: 0 0; text-align: center;">
             <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />
             ${img.caption || colBlock.caption ? `<div style="font-size: 14px; color: #666; margin-top: 8px; text-align: ${captionAlign};">${normalizeRichText(img.caption || colBlock.caption || '')}</div>` : ''}
         </div>`;
@@ -3435,4 +3435,3 @@ function toggleContent(id) {
 </body>
 
 </html>
-
