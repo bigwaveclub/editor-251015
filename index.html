@@ -2894,14 +2894,14 @@ let html = `
     const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
     const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     const btnElement = hasBtnUrl ?
-        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text}</a>` :
-        `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
+        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${normalizeRichText(block.text || '클릭하기')}</a>` :
+        `<span class="plg-btn" style="${btnStyle}">${normalizeRichText(block.text || '클릭하기')}</span>`;
     html += `\n    <div class="plg-btn-wrap" style="text-align: ${btnAlign};">${btnElement}</div>`;
     break;
                  case 'banner':
     const bAlign = block.textAlign || 'left';
     const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
-    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-txt">${block.mainText}</p>`;
+    const bInner = `\n      <p class="plg-bnr-sub">${normalizeRichText(block.subText || '서브 텍스트')}</p>\n      <p class="plg-bnr-txt">${normalizeRichText(block.mainText || '메인 텍스트')}</p>`;
     const hasBnrUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     if (hasBnrUrl) {
         const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
@@ -2911,22 +2911,21 @@ let html = `
     }
     break;
                 case 'label':
-                    case 'label':
                     const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text}</span></div>`;
+                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${normalizeRichText(block.text || '라벨')}</span></div>`;
                     break;
                 case 'callout':
             const coStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
             html += `\n    <div class="plg-box" style="${coStyle}">
-              <div class="plg-box-head">${block.title}</div>
-              <div class="plg-box-body">${block.content}</div>
+              <div class="plg-box-head">${normalizeRichText(block.title || '콜아웃 제목')}</div>
+              <div class="plg-box-body">${normalizeRichText(block.content || '콜아웃 내용')}</div>
             </div>`;
             break;
                 case 'listitem':
             const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
             const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
             const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
-            const itemContent = `\n      <div class="plg-item-title">${block.title || ''}</div>\n      <div class="plg-item-sub">${block.subtitle || ''}</div>`;
+            const itemContent = `\n      <div class="plg-item-title">${normalizeRichText(block.title || '리스트 제목')}</div>\n      <div class="plg-item-sub">${normalizeRichText(block.subtitle || '리스트 소제목')}</div>`;
             if (hasItemUrl) {
                 html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
             } else {
