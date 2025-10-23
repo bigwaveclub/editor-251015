@@ -1177,9 +1177,7 @@
             case 'button':
     html += `
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
-            <input type="text" class="input-field" value="${block.text || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+            <p class="text-sm text-gray-600 mb-3">버튼 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">배경 색상</label>
@@ -1245,7 +1243,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1257,14 +1255,7 @@
             case 'banner':
     html += `
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">메인 텍스트</label>
-            <input type="text" class="input-field" value="${block.mainText || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
-        </div>
-        <div class="property-section">
-            <label class="block text-sm font-medium mb-2">서브 텍스트</label>
-            <input type="text" class="input-field" value="${block.subText || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
+            <p class="text-sm text-gray-600 mb-3">배너 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
@@ -1324,7 +1315,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1336,25 +1327,23 @@
             case 'label':
                 html += `
                     <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">라벨 텍스트</label>
-                        <input type="text" class="input-field" value="${block.text || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
+                        <p class="text-sm text-gray-600 mb-3">라벨 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
                         </div>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">텍스트 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="color" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
                     </div>`;
@@ -1363,30 +1352,23 @@
             case 'callout':
                 html += `
                     <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">콜아웃 제목</label>
-                        <input type="text" class="input-field" value="${block.title || ''}" 
-                               onchange="updateBlockProperty('${block.id}', 'title', this.value, true)" />
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">콜아웃 내용</label>
-                        <textarea class="input-field" rows="3" 
-                                  onchange="updateBlockProperty('${block.id}', 'content', this.value, true)">${block.content || ''}</textarea>
+                        <p class="text-sm text-gray-600 mb-3">콜아웃 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
                         </div>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">텍스트 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="color" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
                     </div>`;
@@ -1395,14 +1377,7 @@
             case 'listitem':
     html += `
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">제목</label>
-            <input type="text" class="input-field" value="${block.title || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
-        </div>
-        <div class="property-section">
-            <label class="block text-sm font-medium mb-2">소제목</label>
-            <input type="text" class="input-field" value="${block.subtitle || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
+            <p class="text-sm text-gray-600 mb-3">리스트 아이템 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
@@ -1432,7 +1407,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.showBorder ? 'checked' : ''} 
+                    <input type="checkbox" ${block.showBorder ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1442,7 +1417,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, false)" />
                     <span class="toggle-slider"></span>
                 </label>
