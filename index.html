@@ -35,11 +35,10 @@
         /* 드래그 핸들 */
         .drag-handle { opacity: 0; transition: opacity .2s; cursor: grab; }
         .block-container:hover .drag-handle { opacity: 1; }
-        
+
         /* 블록 컨테이너 */
         .block-container { position: relative; margin-bottom: 0; padding: 0; border-radius: 6px; transition: all .2s; }
-        .block-container:hover { background: transparent; padding: 8px; }
-        .block-container:hover { background: #fafafa; }
+        .block-container:hover { background: #f9fafb; border-left: 3px solid #e5e7eb; }
         .block-container.selected { outline: 2px solid var(--primary); outline-offset: 2px; background: #f5f5ff; }
         
         /* 프로퍼티 패널 */
@@ -1211,6 +1210,23 @@
             </div>
         </div>
         <div class="property-section">
+            <label class="block text-sm font-medium mb-2">버튼 정렬</label>
+            <div class="flex gap-2">
+                <button class="flex-1 px-3 py-2 text-sm border rounded ${(block.textAlign || 'center') === 'left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'left', true)">
+                    왼쪽
+                </button>
+                <button class="flex-1 px-3 py-2 text-sm border rounded ${(block.textAlign || 'center') === 'center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'center', true)">
+                    가운데
+                </button>
+                <button class="flex-1 px-3 py-2 text-sm border rounded ${(block.textAlign || 'center') === 'right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'}"
+                        onclick="updateBlockProperty('${block.id}', 'textAlign', 'right', true)">
+                    오른쪽
+                </button>
+            </div>
+        </div>
+        <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
             <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -1821,7 +1837,7 @@
         // 캡션이 비어있는지 체크 (텍스트 내용 추출)
         const captionText = (img.caption || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
         const hasCaption = captionText && captionText !== '캡션을 입력하세요';
-        const textAlign = img.textAlign || 'left';
+        const textAlign = img.textAlign || 'center';
 
         contentHTML = `
             ${dragHandle}
@@ -1875,7 +1891,7 @@
             // 캡션이 비어있는지 체크
             const captionText = (img.caption || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
             const hasCaption = captionText && !captionText.startsWith('캡션');
-            const textAlign = img.textAlign || 'left';
+            const textAlign = img.textAlign || 'center';
 
             const imgHTML = landingUrl ?
                 `<a href="${landingUrl}"${target} style="display: block;">
@@ -1954,10 +1970,11 @@
                 break;
                 
             case 'button':
+    const btnAlign = block.textAlign || 'center';
     const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'};`;
     contentHTML = `
         ${dragHandle}
-        <div class="text-center py-4">
+        <div style="text-align: ${btnAlign}; padding: 16px 0;">
             <span style="${btnStyle}" class="inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;">
                 ${block.text || '버튼 텍스트'}
             </span>
@@ -2379,7 +2396,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/600x400/6366f1/ffffff?text=Image+1',
                         caption: '',
-                        textAlign: 'left',
+                        textAlign: 'center',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2390,7 +2407,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+2',
                         caption: '',
-                        textAlign: 'left',
+                        textAlign: 'center',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2401,7 +2418,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+3',
                         caption: '',
-                        textAlign: 'left',
+                        textAlign: 'center',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2412,7 +2429,7 @@ const createNewBlock = (type, area) => {
                     {
                         url: 'https://placehold.co/300x400/6366f1/ffffff?text=Image+4',
                         caption: '',
-                        textAlign: 'left',
+                        textAlign: 'center',
                         landingUrl: '',
                         landingUrlAos: '',
                         landingUrlIos: '',
@@ -2436,7 +2453,7 @@ const createNewBlock = (type, area) => {
         case 'spacer':
             return { id, type, area, height: 20 };
         case 'button':
-            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
+            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', textAlign: 'center', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         case 'banner':
             return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
         case 'label':
@@ -2731,9 +2748,10 @@ let html = `
                                     // 이미지 블록 렌더링 (단순화 버전 - 단일 이미지만)
                                     const img = colBlock.images?.[0] || {};
                                     const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
+                                    const captionAlign = img.textAlign || 'center';
                                     columnBlocksHTML += `\n        <div style="margin: 12px 0; text-align: center;">
             <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />
-            ${img.caption || colBlock.caption ? `<div style="font-size: 14px; color: #666; margin-top: 8px;">${normalizeRichText(img.caption || colBlock.caption || '')}</div>` : ''}
+            ${img.caption || colBlock.caption ? `<div style="font-size: 14px; color: #666; margin-top: 8px; text-align: ${captionAlign};">${normalizeRichText(img.caption || colBlock.caption || '')}</div>` : ''}
         </div>`;
                                     break;
                                 case 'divider':
@@ -2743,8 +2761,9 @@ let html = `
                                     columnBlocksHTML += `\n        <div style="height: ${colBlock.height || 20}px;"></div>`;
                                     break;
                                 case 'button':
+                                    const btnAlign = colBlock.textAlign || 'center';
                                     const btnStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor};`;
-                                    columnBlocksHTML += `\n        <div style="text-align: center; padding: 12px 0;"><span class="plg-btn" style="${btnStyle}; display: inline-block; padding: 12px 24px; border-radius: 9999px; font-weight: 700;">${colBlock.text}</span></div>`;
+                                    columnBlocksHTML += `\n        <div style="text-align: ${btnAlign}; padding: 12px 0;"><span class="plg-btn" style="${btnStyle}; display: inline-block; padding: 12px 24px; border-radius: 9999px; font-weight: 700;">${colBlock.text}</span></div>`;
                                     break;
                                 default:
                                     // 기타 블록 타입
@@ -2810,9 +2829,10 @@ let html = `
                         <img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />`;
+                const captionAlign = img.textAlign || 'center';
                 html += `\n    <div style="margin: 20px 0; text-align: center;">
                     ${imgWrapper}
-                    ${img.caption ? `<div class="plg-image-caption">${normalizeRichText(img.caption)}</div>` : ''}
+                    ${img.caption ? `<div class="plg-image-caption" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
                 </div>`;
             } else {
                 // 2~4분할 이미지
@@ -2829,10 +2849,11 @@ let html = `
                         </a>` :
                         `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
 
+                    const captionAlign = img.textAlign || 'center';
                     imagesHTML += `
               <div class="plg-image-split-item">
                 ${imgHTML}
-                ${img.caption ? `<div class="plg-image-caption">${normalizeRichText(img.caption)}</div>` : ''}
+                ${img.caption ? `<div class="plg-image-caption" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
               </div>`;
                 }
 
@@ -2847,13 +2868,14 @@ let html = `
                     html += `\n    <div style="height: ${block.height}px;"></div>`;
                     break;
                 case 'button':
+    const btnAlign = block.textAlign || 'center';
     const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
     const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
     const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     const btnElement = hasBtnUrl ?
         `<a href="#" class="plg-btn plg-device-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text}</a>` :
         `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
-    html += `\n    <div class="plg-btn-center">${btnElement}</div>`;
+    html += `\n    <div class="plg-btn-center" style="text-align: ${btnAlign};">${btnElement}</div>`;
     break;
                  case 'banner':
     const bAlign = block.textAlign || 'left';
