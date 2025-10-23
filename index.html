@@ -2782,10 +2782,17 @@ let html = `
                                 case 'image':
                                     // 이미지 블록 렌더링 (단순화 버전 - 단일 이미지만)
                                     const img = colBlock.images?.[0] || {};
+                                    const imgTarget = (img.openInNewTab ?? false) ? ' target="_blank"' : '';
+                                    const hasImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
                                     const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                                     const captionAlign = img.textAlign || 'center';
+                                    const imgWrapper = hasImgUrl ?
+                                        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />
+            </a>` :
+                                        `<img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />`;
                                     columnBlocksHTML += `\n        <div style="margin: 0 0; text-align: center;">
-            <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />
+            ${imgWrapper}
             ${img.caption || colBlock.caption ? `<div style="font-size: 14px; color: #666; margin-top: 8px; text-align: ${captionAlign};">${normalizeRichText(img.caption || colBlock.caption || '')}</div>` : ''}
         </div>`;
                                     break;
