@@ -239,7 +239,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                         </div>
-                        <span class="text-sm font-medium">리스트 아이템</span>
+                        <span class="text-sm font-medium">카드</span>
                     </div>
                     <div draggable="true" data-type="divider" class="block-item">
                         <div class="block-item-icon">
@@ -685,7 +685,6 @@
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('publog_editor_data', JSON.stringify(data));
-            console.log('✅ 자동 저장:', new Date().toLocaleTimeString());
         } catch (err) {
             // localStorage 사용 불가 환경 - SecurityError는 무시
             if (err.name !== 'SecurityError') {
@@ -839,7 +838,6 @@
                     timestamp: new Date().toISOString()
                 };
                 localStorage.setItem('publog_editor_data', JSON.stringify(data));
-                console.log('🔄 자동 백업:', new Date().toLocaleTimeString());
             }
         } catch (err) {
             // localStorage 사용 불가 환경 - 조용히 무시
@@ -998,7 +996,7 @@
             label: '라벨',
             callout: '콜아웃 박스',
             toggle: '토글 블록',
-            listitem: '리스트 아이템',
+            listitem: '카드',
             divider: '구분선',
             spacer: '공백'
         };
@@ -1177,9 +1175,6 @@
             case 'button':
     html += `
         <div class="property-section">
-            <p class="text-sm text-gray-600 mb-3">버튼 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
-        </div>
-        <div class="property-section">
             <label class="block text-sm font-medium mb-2">배경 색상</label>
             <div class="flex gap-2">
                 <input type="color" value="${block.bgColor || '#6366f1'}"
@@ -1255,9 +1250,6 @@
             case 'banner':
     html += `
         <div class="property-section">
-            <p class="text-sm text-gray-600 mb-3">배너 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
-        </div>
-        <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
             <div class="flex gap-2">
                 <button class="btn flex-1 ${(block.textAlign || 'left') === 'left' ? 'btn-primary' : 'btn-secondary'}"
@@ -1327,9 +1319,6 @@
             case 'label':
                 html += `
                     <div class="property-section">
-                        <p class="text-sm text-gray-600 mb-3">라벨 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
-                    </div>
-                    <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
                             <input type="color" value="${block.bgColor || '#F5F5F5'}"
@@ -1352,9 +1341,6 @@
             case 'callout':
                 html += `
                     <div class="property-section">
-                        <p class="text-sm text-gray-600 mb-3">콜아웃 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
-                    </div>
-                    <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
                             <input type="color" value="${block.bgColor || '#F5F5F5'}"
@@ -1376,9 +1362,6 @@
                 
             case 'listitem':
     html += `
-        <div class="property-section">
-            <p class="text-sm text-gray-600 mb-3">리스트 아이템 텍스트는 캔버스에서 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
-        </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
             <div class="grid grid-cols-2 gap-2">
@@ -1975,7 +1958,7 @@
     contentHTML = `
         ${dragHandle}
         <div style="text-align: ${btnAlign}; padding: 16px 0;">
-            <span contenteditable="true" style="${btnStyle}; outline: none;" class="button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;" data-block-id="${block.id}" data-field="text">
+            <span contenteditable="true" style="${btnStyle}; outline: none;" class="text-block button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" data-block-id="${block.id}" data-field="text">
                 ${block.text || '버튼 텍스트'}
             </span>
         </div>`;
@@ -1987,8 +1970,8 @@
     contentHTML = `
         ${dragHandle}
         <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-            <div contenteditable="true" class="banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px; outline: none;" data-block-id="${block.id}" data-field="subText">${block.subText || '서브 텍스트'}</div>
-            <div contenteditable="true" class="banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700; outline: none;" data-block-id="${block.id}" data-field="mainText">${block.mainText || '메인 텍스트'}</div>
+            <div contenteditable="true" class="text-block banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px; outline: none;" data-block-id="${block.id}" data-field="subText">${block.subText || '서브 텍스트'}</div>
+            <div contenteditable="true" class="text-block banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700; outline: none;" data-block-id="${block.id}" data-field="mainText">${block.mainText || '메인 텍스트'}</div>
         </div>`;
     break;
                 
@@ -1997,7 +1980,7 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="flex items-center gap-2" style="margin: 0 0 12px 0;">
-                        <span contenteditable="true" style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500; outline: none;" class="inline-block rounded-full exported-font label-text" data-block-id="${block.id}" data-field="text">
+                        <span contenteditable="true" style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500; outline: none;" class="text-block inline-block rounded-full exported-font label-text" data-block-id="${block.id}" data-field="text">
                             ${block.text || '라벨'}
                         </span>
                     </div>`;
@@ -2008,8 +1991,8 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="callout-box exported-font rounded-lg" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
-                        <div contenteditable="true" class="callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px; outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '콜아웃 제목'}</div>
-                        <div contenteditable="true" class="callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; outline: none;" data-block-id="${block.id}" data-field="content">${block.content || '콜아웃 내용입니다.'}</div>
+                        <div contenteditable="true" class="text-block callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px; outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '콜아웃 제목'}</div>
+                        <div contenteditable="true" class="text-block callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; outline: none;" data-block-id="${block.id}" data-field="content">${block.content || '콜아웃 내용입니다.'}</div>
                     </div>`;
                 break;
                 
@@ -2019,8 +2002,8 @@
     contentHTML = `
         ${dragHandle}
         <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
-            <div contenteditable="true" class="listitem-title text-sm font-semibold text-gray-900 mb-1" style="outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '리스트 제목'}</div>
-            <div contenteditable="true" class="listitem-subtitle text-xs text-gray-500" style="outline: none;" data-block-id="${block.id}" data-field="subtitle">${block.subtitle || '리스트 소제목'}</div>
+            <div contenteditable="true" class="text-block listitem-title text-sm font-semibold text-gray-900 mb-1" style="outline: none;" data-block-id="${block.id}" data-field="title">${block.title || '리스트 제목'}</div>
+            <div contenteditable="true" class="text-block listitem-subtitle text-xs text-gray-500" style="outline: none;" data-block-id="${block.id}" data-field="subtitle">${block.subtitle || '리스트 소제목'}</div>
         </div>`;
     break;
         }
@@ -2229,7 +2212,7 @@
                     }
                 }
             } catch (err) {
-                console.log('Column drop error:', err);
+                console.error('Column drop error:', err);
             }
         });
     };
@@ -2939,9 +2922,20 @@ let html = `
               <div class="plg-box-body">${block.content}</div>
             </div>`;
             break;
+                case 'listitem':
+            const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
+            const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+            const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+            const itemContent = `\n      <div class="plg-item-title">${block.title || ''}</div>\n      <div class="plg-item-sub">${block.subtitle || ''}</div>`;
+            if (hasItemUrl) {
+                html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
+            } else {
+                html += `\n    <div class="${itemClass}">${itemContent}\n    </div>`;
+            }
+            break;
             }
         });
-        
+
         html += `\n  </section>`;
         
         if (sidebarBlocks.length > 0) {
