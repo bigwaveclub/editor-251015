@@ -1273,12 +1273,6 @@
                 <option value="4" ${count === 4 ? 'selected' : ''}>4분할</option>
             </select>
             <p class="text-xs text-gray-500 mt-2">데스크탑: 좌우 배치, 모바일: 상하 배치</p>
-        </div>
-        <div class="property-section">
-            <label class="block text-sm font-medium mb-2">라운드 (border-radius)</label>
-            <input type="number" class="input-field" value="${block.borderRadius || 8}" min="0" max="100"
-                   onchange="updateBlockProperty('${block.id}', 'borderRadius', parseInt(this.value), ${block.area === 'main'})" />
-            <p class="text-xs text-gray-500 mt-1">0-100px (0 = 직각, 큰 값 = 둥근 모서리)</p>
         </div>`;
 
     for (let i = 0; i < count; i++) {
@@ -1353,12 +1347,6 @@
                 <input type="text" class="input-field uppercase" value="${block.textColor || '#ffffff'}"
                        onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
             </div>
-        </div>
-        <div class="property-section">
-            <label class="block text-sm font-medium mb-2">라운드 (border-radius)</label>
-            <input type="number" class="input-field" value="${block.borderRadius || 9999}" min="0" max="9999"
-                   onchange="updateBlockProperty('${block.id}', 'borderRadius', parseInt(this.value), true)" />
-            <p class="text-xs text-gray-500 mt-1">0 = 직각, 9999 = 완전한 원형</p>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">버튼 정렬</label>
@@ -1457,12 +1445,6 @@
             </div>
         </div>
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">라운드 (border-radius)</label>
-            <input type="number" class="input-field" value="${block.borderRadius || 12}" min="0" max="100"
-                   onchange="updateBlockProperty('${block.id}', 'borderRadius', parseInt(this.value), true)" />
-            <p class="text-xs text-gray-500 mt-1">0-100px (0 = 직각, 큰 값 = 둥근 모서리)</p>
-        </div>
-        <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
             <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -1524,12 +1506,6 @@
                             <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">라운드 (border-radius)</label>
-                        <input type="number" class="input-field" value="${block.borderRadius || 9999}" min="0" max="9999"
-                               onchange="updateBlockProperty('${block.id}', 'borderRadius', parseInt(this.value), true)" />
-                        <p class="text-xs text-gray-500 mt-1">0 = 직각, 9999 = 완전한 원형</p>
                     </div>`;
                 break;
 
@@ -1562,12 +1538,6 @@
                             <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
-                    </div>
-                    <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">라운드 (border-radius)</label>
-                        <input type="number" class="input-field" value="${block.borderRadius || 8}" min="0" max="100"
-                               onchange="updateBlockProperty('${block.id}', 'borderRadius', parseInt(this.value), true)" />
-                        <p class="text-xs text-gray-500 mt-1">0-100px (0 = 직각, 큰 값 = 둥근 모서리)</p>
                     </div>`;
                 break;
 
@@ -2019,7 +1989,6 @@
 
     const count = block.imageCount || 1;
     const images = block.images || [];
-    const imgBorderRadius = block.borderRadius !== undefined ? block.borderRadius : 8;
 
     if (count === 1) {
         // 단일 이미지
@@ -2031,12 +2000,12 @@
             `<a href="${landingUrl}"${target} style="display: block;">
                 <img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
                      alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                     style="width: 100%; border-radius: ${imgBorderRadius}px; box-shadow: none;"
+                     style="width: 100%; box-shadow: none;"
                      onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
             </a>` :
             `<img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
                  alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                 style="width: 100%; border-radius: ${imgBorderRadius}px; box-shadow: none;"
+                 style="width: 100%; box-shadow: none;"
                  onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />`;
 
         // 캡션이 비어있는지 체크 (텍스트 내용 추출)
@@ -2102,12 +2071,12 @@
                 `<a href="${landingUrl}"${target} style="display: block;">
                     <img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
                          alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                         style="width: 100%; border-radius: ${imgBorderRadius}px; box-shadow: none;"
+                         style="width: 100%; box-shadow: none;"
                          onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
                 </a>` :
                 `<img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
                      alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                     style="width: 100%; border-radius: ${imgBorderRadius}px; box-shadow: none;"
+                     style="width: 100%; box-shadow: none;"
                      onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
 
             imagesHTML += `
@@ -2176,12 +2145,11 @@
                 
             case 'button':
     const btnAlign = block.textAlign || 'center';
-    const btnRadius = block.borderRadius !== undefined ? block.borderRadius : 9999;
-    const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; border-radius:${btnRadius}px;`;
+    const btnStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'};`;
     contentHTML = `
         ${dragHandle}
         <div style="text-align: ${btnAlign}; padding: 16px 0;">
-            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
+            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 rounded-lg font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
                 ${block.text || '버튼 텍스트'}
             </span>
         </div>`;
@@ -2189,34 +2157,31 @@
                 
             case 'banner':
     const bannerAlign = block.textAlign || 'left';
-    const bannerRadius = block.borderRadius !== undefined ? block.borderRadius : 12;
-    const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign}; border-radius:${bannerRadius}px;`;
+    const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
     contentHTML = `
         ${dragHandle}
-        <div class="exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
+        <div class="rounded-lg exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
             <div class="banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</div>
             <div class="banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</div>
         </div>`;
     break;
                 
             case 'label':
-                const labelRadius = block.borderRadius !== undefined ? block.borderRadius : 9999;
-                const labelStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'}; border-radius:${labelRadius}px;`;
+                const labelStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
                 contentHTML = `
                     ${dragHandle}
                     <div class="flex items-center gap-2" style="margin: 0 0 12px 0;">
-                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block exported-font label-text">
+                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block rounded-full exported-font label-text">
                             ${block.text || '라벨'}
                         </span>
                     </div>`;
                 break;
                 
             case 'callout':
-                const calloutRadius = block.borderRadius !== undefined ? block.borderRadius : 8;
-                const calloutStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'}; border-radius:${calloutRadius}px;`;
+                const calloutStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
                 contentHTML = `
                     ${dragHandle}
-                    <div class="callout-box exported-font" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
+                    <div class="callout-box rounded-lg exported-font" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
                         <div class="callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px;">${block.title || '콜아웃 제목'}</div>
                         <div class="callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">${block.content || '콜아웃 내용입니다.'}</div>
                     </div>`;
@@ -2632,7 +2597,7 @@ const createNewBlock = (type, area) => {
                 type,
                 area,
                 imageCount: 1, // 1, 2, 3, 4 중 선택
-                borderRadius: 8, // border-radius 값 (px)
+                borderRadius: 0, // border-radius 값 (px)
                 images: [
                     {
                         url: 'https://placehold.co/600x400/6366f1/ffffff?text=Image+1',
@@ -2694,9 +2659,9 @@ const createNewBlock = (type, area) => {
         case 'spacer':
             return { id, type, area, height: 20 };
         case 'button':
-            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', textAlign: 'center', borderRadius: 9999, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
+            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', textAlign: 'center', borderRadius: 8, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         case 'banner':
-            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', borderRadius: 12, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
+            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', borderRadius: 8, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
         case 'label':
             return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C', borderRadius: 9999 };
         case 'callout':
@@ -2780,23 +2745,23 @@ let html = `
   .plg-cols { display: flex; gap: 30px; margin: 12px 0; }
   .plg-col { flex: 1; margin: 0; }
   .plg-btn-wrap { text-align: center; padding: 16px 0; }
-  .plg-btn { 
-    display: inline-block; 
-    padding: 14px 28px; 
-    border-radius: 9999px; 
-    font-weight: 700; 
-    text-align: center; 
+  .plg-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-align: center;
     width: 25%;
-    min-width: 150px; 
-    cursor: pointer; 
-    transition: opacity 0.2s; 
+    min-width: 150px;
+    cursor: pointer;
+    transition: opacity 0.2s;
   }
   .plg-btn:hover { opacity: 0.9; }
-  .plg-bnr { 
+  .plg-bnr {
     padding: 24px 24px;
-    border-radius: 12px; 
-    margin: 24px 0; 
-    cursor: pointer; 
+    border-radius: 8px;
+    margin: 24px 0;
+    cursor: pointer;
   }
   .plg-bnr-sub {
     font-size: 14px !important;
@@ -2820,7 +2785,7 @@ let html = `
   }
   .plg-box {
     padding: 28px;
-    border-radius: 12px;
+    border-radius: 8px;
     margin: 20px 0;
   }
   .plg-box-head {
@@ -3304,8 +3269,8 @@ let html = `
                         const hasSbImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
                         const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                         const sImgWrapper = hasSbImgUrl ?
-                            `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
-                            `<img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
+                            `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%;" /></a>` :
+                            `<img src="${img.url}" alt="${altText}" style="width: 100%;" />`;
                         html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                     } else {
                         // 2~4분할 이미지
@@ -3317,8 +3282,8 @@ let html = `
                             const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
 
                             const imgHTML = hasSbImgUrl ?
-                                `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
-                                `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
+                                `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%;" /></a>` :
+                                `<img src="${img.url || ''}" alt="${altText}" style="width: 100%;" />`;
 
                             imagesHTML += `\n          <div class="plg-img">${imgHTML}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                         }
