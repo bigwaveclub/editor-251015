@@ -382,6 +382,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
             </svg>
         </button>
+        <button onclick="editor.showLinkPicker()" title="하이퍼링크">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+        </button>
     </div>
     
     <!-- 컬러 피커 모달 -->
@@ -427,7 +432,49 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- 링크 피커 모달 -->
+    <div id="link-picker-modal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 transform transition-all opacity-0 scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">하이퍼링크 추가</h3>
+                <button onclick="closeLinkPicker()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">AOS</label>
+                    <input type="url" id="link-aos-input" class="input-field" placeholder="app100.publog.co.kr" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">iOS</label>
+                    <input type="url" id="link-ios-input" class="input-field" placeholder="app200.publog.co.kr" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">WEB</label>
+                    <input type="url" id="link-web-input" class="input-field" placeholder="www.publog.co.kr" />
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-600 mb-1">MO</label>
+                    <input type="url" id="link-mo-input" class="input-field" placeholder="m.publog.co.kr" />
+                </div>
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer mt-3">
+                        <input type="checkbox" id="link-new-tab-input" class="rounded" />
+                        <span class="text-sm font-medium">새 창으로 열기</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button class="btn btn-secondary" onclick="closeLinkPicker()">취소</button>
+                <button class="btn btn-primary" onclick="applyLink()">적용</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 도움말 모달 -->
     <div id="help-modal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 transform transition-all opacity-0 scale-95">
@@ -661,14 +708,38 @@
         
         showColorPicker: () => {
             if (!editor.currentSelection || editor.currentSelection.isCollapsed) return;
-            
+
             const selection = window.getSelection();
             const range = selection.getRangeAt(0).cloneRange();
             const textNode = editor.currentTextNode;
             editor.savedRange = range;
             editor.savedTextNode = textNode;
-            
+
             const modal = document.getElementById('color-picker-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('flex');
+                modal.querySelector('div').classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        },
+
+        showLinkPicker: () => {
+            if (!editor.currentSelection || editor.currentSelection.isCollapsed) return;
+
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0).cloneRange();
+            const textNode = editor.currentTextNode;
+            editor.savedRange = range;
+            editor.savedTextNode = textNode;
+
+            // Clear previous values
+            document.getElementById('link-aos-input').value = '';
+            document.getElementById('link-ios-input').value = '';
+            document.getElementById('link-web-input').value = '';
+            document.getElementById('link-mo-input').value = '';
+            document.getElementById('link-new-tab-input').checked = false;
+
+            const modal = document.getElementById('link-picker-modal');
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.add('flex');
@@ -896,6 +967,68 @@
     // 컬러 피커 닫기
     function closeColorPicker() {
         const modal = document.getElementById('color-picker-modal');
+        modal.querySelector('div').classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // 링크 적용
+    function applyLink() {
+        const urlAos = document.getElementById('link-aos-input').value;
+        const urlIos = document.getElementById('link-ios-input').value;
+        const urlWeb = document.getElementById('link-web-input').value;
+        const urlMo = document.getElementById('link-mo-input').value;
+        const openInNewTab = document.getElementById('link-new-tab-input').checked;
+
+        if (editor.savedRange && editor.savedTextNode) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(editor.savedRange);
+
+            // Create link element with platform-specific URLs
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'plg-link';
+            link.style.textDecoration = 'underline';
+            link.setAttribute('data-url-aos', urlAos);
+            link.setAttribute('data-url-ios', urlIos);
+            link.setAttribute('data-url-web', urlWeb);
+            link.setAttribute('data-url-mo', urlMo);
+            if (openInNewTab) {
+                link.setAttribute('target', '_blank');
+            }
+            link.textContent = editor.savedRange.toString();
+
+            editor.savedRange.deleteContents();
+            editor.savedRange.insertNode(link);
+
+            const container = editor.savedTextNode.closest('.block-container');
+            const blockId = container.getAttribute('data-id');
+            const isMain = canvas.contains(container);
+            const blockArray = isMain ? blocks : sidebarBlocks;
+            const block = blockArray.find(b => b.id === blockId);
+            if (block) {
+                // Check if the element has a data-field attribute (for toggle blocks)
+                const field = editor.savedTextNode.getAttribute('data-field');
+                if (field && block[field] !== undefined) {
+                    block[field] = editor.savedTextNode.innerHTML;
+                } else {
+                    block.content = editor.savedTextNode.innerHTML;
+                }
+                editor.saveState();
+            }
+
+            editor.savedRange = null;
+            editor.savedTextNode = null;
+        }
+        closeLinkPicker();
+    }
+
+    // 링크 피커 닫기
+    function closeLinkPicker() {
+        const modal = document.getElementById('link-picker-modal');
         modal.querySelector('div').classList.add('opacity-0', 'scale-95');
         setTimeout(() => {
             modal.classList.remove('flex');
@@ -2837,7 +2970,62 @@ let html = `
                                 case 'button':
                                     const btnAlign = colBlock.textAlign || 'center';
                                     const btnStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor};`;
-                                    columnBlocksHTML += `\n        <div style="text-align: ${btnAlign}; padding: 12px 0;"><span class="plg-btn" style="${btnStyle}; display: inline-block; padding: 12px 24px; border-radius: 9999px; font-weight: 700;">${colBlock.text}</span></div>`;
+                                    const btnTarget = (colBlock.openInNewTab ?? false) ? ' target="_blank"' : '';
+                                    const hasBtnUrl = colBlock.landingUrlAos || colBlock.landingUrlIos || colBlock.landingUrlWeb || colBlock.landingUrlMo || colBlock.landingUrl;
+                                    const btnElement = hasBtnUrl ?
+                                        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${colBlock.landingUrlAos || ''}" data-url-ios="${colBlock.landingUrlIos || ''}" data-url-web="${colBlock.landingUrlWeb || ''}" data-url-mo="${colBlock.landingUrlMo || ''}" data-url-default="${colBlock.landingUrl || ''}" style="${btnStyle}">${colBlock.text || '클릭하기'}</a>` :
+                                        `<span class="plg-btn" style="${btnStyle}">${colBlock.text || '클릭하기'}</span>`;
+                                    columnBlocksHTML += `\n        <div style="text-align: ${btnAlign}; padding: 12px 0;">${btnElement}</div>`;
+                                    break;
+                                case 'banner':
+                                    const bAlign = colBlock.textAlign || 'left';
+                                    const bStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor}; text-align: ${bAlign};`;
+                                    const bInner = `\n          <p class="plg-bnr-sub">${colBlock.subText || '서브 텍스트'}</p>\n          <p class="plg-bnr-txt">${colBlock.mainText || '메인 텍스트'}</p>`;
+                                    const hasBnrUrl = colBlock.landingUrlAos || colBlock.landingUrlIos || colBlock.landingUrlWeb || colBlock.landingUrlMo || colBlock.landingUrl;
+                                    if (hasBnrUrl) {
+                                        const bTarget = (colBlock.openInNewTab ?? false) ? ' target="_blank"' : '';
+                                        columnBlocksHTML += `\n        <a href="#" class="plg-link"${bTarget} data-url-aos="${colBlock.landingUrlAos || ''}" data-url-ios="${colBlock.landingUrlIos || ''}" data-url-web="${colBlock.landingUrlWeb || ''}" data-url-mo="${colBlock.landingUrlMo || ''}" data-url-default="${colBlock.landingUrl || ''}" style="display: block; text-decoration: none; margin: 12px 0;"><div class="plg-bnr" style="${bStyle}">${bInner}\n        </div></a>`;
+                                    } else {
+                                        columnBlocksHTML += `\n        <div class="plg-bnr" style="${bStyle}; margin: 12px 0;">${bInner}\n        </div>`;
+                                    }
+                                    break;
+                                case 'toggle':
+                                    const toggleId = `toggle-${colBlock.id.substring(0, 8)}`;
+                                    const openClass = colBlock.isOpen ? 'open' : 'closed';
+                                    const contentDisplay = colBlock.isOpen ? '' : ' closed';
+                                    columnBlocksHTML += `\n        <div class="plg-toggle" style="margin: 12px 0;">
+          <div class="plg-toggle-head" onclick="toggleContent('${toggleId}')">
+            <svg class="plg-toggle-icon ${openClass}" id="${toggleId}-icon" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M6 4l6 4-6 4V4z"/>
+            </svg>
+            <div class="plg-toggle-title">${normalizeRichText(colBlock.title)}</div>
+          </div>
+          <div class="plg-toggle-body${contentDisplay}" id="${toggleId}-content">
+            ${normalizeRichText(colBlock.content)}
+          </div>
+        </div>`;
+                                    break;
+                                case 'label':
+                                    const lblStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor};`;
+                                    columnBlocksHTML += `\n        <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${colBlock.text || '라벨'}</span></div>`;
+                                    break;
+                                case 'callout':
+                                    const coStyle = `background-color: ${colBlock.bgColor}; color: ${colBlock.textColor};`;
+                                    columnBlocksHTML += `\n        <div class="plg-box" style="${coStyle}; margin: 12px 0;">
+          <div class="plg-box-head">${colBlock.title || '콜아웃 제목'}</div>
+          <div class="plg-box-body">${colBlock.content || '콜아웃 내용'}</div>
+        </div>`;
+                                    break;
+                                case 'listitem':
+                                    const itemClass = colBlock.showBorder ? 'plg-item has-border' : 'plg-item no-border';
+                                    const itemTarget = (colBlock.openInNewTab ?? false) ? ' target="_blank"' : '';
+                                    const hasItemUrl = colBlock.landingUrlAos || colBlock.landingUrlIos || colBlock.landingUrlWeb || colBlock.landingUrlMo || colBlock.landingUrl;
+                                    const itemContent = `\n          <div class="plg-item-title">${normalizeRichText(colBlock.title || '카드 제목')}</div>\n          <div class="plg-item-sub">${normalizeRichText(colBlock.subtitle || '카드 소제목')}</div>`;
+                                    if (hasItemUrl) {
+                                        columnBlocksHTML += `\n        <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${colBlock.landingUrlAos || ''}" data-url-ios="${colBlock.landingUrlIos || ''}" data-url-web="${colBlock.landingUrlWeb || ''}" data-url-mo="${colBlock.landingUrlMo || ''}" data-url-default="${colBlock.landingUrl || ''}">${itemContent}\n        </a>`;
+                                    } else {
+                                        columnBlocksHTML += `\n        <div class="${itemClass}">${itemContent}\n        </div>`;
+                                    }
                                     break;
                                 default:
                                     // 기타 블록 타입
