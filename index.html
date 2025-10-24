@@ -586,7 +586,13 @@
                     const blockArray = isMain ? blocks : sidebarBlocks;
                     const block = blockArray.find(b => b.id === blockId);
                     if (block) {
-                        block.content = editor.currentTextNode.innerHTML;
+                        // Check if the element has a data-field attribute (for toggle blocks)
+                        const field = editor.currentTextNode.getAttribute('data-field');
+                        if (field && block[field] !== undefined) {
+                            block[field] = editor.currentTextNode.innerHTML;
+                        } else {
+                            block.content = editor.currentTextNode.innerHTML;
+                        }
                         editor.saveState();
                     }
                 }
@@ -624,25 +630,31 @@
             const range = selection.getRangeAt(0);
             const textNode = editor.currentTextNode;
             if (!textNode) return;
-            
+
             const selectedText = range.toString();
             const wrapper = document.createElement(tag);
             wrapper.style.fontSize = fontSize;
             wrapper.textContent = selectedText;
-            
+
             range.deleteContents();
             range.insertNode(wrapper);
-            
+
             const container = textNode.closest('.block-container');
             const blockId = container.getAttribute('data-id');
             const isMain = canvas.contains(container);
             const blockArray = isMain ? blocks : sidebarBlocks;
             const block = blockArray.find(b => b.id === blockId);
             if (block) {
-                block.content = textNode.innerHTML;
+                // Check if the element has a data-field attribute (for toggle blocks)
+                const field = textNode.getAttribute('data-field');
+                if (field && block[field] !== undefined) {
+                    block[field] = textNode.innerHTML;
+                } else {
+                    block.content = textNode.innerHTML;
+                }
                 editor.saveState();
             }
-            
+
             selection.removeAllRanges();
             textToolbar.classList.remove('show');
         },
@@ -858,17 +870,23 @@
             selection.removeAllRanges();
             selection.addRange(editor.savedRange);
             document.execCommand('foreColor', false, color);
-            
+
             const container = editor.savedTextNode.closest('.block-container');
             const blockId = container.getAttribute('data-id');
             const isMain = canvas.contains(container);
             const blockArray = isMain ? blocks : sidebarBlocks;
             const block = blockArray.find(b => b.id === blockId);
             if (block) {
-                block.content = editor.savedTextNode.innerHTML;
+                // Check if the element has a data-field attribute (for toggle blocks)
+                const field = editor.savedTextNode.getAttribute('data-field');
+                if (field && block[field] !== undefined) {
+                    block[field] = editor.savedTextNode.innerHTML;
+                } else {
+                    block.content = editor.savedTextNode.innerHTML;
+                }
                 editor.saveState();
             }
-            
+
             editor.savedRange = null;
             editor.savedTextNode = null;
         }
@@ -1393,14 +1411,7 @@
             case 'listitem':
     html += `
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">제목</label>
-            <input type="text" class="input-field" value="${block.title || '카드 제목'}"
-                   onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
-        </div>
-        <div class="property-section">
-            <label class="block text-sm font-medium mb-2">소제목</label>
-            <input type="text" class="input-field" value="${block.subtitle || '카드 소제목'}"
-                   onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
+            <p class="text-sm text-gray-600 mb-3">카드 제목과 소제목은 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
@@ -1408,22 +1419,22 @@
                 <div>
                     <label class="block text-xs text-gray-600 mb-1">AOS</label>
                     <input type="url" class="input-field" placeholder="app100.publog.co.kr" value="${block.landingUrlAos || ''}"
-                           onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlAos', this.value, ${block.area === 'main'})" />
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1">iOS</label>
                     <input type="url" class="input-field" placeholder="app200.publog.co.kr" value="${block.landingUrlIos || ''}"
-                           onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlIos', this.value, ${block.area === 'main'})" />
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1">WEB</label>
                     <input type="url" class="input-field" placeholder="www.publog.co.kr" value="${block.landingUrlWeb || ''}"
-                           onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlWeb', this.value, ${block.area === 'main'})" />
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1">MO</label>
                     <input type="url" class="input-field" placeholder="m.publog.co.kr" value="${block.landingUrlMo || ''}"
-                           onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'landingUrlMo', this.value, ${block.area === 'main'})" />
                 </div>
             </div>
         </div>
@@ -1431,7 +1442,7 @@
             <label class="flex items-center gap-2">
                 <label class="toggle-switch">
                     <input type="checkbox" ${block.showBorder ? 'checked' : ''}
-                           onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, ${block.area === 'main'})" />
                     <span class="toggle-slider"></span>
                 </label>
                 <span class="text-sm font-medium">외곽선 표시</span>
@@ -1441,7 +1452,7 @@
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
                     <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
-                           onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, false)" />
+                           onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, ${block.area === 'main'})" />
                     <span class="toggle-slider"></span>
                 </label>
                 <span class="text-sm font-medium">새 창으로 열기</span>
@@ -1770,10 +1781,10 @@
                     <svg class="toggle-icon" style="width: 14px; height: 14px; flex-shrink: 0; transition: transform 0.2s; margin-top: 5px; color: #6b7280;" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M6 4l6 4-6 4V4z"/>
                     </svg>
-                    <div contenteditable="true" class="text-block toggle-title exported-font" style="flex: 1; min-height: 1.5em; outline: none; font-size: 14px; font-weight: 400;">${block.title}</div>
+                    <div contenteditable="true" class="text-block toggle-title exported-font" data-field="title" style="flex: 1; min-height: 1.5em; outline: none; font-size: 14px; font-weight: 400;">${block.title}</div>
                 </div>
                 <div class="toggle-content" style="padding-left: 20px; margin-top: 2px;">
-                    <div contenteditable="true" class="text-block toggle-body exported-font" style="min-height: 1.5em; outline: none; font-size: 14px;">${block.content}</div>
+                    <div contenteditable="true" class="text-block toggle-body exported-font" data-field="content" style="min-height: 1.5em; outline: none; font-size: 14px;">${block.content}</div>
                 </div>
             </div>`;
         
@@ -2041,9 +2052,9 @@
     const padding = block.showBorder ? 'p-3' : 'py-3';
     contentHTML = `
         ${dragHandle}
-        <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
-            <div class="listitem-title text-sm font-semibold text-gray-900 mb-1">${block.title || '카드 제목'}</div>
-            <div class="listitem-subtitle text-xs text-gray-500">${block.subtitle || '카드 소제목'}</div>
+        <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition">
+            <div contenteditable="true" class="text-block listitem-title exported-font text-sm font-semibold text-gray-900 mb-1" data-field="title" style="outline: none; min-height: 1em;">${block.title || '카드 제목'}</div>
+            <div contenteditable="true" class="text-block listitem-subtitle exported-font text-xs text-gray-500" data-field="subtitle" style="outline: none; min-height: 1em;">${block.subtitle || '카드 소제목'}</div>
         </div>`;
     break;
         }
@@ -2967,7 +2978,7 @@ let html = `
             const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
             const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
             const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
-            const itemContent = `\n      <div class="plg-item-title">${block.title || '카드 제목'}</div>\n      <div class="plg-item-sub">${block.subtitle || '카드 소제목'}</div>`;
+            const itemContent = `\n      <div class="plg-item-title">${normalizeRichText(block.title || '카드 제목')}</div>\n      <div class="plg-item-sub">${normalizeRichText(block.subtitle || '카드 소제목')}</div>`;
             if (hasItemUrl) {
                 html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
             } else {
@@ -2987,6 +2998,50 @@ let html = `
             sidebarBlocks.forEach(block => {
                 if (block.type === 'text') {
                     html += `\n    <div style="margin: 8px 0 16px; font-size: 0.9375rem; line-height: 1.6;">${normalizeRichText(block.content)}</div>`;
+                } else if (block.type === 'button') {
+                    const btnAlign = block.textAlign || 'center';
+                    const btnStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+                    const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+                    const btnElement = hasBtnUrl ?
+                        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text || '클릭하기'}</a>` :
+                        `<span class="plg-btn" style="${btnStyle}">${block.text || '클릭하기'}</span>`;
+                    html += `\n    <div class="plg-btn-wrap" style="text-align: ${btnAlign}; margin: 12px 0;">${btnElement}</div>`;
+                } else if (block.type === 'banner') {
+                    const bAlign = block.textAlign || 'left';
+                    const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
+                    const bInner = `\n      <p class="plg-bnr-sub">${block.subText || '서브 텍스트'}</p>\n      <p class="plg-bnr-txt">${block.mainText || '메인 텍스트'}</p>`;
+                    const hasBnrUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+                    if (hasBnrUrl) {
+                        const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+                        html += `\n    <a href="#" class="plg-link"${bTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block; text-decoration: none; margin: 12px 0;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
+                    } else {
+                        html += `\n    <div class="plg-bnr" style="${bStyle}; margin: 12px 0;">${bInner}\n    </div>`;
+                    }
+                } else if (block.type === 'toggle') {
+                    const toggleId = `toggle-${block.id.substring(0, 8)}`;
+                    const openClass = block.isOpen ? 'open' : 'closed';
+                    const contentDisplay = block.isOpen ? '' : ' closed';
+                    html += `\n    <div class="plg-toggle" style="margin: 12px 0;">
+      <div class="plg-toggle-head" onclick="toggleContent('${toggleId}')">
+        <svg class="plg-toggle-icon ${openClass}" id="${toggleId}-icon" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M6 4l6 4-6 4V4z"/>
+        </svg>
+        <div class="plg-toggle-title">${normalizeRichText(block.title)}</div>
+      </div>
+      <div class="plg-toggle-body${contentDisplay}" id="${toggleId}-content">
+        ${normalizeRichText(block.content)}
+      </div>
+    </div>`;
+                } else if (block.type === 'label') {
+                    const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text || '라벨'}</span></div>`;
+                } else if (block.type === 'callout') {
+                    const coStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
+                    html += `\n    <div class="plg-box" style="${coStyle}; margin: 12px 0;">
+      <div class="plg-box-head">${block.title || '콜아웃 제목'}</div>
+      <div class="plg-box-body">${block.content || '콜아웃 내용'}</div>
+    </div>`;
                 } else if (block.type === 'image') {
                     // 하위 호환성 처리
                     if (block.isSplit && !block.imageCount) block.imageCount = 2;
@@ -3050,13 +3105,13 @@ let html = `
     if (hasListUrl) {
         const listTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
         html += `\n    <a href="#" class="plg-item plg-link${borderClass}"${listTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">
-  <div class="plg-item-title">${block.title}</div>
-  <div class="plg-item-sub">${block.subtitle}</div>
+  <div class="plg-item-title">${normalizeRichText(block.title)}</div>
+  <div class="plg-item-sub">${normalizeRichText(block.subtitle)}</div>
 </a>`;
     } else {
         html += `\n    <div class="plg-item${borderClass}">
-  <div class="plg-item-title">${block.title}</div>
-  <div class="plg-item-sub">${block.subtitle}</div>
+  <div class="plg-item-title">${normalizeRichText(block.title)}</div>
+  <div class="plg-item-sub">${normalizeRichText(block.subtitle)}</div>
 </div>`;
     }
 }
