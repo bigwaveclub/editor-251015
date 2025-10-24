@@ -166,9 +166,9 @@
             <!-- 블록 리스트 -->
             <div id="block-tools" class="flex-1 overflow-y-auto p-4">
 
-                <!-- 공통 블록 -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">공통 블록</h3>
+                <!-- 블록 -->
+                <div>
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">블록</h3>
                     <div draggable="true" data-type="text" class="block-item">
                         <div class="block-item-icon">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -193,6 +193,54 @@
                         </div>
                         <span class="text-sm font-medium">열 분할</span>
                     </div>
+                    <div draggable="true" data-type="button" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">버튼</span>
+                    </div>
+                    <div draggable="true" data-type="toggle" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">토글</span>
+                    </div>
+                    <div draggable="true" data-type="banner" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">배너</span>
+                    </div>
+                    <div draggable="true" data-type="label" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">라벨</span>
+                    </div>
+                    <div draggable="true" data-type="callout" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">콜아웃</span>
+                    </div>
+                    <div draggable="true" data-type="listitem" class="block-item">
+                        <div class="block-item-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium">카드</span>
+                    </div>
                     <div draggable="true" data-type="divider" class="block-item">
                         <div class="block-item-icon">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,64 +256,6 @@
                             </svg>
                         </div>
                         <span class="text-sm font-medium">공백</span>
-                    </div>
-                </div>
-                
-                <!-- 본문 전용 -->
-                <div class="mb-6">
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">본문 전용</h3>
-                    <div draggable="true" data-type="button" data-area="main" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">버튼</span>
-                    </div>
-                <div draggable="true" data-type="toggle" data-area="main" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">토글</span>
-                    </div>                  
-                    <div draggable="true" data-type="banner" data-area="main" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">배너</span>
-                    </div>
-                    <div draggable="true" data-type="label" data-area="main" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">라벨</span>
-                    </div>
-                    <div draggable="true" data-type="callout" data-area="main" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">콜아웃</span>
-                    </div>
-                </div>
-                
-                <!-- 리스트 전용 -->
-                <div>
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-3 px-2">리스트 전용</h3>
-                    <div draggable="true" data-type="listitem" data-area="sidebar" class="block-item">
-                        <div class="block-item-icon">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">리스트 아이템</span>
                     </div>
                 </div>
             </div>
@@ -695,7 +685,6 @@
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('publog_editor_data', JSON.stringify(data));
-            console.log('✅ 자동 저장:', new Date().toLocaleTimeString());
         } catch (err) {
             // localStorage 사용 불가 환경 - SecurityError는 무시
             if (err.name !== 'SecurityError') {
@@ -849,7 +838,6 @@
                     timestamp: new Date().toISOString()
                 };
                 localStorage.setItem('publog_editor_data', JSON.stringify(data));
-                console.log('🔄 자동 백업:', new Date().toLocaleTimeString());
             }
         } catch (err) {
             // localStorage 사용 불가 환경 - 조용히 무시
@@ -1008,7 +996,7 @@
             label: '라벨',
             callout: '콜아웃 박스',
             toggle: '토글 블록',
-            listitem: '리스트 아이템',
+            listitem: '카드',
             divider: '구분선',
             spacer: '공백'
         };
@@ -1188,7 +1176,7 @@
     html += `
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">버튼 텍스트</label>
-            <input type="text" class="input-field" value="${block.text || ''}"
+            <input type="text" class="input-field" value="${block.text || '클릭하기'}"
                    onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
         </div>
         <div class="property-section">
@@ -1255,7 +1243,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1267,14 +1255,14 @@
             case 'banner':
     html += `
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">메인 텍스트</label>
-            <input type="text" class="input-field" value="${block.mainText || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
+            <label class="block text-sm font-medium mb-2">서브 텍스트</label>
+            <input type="text" class="input-field" value="${block.subText || '서브 텍스트'}"
+                   onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
         </div>
         <div class="property-section">
-            <label class="block text-sm font-medium mb-2">서브 텍스트</label>
-            <input type="text" class="input-field" value="${block.subText || ''}"
-                   onchange="updateBlockProperty('${block.id}', 'subText', this.value, true)" />
+            <label class="block text-sm font-medium mb-2">메인 텍스트</label>
+            <input type="text" class="input-field" value="${block.mainText || '메인 텍스트'}"
+                   onchange="updateBlockProperty('${block.id}', 'mainText', this.value, true)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">텍스트 정렬</label>
@@ -1334,7 +1322,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, true)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1347,24 +1335,24 @@
                 html += `
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">라벨 텍스트</label>
-                        <input type="text" class="input-field" value="${block.text || ''}" 
+                        <input type="text" class="input-field" value="${block.text || '라벨'}"
                                onchange="updateBlockProperty('${block.id}', 'text', this.value, true)" />
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
                         </div>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">텍스트 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="color" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
                     </div>`;
@@ -1373,30 +1361,30 @@
             case 'callout':
                 html += `
                     <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">콜아웃 제목</label>
-                        <input type="text" class="input-field" value="${block.title || ''}" 
+                        <label class="block text-sm font-medium mb-2">제목</label>
+                        <input type="text" class="input-field" value="${block.title || '콜아웃 제목'}"
                                onchange="updateBlockProperty('${block.id}', 'title', this.value, true)" />
                     </div>
                     <div class="property-section">
-                        <label class="block text-sm font-medium mb-2">콜아웃 내용</label>
-                        <textarea class="input-field" rows="3" 
-                                  onchange="updateBlockProperty('${block.id}', 'content', this.value, true)">${block.content || ''}</textarea>
+                        <label class="block text-sm font-medium mb-2">내용</label>
+                        <textarea class="input-field" rows="3"
+                                  onchange="updateBlockProperty('${block.id}', 'content', this.value, true)">${block.content || '콜아웃 내용'}</textarea>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">배경 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="color" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}" 
+                            <input type="text" class="input-field uppercase" value="${block.bgColor || '#F5F5F5'}"
                                    onchange="updateBlockProperty('${block.id}', 'bgColor', this.value, true)" />
                         </div>
                     </div>
                     <div class="property-section">
                         <label class="block text-sm font-medium mb-2">텍스트 색상</label>
                         <div class="flex gap-2">
-                            <input type="color" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="color" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
-                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}" 
+                            <input type="text" class="input-field uppercase" value="${block.textColor || '#1C1C1C'}"
                                    onchange="updateBlockProperty('${block.id}', 'textColor', this.value, true)" />
                         </div>
                     </div>`;
@@ -1406,12 +1394,12 @@
     html += `
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">제목</label>
-            <input type="text" class="input-field" value="${block.title || ''}"
+            <input type="text" class="input-field" value="${block.title || '카드 제목'}"
                    onchange="updateBlockProperty('${block.id}', 'title', this.value, false)" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">소제목</label>
-            <input type="text" class="input-field" value="${block.subtitle || ''}"
+            <input type="text" class="input-field" value="${block.subtitle || '카드 소제목'}"
                    onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, false)" />
         </div>
         <div class="property-section">
@@ -1442,7 +1430,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.showBorder ? 'checked' : ''} 
+                    <input type="checkbox" ${block.showBorder ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'showBorder', this.checked, false)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -1452,7 +1440,7 @@
         <div class="property-section">
             <label class="flex items-center gap-2 cursor-pointer">
                 <label class="toggle-switch">
-                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''} 
+                    <input type="checkbox" ${block.openInNewTab ? 'checked' : ''}
                            onchange="updateBlockProperty('${block.id}', 'openInNewTab', this.checked, false)" />
                     <span class="toggle-slider"></span>
                 </label>
@@ -2010,7 +1998,7 @@
     contentHTML = `
         ${dragHandle}
         <div style="text-align: ${btnAlign}; padding: 16px 0;">
-            <span style="${btnStyle}" class="inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition" style="width: 25%; min-width: 150px;">
+            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
                 ${block.text || '버튼 텍스트'}
             </span>
         </div>`;
@@ -2021,9 +2009,9 @@
     const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
     contentHTML = `
         ${dragHandle}
-        <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
-            <p class="text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</p>
-            <p class="font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</p>
+        <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
+            <div class="banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</div>
+            <div class="banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</div>
         </div>`;
     break;
                 
@@ -2032,7 +2020,7 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="flex items-center gap-2" style="margin: 0 0 12px 0;">
-                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block rounded-full exported-font">
+                        <span style="${labelStyle}; padding: 4px 12px; font-size: 0.875em; font-weight: 500;" class="inline-block rounded-full exported-font label-text">
                             ${block.text || '라벨'}
                         </span>
                     </div>`;
@@ -2043,8 +2031,8 @@
                 contentHTML = `
                     ${dragHandle}
                     <div class="callout-box exported-font rounded-lg" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
-                        <div class="font-semibold" style="margin-bottom: 8px; font-size: 16px;">${block.title || '콜아웃 제목'}</div>
-                        <div class="opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">${block.content || '콜아웃 내용입니다.'}</div>
+                        <div class="callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px;">${block.title || '콜아웃 제목'}</div>
+                        <div class="callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">${block.content || '콜아웃 내용입니다.'}</div>
                     </div>`;
                 break;
                 
@@ -2054,13 +2042,46 @@
     contentHTML = `
         ${dragHandle}
         <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
-            <p class="text-sm font-semibold text-gray-900 mb-1">${block.title || '리스트 제목'}</p>
-            <p class="text-xs text-gray-500">${block.subtitle || '리스트 소제목'}</p>
+            <div class="listitem-title text-sm font-semibold text-gray-900 mb-1">${block.title || '카드 제목'}</div>
+            <div class="listitem-subtitle text-xs text-gray-500">${block.subtitle || '카드 소제목'}</div>
         </div>`;
     break;
         }
-        
+
         blockEl.innerHTML = contentHTML;
+
+        // contenteditable 요소에 이벤트 리스너 추가
+        blockEl.querySelectorAll('[contenteditable="true"][data-block-id]').forEach(editableEl => {
+            editableEl.addEventListener('input', (e) => {
+                const blockId = e.target.getAttribute('data-block-id');
+                const field = e.target.getAttribute('data-field');
+                const blockArray = isMain ? blocks : sidebarBlocks;
+                const result = findBlockRecursively(blockId, blockArray);
+                if (result && result.block && field) {
+                    result.block[field] = e.target.innerHTML;
+                    clearTimeout(result.block.saveTimer);
+                    result.block.saveTimer = setTimeout(editor.saveState, 1000);
+                }
+            });
+
+            // 텍스트 선택 시 툴바 표시
+            editableEl.addEventListener('mouseup', (e) => {
+                const selection = window.getSelection();
+                if (selection && !selection.isCollapsed) {
+                    editor.currentTextNode = e.target;
+                    editor.positionToolbar();
+                }
+            });
+
+            editableEl.addEventListener('keyup', (e) => {
+                const selection = window.getSelection();
+                if (selection && !selection.isCollapsed) {
+                    editor.currentTextNode = e.target;
+                    editor.positionToolbar();
+                }
+            });
+        });
+
         return blockEl;
     };
 
@@ -2231,7 +2252,7 @@
                     }
                 }
             } catch (err) {
-                console.log('Column drop error:', err);
+                console.error('Column drop error:', err);
             }
         });
     };
@@ -2240,10 +2261,8 @@
     document.querySelectorAll('.block-item').forEach(tool => {
         tool.addEventListener('dragstart', (e) => {
             const type = e.target.closest('.block-item').getAttribute('data-type');
-            const area = e.target.closest('.block-item').getAttribute('data-area');
             e.dataTransfer.setData('text/plain', JSON.stringify({
-                type: type,
-                area: area || 'both'
+                type: type
             }));
             e.dataTransfer.effectAllowed = 'copy';
         });
@@ -2285,7 +2304,7 @@ canvas.addEventListener('drop', (e) => {
     
     try {
         const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-        if (data && (data.area === 'main' || data.area === 'both')) {
+        if (data && data.type) {
             const newBlock = createNewBlock(data.type, 'main');
             
             // ✅ 드롭 위치 계산
@@ -2352,7 +2371,7 @@ sidebarCanvas.addEventListener('drop', (e) => {
     
     try {
         const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-        if (data && (data.area === 'sidebar' || data.area === 'both')) {
+        if (data && data.type) {
             const newBlock = createNewBlock(data.type, 'sidebar');
             
             // ✅ 드롭 위치 계산
@@ -2495,6 +2514,8 @@ const createNewBlock = (type, area) => {
             return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
         case 'callout':
             return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+        case 'listitem':
+            return { id, type, area, title: '카드 제목', subtitle: '카드 소제목', showBorder: true, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         default:
             return { id, type: 'text', area, content: '<p>알 수 없는 블록 타입</p>' };
     }
@@ -2535,43 +2556,43 @@ const createNewBlock = (type, area) => {
 let html = `
 <!-- PUBLOG Editor Export -->
 <style>
-  .plg-wrapper { 
-    max-width: ${wrapperMaxWidth}; 
-    margin: 0 auto; 
-    display: flex; 
-    gap: 0; 
-    align-items: flex-start; 
+  .plg-wrap {
+    max-width: ${wrapperMaxWidth};
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
     padding: 0; 16px;
     min-height: 100vh;
     justify-content: center;
   }
-  .plg-export { 
-    font-family: 'Montserrat', 'YoonGothicPro740', 'YoonGothicPro760', 'YoonGothicPro780', sans-serif; 
-    color: #1d1d1f; 
-    line-height: 1.6; 
-    flex: ${sidebarBlocks.length > 0 ? '1' : 'none'}; 
-    max-width: ${canvasWidth}px; 
+  .plg-main {
+    font-family: 'Montserrat', 'YoonGothicPro740', 'YoonGothicPro760', 'YoonGothicPro780', sans-serif;
+    color: #1d1d1f;
+    line-height: 1.6;
+    flex: ${sidebarBlocks.length > 0 ? '1' : 'none'};
+    max-width: ${canvasWidth}px;
     width: ${sidebarBlocks.length > 0 ? 'auto' : canvasWidth + 'px'};
-    padding: ${paddingTop}px 0px 40px; 
-    box-sizing: border-box; 
-    background: #fff; 
+    padding: ${paddingTop}px 0px 40px;
+    box-sizing: border-box;
+    background: #fff;
   }
-  .plg-export *, .plg-export *::before, .plg-export *::after { box-sizing: border-box; }
-  .plg-export a { text-decoration: none; }
-  .plg-export img { max-width: 100%; height: auto; display: block; }
-  .plg-export h1 { font-size: 28px; margin: 0 0 0.4em; line-height: 1.3; font-weight: 600; }
-  .plg-export h2 { font-size: 22px; margin: 0 0 0.4em; line-height: 1.35; font-weight: 600; }
-  .plg-export h3 { font-size: 18px; margin: 0.8em 0 0.4em; line-height: 1.4; font-weight: 600; }
-  .plg-export p { margin: 0.5em 0; line-height: 2.0; font-size: 16px; }
-  .plg-export b, .plg-export strong { font-weight: 700 !important; }
-  .plg-export i, .plg-export em { font-style: italic !important; }
-  .plg-export u { text-decoration: underline !important; }
-  .plg-image-split { display: flex; gap: 16px; margin: 20px 0; }
-  .plg-image-split-item { flex: 1; text-align: center; }
-  .plg-image-caption { font-size: 14px; color: #666; margin-top: 8px; }
-  .plg-columns { display: flex; gap: 30px; margin: 12px 0; }
-  .plg-column { flex: 1; margin: 0; }
-  .plg-btn-center { text-align: center; padding: 16px 0; }
+  .plg-main *, .plg-main *::before, .plg-main *::after { box-sizing: border-box; }
+  .plg-main a { text-decoration: none; }
+  .plg-main img { max-width: 100%; height: auto; display: block; }
+  .plg-main h1 { font-size: 28px; margin: 0 0 0.4em; line-height: 1.3; font-weight: 600; }
+  .plg-main h2 { font-size: 22px; margin: 0 0 0.4em; line-height: 1.35; font-weight: 600; }
+  .plg-main h3 { font-size: 18px; margin: 0.8em 0 0.4em; line-height: 1.4; font-weight: 600; }
+  .plg-main p { margin: 0.5em 0; line-height: 2.0; font-size: 16px; }
+  .plg-main b, .plg-main strong { font-weight: 700 !important; }
+  .plg-main i, .plg-main em { font-style: italic !important; }
+  .plg-main u { text-decoration: underline !important; }
+  .plg-imgs { display: flex; gap: 16px; margin: 20px 0; }
+  .plg-img { flex: 1; text-align: center; }
+  .plg-cap { font-size: 14px; color: #666; margin-top: 8px; }
+  .plg-cols { display: flex; gap: 30px; margin: 12px 0; }
+  .plg-col { flex: 1; margin: 0; }
+  .plg-btn-wrap { text-align: center; padding: 16px 0; }
   .plg-btn { 
     display: inline-block; 
     padding: 14px 28px; 
@@ -2590,46 +2611,46 @@ let html = `
     margin: 24px 0; 
     cursor: pointer; 
   }
-  .plg-bnr-sub { 
-    font-size: 14px !important;  /* ✅ 0.95em → 14px */
-    opacity: 0.8; 
+  .plg-bnr-sub {
+    font-size: 14px !important;
+    opacity: 0.8;
     margin: 0 0 8px 0 !important;
     line-height: 1.4 !important;
   }
-  .plg-bnr-main { 
-    font-size: 18px !important;  /* ✅ 1.15em → 18px */
-    font-weight: 700; 
+  .plg-bnr-txt {
+    font-size: 18px !important;
+    font-weight: 700;
     margin: 0 !important;
     line-height: 1.3 !important;
   }
-  .plg-label { 
-    display: inline-block; 
-    padding: 4px 12px; 
-    border-radius: 9999px; 
-    font-size: 0.875em; 
-    font-weight: 500; 
+  .plg-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.875em;
+    font-weight: 500;
     margin: 10px 0 0 0;
   }
-  .plg-callout { 
-    padding: 28px;  /* ✅ 20px → 28px */
-    border-radius: 12px; 
-    margin: 20px 0; 
+  .plg-box {
+    padding: 28px;
+    border-radius: 12px;
+    margin: 20px 0;
   }
-  .plg-callout-title { 
-      font-weight: 600; 
-      margin-bottom: 8px;  /* ✅ 4px → 8px */
-      font-size: 16px;  /* ✅ 추가 */
+  .plg-box-head {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
   }
-  .plg-callout-content { 
-      opacity: 0.9; 
-      font-size: 16px;  /* ✅ 추가 */
-      line-height: 1.8;  /* ✅ 1.5 → 1.8 */
-      white-space: pre-wrap;
+  .plg-box-body {
+    opacity: 0.9;
+    font-size: 16px;
+    line-height: 1.8;
+    white-space: pre-wrap;
   }
-   .plg-toggle {
+  .plg-toggle {
     margin: 8px 0;
   }
-  .plg-toggle-header {
+  .plg-toggle-head {
     padding: 6px 0;
     cursor: pointer;
     display: flex;
@@ -2638,7 +2659,7 @@ let html = `
     user-select: none;
     transition: opacity 0.2s;
   }
-  .plg-toggle-header:hover {
+  .plg-toggle-head:hover {
     opacity: 0.7;
   }
   .plg-toggle-icon {
@@ -2660,23 +2681,23 @@ let html = `
     font-weight: 400;
     line-height: 1.6;
   }
-  .plg-toggle-content {
+  .plg-toggle-body {
     padding-left: 20px;
     margin-top: 2px;
     overflow: hidden;
     transition: all 0.2s ease;
     font-size: 14px;
   }
-  .plg-toggle-content.closed {
+  .plg-toggle-body.closed {
     max-height: 0;
     margin-top: 0;
     opacity: 0;
   }
-  .plg-toggle-content p {
+  .plg-toggle-body p {
     margin: 0;
     line-height: 1.6;
   }
-  .plg-toggle-content p + p {
+  .plg-toggle-body p + p {
     margin-top: 8px;
   }
   .plg-divider-vertical { 
@@ -2689,76 +2710,76 @@ let html = `
   }
   .plg-divider-vertical > div { width: 1px; background: #e5e7eb; height: 100%; }
   .plg-divider-horizontal { display: none; }
-  .plg-sidebar { 
-    width: 200px;  
-    padding: ${paddingTop}px 0px 40px; 
-    box-sizing: border-box; 
-    position: sticky; 
-    top: 0; 
-    align-self: flex-start; 
-    max-height: 100vh; 
-    overflow-y: auto; 
+  .plg-side {
+    width: 200px;
+    padding: ${paddingTop}px 0px 40px;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    max-height: 100vh;
+    overflow-y: auto;
   }
-  .plg-list-item { 
-    background: #fff; 
-    padding: 14px 12px; 
-    border-radius: 8px; 
-    margin-bottom: 8px; 
-    transition: all 0.2s; 
-    display: block; 
-    text-decoration: none; 
+  .plg-item {
+    background: #fff;
+    padding: 14px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    display: block;
+    text-decoration: none;
   }
-  .plg-list-item.has-border { border: 1px solid #e5e7eb; }
-  .plg-list-item.no-border { padding: 13px 0; background: transparent; }
-  .plg-list-item:hover .plg-list-title { color: #6366f1; }
-  .plg-list-title { 
-    font-size: 0.9rem; 
-    font-weight: 600; 
-    color: #374151; 
-    margin-bottom: 4px; 
-    line-height: 1.3; 
-    transition: color 0.2s; 
+  .plg-item.has-border { border: 1px solid #e5e7eb; }
+  .plg-item.no-border { padding: 13px 0; background: transparent; }
+  .plg-item:hover .plg-item-title { color: #6366f1; }
+  .plg-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    transition: color 0.2s;
   }
-  .plg-list-subtitle { 
-    font-size: 0.8rem; 
-    color: #9ca3af; 
-    line-height: 1.4; 
+  .plg-item-sub {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    line-height: 1.4;
   }
-  
+
   @media (max-width: 1024px) {
-  .plg-wrapper { flex-direction: column; max-width: 100%; padding: 0; }
+  .plg-wrap { flex-direction: column; max-width: 100%; padding: 0; }
   .plg-divider-vertical { display: none; }
-  .plg-divider-horizontal { 
-    display: flex; 
-    width: 100%; 
-    padding: 32px 0; 
-    align-items: center; 
-    justify-content: center; 
+  .plg-divider-horizontal {
+    display: flex;
+    width: 100%;
+    padding: 32px 0;
+    align-items: center;
+    justify-content: center;
   }
-  .plg-divider-horizontal > div { 
-    width: 100%; 
-    height: 1px; 
-    background: #e5e7eb; 
+  .plg-divider-horizontal > div {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
   }
-  .plg-sidebar { 
-    position: static; 
-    width: 100%; 
-    padding: 0 24px 40px; 
+  .plg-side {
+    position: static;
+    width: 100%;
+    padding: 0 24px 40px;
   }
-  .plg-export {
+  .plg-main {
     max-width: 100%;
     width: 100%;
     padding: ${paddingTop}px 24px 40px;
   }
-  .plg-image-split, .plg-columns {
+  .plg-imgs, .plg-cols {
     flex-direction: column;
     gap: 12px;
   }
 }
 </style>
-<div class="plg-wrapper">
-  <section class="plg-export">`;
-        
+<div class="plg-wrap">
+  <section class="plg-main">`;
+
         blocks.forEach(block => {
             switch(block.type) {
                 case 'text':
@@ -2787,7 +2808,7 @@ let html = `
                                     const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                                     const captionAlign = img.textAlign || 'center';
                                     const imgWrapper = hasImgUrl ?
-                                        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                                        `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
                 <img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />
             </a>` :
                                         `<img src="${img.url || colBlock.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0;" />`;
@@ -2813,10 +2834,10 @@ let html = `
                             }
                         });
 
-                        columnsHTML += `\n      <div class="plg-column" style="flex: 1;">${columnBlocksHTML || '<div style="min-height: 20px;"></div>'}</div>`;
+                        columnsHTML += `\n      <div class="plg-col" style="flex: 1;">${columnBlocksHTML || '<div style="min-height: 20px;"></div>'}</div>`;
                     }
 
-                    html += `\n    <div class="plg-columns">${columnsHTML}
+                    html += `\n    <div class="plg-cols">${columnsHTML}
     </div>`;
                     break;
                 case 'toggle':
@@ -2825,13 +2846,13 @@ let html = `
             const contentDisplay = block.isOpen ? '' : ' closed';
             
             html += `\n    <div class="plg-toggle">
-      <div class="plg-toggle-header" onclick="toggleContent('${toggleId}')">
+      <div class="plg-toggle-head" onclick="toggleContent('${toggleId}')">
         <svg class="plg-toggle-icon ${openClass}" id="${toggleId}-icon" fill="currentColor" viewBox="0 0 16 16">
           <path d="M6 4l6 4-6 4V4z"/>
         </svg>
         <div class="plg-toggle-title">${normalizeRichText(block.title)}</div>
       </div>
-      <div class="plg-toggle-content${contentDisplay}" id="${toggleId}-content">
+      <div class="plg-toggle-body${contentDisplay}" id="${toggleId}-content">
         ${normalizeRichText(block.content)}
       </div>
     </div>`;
@@ -2867,14 +2888,14 @@ let html = `
                 const hasImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
                 const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                 const imgWrapper = hasImgUrl ?
-                    `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                    `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
                         <img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />
                     </a>` :
                     `<img src="${img.url}" alt="${altText}" style="border-radius: 0; box-shadow: none;" />`;
                 const captionAlign = img.textAlign || 'center';
                 html += `\n    <div style="margin: 20px 0; text-align: center;">
                     ${imgWrapper}
-                    ${img.caption ? `<div class="plg-image-caption" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
+                    ${img.caption ? `<div class="plg-cap" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
                 </div>`;
             } else {
                 // 2~4분할 이미지
@@ -2886,20 +2907,20 @@ let html = `
                     const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
 
                     const imgHTML = hasImgUrl ?
-                        `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
+                        `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}" style="display: block;">
                             <img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />
                         </a>` :
                         `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 0; box-shadow: none;" />`;
 
                     const captionAlign = img.textAlign || 'center';
                     imagesHTML += `
-              <div class="plg-image-split-item">
+              <div class="plg-img">
                 ${imgHTML}
-                ${img.caption ? `<div class="plg-image-caption" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
+                ${img.caption ? `<div class="plg-cap" style="text-align: ${captionAlign};">${normalizeRichText(img.caption)}</div>` : ''}
               </div>`;
                 }
 
-                html += `\n    <div class="plg-image-split">${imagesHTML}
+                html += `\n    <div class="plg-imgs">${imagesHTML}
             </div>`;
             }
             break;
@@ -2915,42 +2936,52 @@ let html = `
     const btnTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
     const hasBtnUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     const btnElement = hasBtnUrl ?
-        `<a href="#" class="plg-btn plg-device-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text}</a>` :
-        `<span class="plg-btn" style="${btnStyle}">${block.text}</span>`;
-    html += `\n    <div class="plg-btn-center" style="text-align: ${btnAlign};">${btnElement}</div>`;
+        `<a href="#" class="plg-btn plg-link"${btnTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="${btnStyle}">${block.text || '클릭하기'}</a>` :
+        `<span class="plg-btn" style="${btnStyle}">${block.text || '클릭하기'}</span>`;
+    html += `\n    <div class="plg-btn-wrap" style="text-align: ${btnAlign};">${btnElement}</div>`;
     break;
                  case 'banner':
     const bAlign = block.textAlign || 'left';
     const bStyle = `background-color: ${block.bgColor}; color: ${block.textColor}; text-align: ${bAlign};`;
-    const bInner = `\n      <p class="plg-bnr-sub">${block.subText}</p>\n      <p class="plg-bnr-main">${block.mainText}</p>`;
+    const bInner = `\n      <p class="plg-bnr-sub">${block.subText || '서브 텍스트'}</p>\n      <p class="plg-bnr-txt">${block.mainText || '메인 텍스트'}</p>`;
     const hasBnrUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     if (hasBnrUrl) {
         const bTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-        html += `\n    <a href="#" class="plg-device-link"${bTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
+        html += `\n    <a href="#" class="plg-link"${bTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}" style="display: block; text-decoration: none;"><div class="plg-bnr" style="${bStyle}">${bInner}\n    </div></a>`;
     } else {
         html += `\n    <div class="plg-bnr" style="${bStyle}">${bInner}\n    </div>`;
     }
     break;
                 case 'label':
-                    case 'label':
                     const lblStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text}</span></div>`;
+                    html += `\n    <div style="margin: 0 0 12px 0;"><span class="plg-label" style="${lblStyle}">${block.text || '라벨'}</span></div>`;
                     break;
                 case 'callout':
             const coStyle = `background-color: ${block.bgColor}; color: ${block.textColor};`;
-            html += `\n    <div class="plg-callout" style="${coStyle}">
-              <div class="plg-callout-title">${block.title}</div>
-              <div class="plg-callout-content">${block.content}</div>
+            html += `\n    <div class="plg-box" style="${coStyle}">
+              <div class="plg-box-head">${block.title || '콜아웃 제목'}</div>
+              <div class="plg-box-body">${block.content || '콜아웃 내용'}</div>
             </div>`;
+            break;
+                case 'listitem':
+            const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
+            const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
+            const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
+            const itemContent = `\n      <div class="plg-item-title">${block.title || '카드 제목'}</div>\n      <div class="plg-item-sub">${block.subtitle || '카드 소제목'}</div>`;
+            if (hasItemUrl) {
+                html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
+            } else {
+                html += `\n    <div class="${itemClass}">${itemContent}\n    </div>`;
+            }
             break;
             }
         });
-        
+
         html += `\n  </section>`;
         
         if (sidebarBlocks.length > 0) {
             html += `\n  <div class="plg-divider plg-divider-vertical"><div></div></div>`;
-            html += `\n  <aside class="plg-sidebar">`;
+            html += `\n  <aside class="plg-side">`;
             html += `\n    <div class="plg-divider plg-divider-horizontal"><div></div></div>`;
             
             sidebarBlocks.forEach(block => {
@@ -2987,7 +3018,7 @@ let html = `
                         const hasSbImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
                         const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                         const sImgWrapper = hasSbImgUrl ?
-                            `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
+                            `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
                             `<img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
                         html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                     } else {
@@ -3000,13 +3031,13 @@ let html = `
                             const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
 
                             const imgHTML = hasSbImgUrl ?
-                                `<a href="#" class="plg-device-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
+                                `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
                                 `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
 
-                            imagesHTML += `\n          <div class="plg-image-split-item">${imgHTML}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
+                            imagesHTML += `\n          <div class="plg-img">${imgHTML}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                         }
 
-                        html += `\n    <div class="plg-image-split" style="margin: 12px 0;">${imagesHTML}
+                        html += `\n    <div class="plg-imgs" style="margin: 12px 0;">${imagesHTML}
         </div>`;
                     }
                 } else if (block.type === 'divider') {
@@ -3018,14 +3049,14 @@ let html = `
     const hasListUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
     if (hasListUrl) {
         const listTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
-        html += `\n    <a href="#" class="plg-list-item plg-device-link${borderClass}"${listTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">
-  <div class="plg-list-title">${block.title}</div>
-  <div class="plg-list-subtitle">${block.subtitle}</div>
+        html += `\n    <a href="#" class="plg-item plg-link${borderClass}"${listTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">
+  <div class="plg-item-title">${block.title}</div>
+  <div class="plg-item-sub">${block.subtitle}</div>
 </a>`;
     } else {
-        html += `\n    <div class="plg-list-item${borderClass}">
-  <div class="plg-list-title">${block.title}</div>
-  <div class="plg-list-subtitle">${block.subtitle}</div>
+        html += `\n    <div class="plg-item${borderClass}">
+  <div class="plg-item-title">${block.title}</div>
+  <div class="plg-item-sub">${block.subtitle}</div>
 </div>`;
     }
 }
@@ -3070,7 +3101,7 @@ function toggleContent(id) {
   }
 
   // 모든 디바이스 링크에 적절한 URL 설정
-  var links = document.querySelectorAll('.plg-device-link');
+  var links = document.querySelectorAll('.plg-link');
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     var url = link.getAttribute('data-url-' + device) || link.getAttribute('data-url-default') || '';
@@ -3092,7 +3123,7 @@ function toggleContent(id) {
 <script>
 (function() {
   function enableSticky() {
-    var sidebar = document.querySelector('.plg-sidebar');
+    var sidebar = document.querySelector('.plg-side');
     if (sidebar) {
       var parent = sidebar.parentElement;
       while (parent && parent !== document.body) {
