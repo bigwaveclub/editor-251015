@@ -1508,7 +1508,7 @@
                         </div>
                     </div>`;
                 break;
-                
+
             case 'callout':
                 html += `
                     <div class="property-section">
@@ -1540,11 +1540,18 @@
                         </div>
                     </div>`;
                 break;
-                
+
             case 'listitem':
     html += `
         <div class="property-section">
-            <p class="text-sm text-gray-600 mb-3">카드 제목과 소제목은 직접 편집할 수 있습니다. 텍스트를 선택하면 서식 툴바가 나타납니다.</p>
+            <label class="block text-sm font-medium mb-2">제목 (14px)</label>
+            <input type="text" class="input-field" value="${block.title || '카드 제목'}"
+                   onchange="updateBlockProperty('${block.id}', 'title', this.value, ${block.area === 'main'})" />
+        </div>
+        <div class="property-section">
+            <label class="block text-sm font-medium mb-2">소제목 (12px)</label>
+            <input type="text" class="input-field" value="${block.subtitle || '카드 소제목'}"
+                   onchange="updateBlockProperty('${block.id}', 'subtitle', this.value, ${block.area === 'main'})" />
         </div>
         <div class="property-section">
             <label class="block text-sm font-medium mb-2">랜딩 URL</label>
@@ -1993,12 +2000,12 @@
             `<a href="${landingUrl}"${target} style="display: block;">
                 <img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
                      alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                     style="width: 100%; border-radius: 0; box-shadow: none;"
+                     style="width: 100%; box-shadow: none;"
                      onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />
             </a>` :
             `<img src="${img.url || 'https://placehold.co/600x400/e5e5e5/999999?text=Image'}"
                  alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                 style="width: 100%; border-radius: 0; box-shadow: none;"
+                 style="width: 100%; box-shadow: none;"
                  onerror="this.src='https://placehold.co/600x400/e5e5e5/999999?text=Image+Error'" />`;
 
         // 캡션이 비어있는지 체크 (텍스트 내용 추출)
@@ -2064,12 +2071,12 @@
                 `<a href="${landingUrl}"${target} style="display: block;">
                     <img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
                          alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                         style="width: 100%; border-radius: 0; box-shadow: none;"
+                         style="width: 100%; box-shadow: none;"
                          onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />
                 </a>` :
                 `<img src="${img.url || `https://placehold.co/300x400/e5e5e5/999999?text=Image+${i+1}`}"
                      alt="${(img.caption || '').replace(/<[^>]*>/g, '')}"
-                     style="width: 100%; border-radius: 0; box-shadow: none;"
+                     style="width: 100%; box-shadow: none;"
                      onerror="this.src='https://placehold.co/300x400/e5e5e5/999999?text=Image+Error'" />`;
 
             imagesHTML += `
@@ -2142,7 +2149,7 @@
     contentHTML = `
         ${dragHandle}
         <div style="text-align: ${btnAlign}; padding: 16px 0;">
-            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 rounded-full font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
+            <span style="${btnStyle}" class="button-text inline-block px-6 py-3 rounded-lg font-semibold text-center exported-font cursor-pointer hover:opacity-90 transition">
                 ${block.text || '버튼 텍스트'}
             </span>
         </div>`;
@@ -2153,7 +2160,7 @@
     const bannerStyle = `background-color:${block.bgColor || '#6366f1'}; color:${block.textColor || '#ffffff'}; text-align:${bannerAlign};`;
     contentHTML = `
         ${dragHandle}
-        <div class="rounded-xl exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
+        <div class="rounded-lg exported-font cursor-pointer hover:opacity-95 transition banner-container" style="${bannerStyle}; padding: 18px 24px; margin: 24px 0;">
             <div class="banner-subtext text-sm opacity-80" style="margin: 0 0 8px 0; font-size: 14px;">${block.subText || '서브 텍스트'}</div>
             <div class="banner-maintext font-bold" style="margin: 0; font-size: 18px; font-weight: 700;">${block.mainText || '메인 텍스트'}</div>
         </div>`;
@@ -2174,7 +2181,7 @@
                 const calloutStyle = `background-color:${block.bgColor || '#F5F5F5'}; color:${block.textColor || '#1C1C1C'};`;
                 contentHTML = `
                     ${dragHandle}
-                    <div class="callout-box exported-font rounded-lg" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
+                    <div class="callout-box rounded-lg exported-font" style="${calloutStyle}; padding: 28px; margin: 20px 0;">
                         <div class="callout-title font-semibold" style="margin-bottom: 8px; font-size: 16px;">${block.title || '콜아웃 제목'}</div>
                         <div class="callout-content opacity-90" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">${block.content || '콜아웃 내용입니다.'}</div>
                     </div>`;
@@ -2185,9 +2192,9 @@
     const padding = block.showBorder ? 'p-3' : 'py-3';
     contentHTML = `
         ${dragHandle}
-        <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition">
-            <div contenteditable="true" class="text-block listitem-title exported-font text-sm font-semibold text-gray-900 mb-1" data-field="title" style="outline: none; min-height: 1em;">${block.title || '카드 제목'}</div>
-            <div contenteditable="true" class="text-block listitem-subtitle exported-font text-xs text-gray-500" data-field="subtitle" style="outline: none; min-height: 1em;">${block.subtitle || '카드 소제목'}</div>
+        <div class="list-item-block ${borderClass} ${padding} rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
+            <div class="listitem-title exported-font mb-1" style="font-size: 14px; font-weight: 600; color: #111827;">${block.title || '카드 제목'}</div>
+            <div class="listitem-subtitle exported-font" style="font-size: 12px; color: #6b7280;">${block.subtitle || '카드 소제목'}</div>
         </div>`;
     break;
         }
@@ -2590,6 +2597,7 @@ const createNewBlock = (type, area) => {
                 type,
                 area,
                 imageCount: 1, // 1, 2, 3, 4 중 선택
+                borderRadius: 0, // border-radius 값 (px)
                 images: [
                     {
                         url: 'https://placehold.co/600x400/6366f1/ffffff?text=Image+1',
@@ -2651,13 +2659,13 @@ const createNewBlock = (type, area) => {
         case 'spacer':
             return { id, type, area, height: 20 };
         case 'button':
-            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', textAlign: 'center', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
+            return { id, type, area, text: '클릭하기', bgColor: '#6366f1', textColor: '#ffffff', textAlign: 'center', borderRadius: 8, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         case 'banner':
-            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
+            return { id, type, area, mainText: '배너 타이틀', subText: '배너 서브타이틀', bgColor: '#6366f1', textColor: '#ffffff', borderRadius: 8, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', textAlign: 'left', openInNewTab: false };
         case 'label':
-            return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+            return { id, type, area, text: '새 라벨', bgColor: '#F5F5F5', textColor: '#1C1C1C', borderRadius: 9999 };
         case 'callout':
-            return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C' };
+            return { id, type, area, title: '💡 참고', content: '중요한 정보를 입력하세요.', bgColor: '#F5F5F5', textColor: '#1C1C1C', borderRadius: 8 };
         case 'listitem':
             return { id, type, area, title: '카드 제목', subtitle: '카드 소제목', showBorder: true, landingUrl: '', landingUrlAos: '', landingUrlIos: '', landingUrlWeb: '', landingUrlMo: '', openInNewTab: false };
         default:
@@ -2737,23 +2745,23 @@ let html = `
   .plg-cols { display: flex; gap: 30px; margin: 12px 0; }
   .plg-col { flex: 1; margin: 0; }
   .plg-btn-wrap { text-align: center; padding: 16px 0; }
-  .plg-btn { 
-    display: inline-block; 
-    padding: 14px 28px; 
-    border-radius: 9999px; 
-    font-weight: 700; 
-    text-align: center; 
+  .plg-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-align: center;
     width: 25%;
-    min-width: 150px; 
-    cursor: pointer; 
-    transition: opacity 0.2s; 
+    min-width: 150px;
+    cursor: pointer;
+    transition: opacity 0.2s;
   }
   .plg-btn:hover { opacity: 0.9; }
-  .plg-bnr { 
+  .plg-bnr {
     padding: 24px 24px;
-    border-radius: 12px; 
-    margin: 24px 0; 
-    cursor: pointer; 
+    border-radius: 8px;
+    margin: 24px 0;
+    cursor: pointer;
   }
   .plg-bnr-sub {
     font-size: 14px !important;
@@ -2777,7 +2785,7 @@ let html = `
   }
   .plg-box {
     padding: 28px;
-    border-radius: 12px;
+    border-radius: 8px;
     margin: 20px 0;
   }
   .plg-box-head {
@@ -3020,7 +3028,7 @@ let html = `
                                     const itemClass = colBlock.showBorder ? 'plg-item has-border' : 'plg-item no-border';
                                     const itemTarget = (colBlock.openInNewTab ?? false) ? ' target="_blank"' : '';
                                     const hasItemUrl = colBlock.landingUrlAos || colBlock.landingUrlIos || colBlock.landingUrlWeb || colBlock.landingUrlMo || colBlock.landingUrl;
-                                    const itemContent = `\n          <div class="plg-item-title">${normalizeRichText(colBlock.title || '카드 제목')}</div>\n          <div class="plg-item-sub">${normalizeRichText(colBlock.subtitle || '카드 소제목')}</div>`;
+                                    const itemContent = `\n          <div class="plg-item-title">${colBlock.title || '카드 제목'}</div>\n          <div class="plg-item-sub">${colBlock.subtitle || '카드 소제목'}</div>`;
                                     if (hasItemUrl) {
                                         columnBlocksHTML += `\n        <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${colBlock.landingUrlAos || ''}" data-url-ios="${colBlock.landingUrlIos || ''}" data-url-web="${colBlock.landingUrlWeb || ''}" data-url-mo="${colBlock.landingUrlMo || ''}" data-url-default="${colBlock.landingUrl || ''}">${itemContent}\n        </a>`;
                                     } else {
@@ -3166,7 +3174,7 @@ let html = `
             const itemClass = block.showBorder ? 'plg-item has-border' : 'plg-item no-border';
             const itemTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
             const hasItemUrl = block.landingUrlAos || block.landingUrlIos || block.landingUrlWeb || block.landingUrlMo || block.landingUrl;
-            const itemContent = `\n      <div class="plg-item-title">${normalizeRichText(block.title || '카드 제목')}</div>\n      <div class="plg-item-sub">${normalizeRichText(block.subtitle || '카드 소제목')}</div>`;
+            const itemContent = `\n      <div class="plg-item-title">${block.title || '카드 제목'}</div>\n      <div class="plg-item-sub">${block.subtitle || '카드 소제목'}</div>`;
             if (hasItemUrl) {
                 html += `\n    <a href="#" class="${itemClass} plg-link"${itemTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">${itemContent}\n    </a>`;
             } else {
@@ -3261,8 +3269,8 @@ let html = `
                         const hasSbImgUrl = img.landingUrlAos || img.landingUrlIos || img.landingUrlWeb || img.landingUrlMo || img.landingUrl;
                         const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
                         const sImgWrapper = hasSbImgUrl ?
-                            `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
-                            `<img src="${img.url}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
+                            `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url}" alt="${altText}" style="width: 100%;" /></a>` :
+                            `<img src="${img.url}" alt="${altText}" style="width: 100%;" />`;
                         html += `\n    <div style="margin: 12px 0;">${sImgWrapper}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                     } else {
                         // 2~4분할 이미지
@@ -3274,8 +3282,8 @@ let html = `
                             const altText = img.caption ? (img.caption.replace(/<[^>]*>/g, '').trim() || '') : '';
 
                             const imgHTML = hasSbImgUrl ?
-                                `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" /></a>` :
-                                `<img src="${img.url || ''}" alt="${altText}" style="width: 100%; border-radius: 8px;" />`;
+                                `<a href="#" class="plg-link"${imgTarget} data-url-aos="${img.landingUrlAos || ''}" data-url-ios="${img.landingUrlIos || ''}" data-url-web="${img.landingUrlWeb || ''}" data-url-mo="${img.landingUrlMo || ''}" data-url-default="${img.landingUrl || ''}"><img src="${img.url || ''}" alt="${altText}" style="width: 100%;" /></a>` :
+                                `<img src="${img.url || ''}" alt="${altText}" style="width: 100%;" />`;
 
                             imagesHTML += `\n          <div class="plg-img">${imgHTML}${img.caption ? `<div style="font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center;">${normalizeRichText(img.caption)}</div>` : ''}</div>`;
                         }
@@ -3293,13 +3301,13 @@ let html = `
     if (hasListUrl) {
         const listTarget = (block.openInNewTab ?? false) ? ' target="_blank"' : '';
         html += `\n    <a href="#" class="plg-item plg-link${borderClass}"${listTarget} data-url-aos="${block.landingUrlAos || ''}" data-url-ios="${block.landingUrlIos || ''}" data-url-web="${block.landingUrlWeb || ''}" data-url-mo="${block.landingUrlMo || ''}" data-url-default="${block.landingUrl || ''}">
-  <div class="plg-item-title">${normalizeRichText(block.title)}</div>
-  <div class="plg-item-sub">${normalizeRichText(block.subtitle)}</div>
+  <div class="plg-item-title">${block.title}</div>
+  <div class="plg-item-sub">${block.subtitle}</div>
 </a>`;
     } else {
         html += `\n    <div class="plg-item${borderClass}">
-  <div class="plg-item-title">${normalizeRichText(block.title)}</div>
-  <div class="plg-item-sub">${normalizeRichText(block.subtitle)}</div>
+  <div class="plg-item-title">${block.title}</div>
+  <div class="plg-item-sub">${block.subtitle}</div>
 </div>`;
     }
 }
